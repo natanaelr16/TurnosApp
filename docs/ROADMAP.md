@@ -34,6 +34,10 @@ Marcar `[x]` al completar. Cada fase termina con `/verificar` en verde y `ESTADO
 - [ ] Resumen de pago (F6)
 - [ ] `/revision-ui` aprobada
 
+## Fase 3.5 — Extras inspirados en la planilla real
+- [ ] Novedades por día: Descanso, Permiso, Vacaciones, Incapacidad
+- [ ] Vista "planilla" + cuadro "Detalle de liquidación" (concepto, factor, horas, valor)
+
 ## Fase 4 — Pulido y publicación
 - [ ] Aviso legal inicial, borrar datos, política de privacidad
 - [ ] Ícono y splash definitivos

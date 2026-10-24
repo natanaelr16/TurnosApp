@@ -54,22 +54,29 @@ La franja se evalúa **minuto a minuto** según la hora real de cada minuto trab
 | 2027-07-01 | 100 % |
 
 ### 4.1 Cómo se paga cada minuto (valores vigentes a oct-2026)
-`VH` = valor hora ordinaria. Las horas **ordinarias** ya están pagadas por el salario, así que solo
-generan el **recargo**. Las horas **extra** no están en el salario, así que se pagan completas (100 % + %).
+`VH` = valor hora ordinaria. Las horas **ordinarias de lunes a sábado** ya están pagadas por el salario,
+así que solo generan el **recargo** nocturno. Las horas **extra** no están en el salario: se pagan
+completas (100 % + %). El **trabajo en domingo/festivo** también se paga completo (100 % + recargo
+dominical), porque el salario mensual solo remunera ese día como *descanso*: el Art. 179 ordena el
+recargo "sin perjuicio del salario ordinario" (D-013; verificado contra una planilla real de nómina).
 
 | Tipo de minuto | Se paga adicional al salario | Factor sobre VH |
 |---|---|---|
 | Ordinario diurno (lun–sáb, no festivo) | nada | 0 |
 | Ordinario nocturno | recargo nocturno | 0,35 |
-| Ordinario diurno dominical/festivo | recargo dominical | 0,90 |
-| Ordinario nocturno dominical/festivo | nocturno + dominical | 1,25 |
+| Ordinario diurno dominical/festivo | hora + dominical | 1,90 |
+| Ordinario nocturno dominical/festivo | hora + dominical + nocturno | 2,25 |
 | Extra diurna | hora + 25 % | 1,25 |
 | Extra nocturna | hora + 75 % | 1,75 |
 | Extra diurna dominical/festiva | hora + 25 % + dominical | 2,15 |
 | Extra nocturna dominical/festiva | hora + 75 % + dominical | 2,65 |
 
-Regla de composición: `factor = (esExtra ? 1 + %extra(diurna|nocturna) : %nocturno si es noche)
-+ (esDominicalOFestivo ? %dominical : 0)`. Todos los % son configurables por el usuario (D-005).
+Regla de composición: `factor = (esExtra || (esDominicalOFestivo && pagoFestivo = 'completa') ? 1 : 0)
++ (esExtra ? %extra(diurna|nocturna) : esNoche ? %nocturno : 0) + (esDominicalOFestivo ? %dominical : 0)`.
+
+**Opción `pagoFestivo`** (configurable, por defecto `'completa'`): `'solo-recargo'` paga las horas
+ordinarias dominicales/festivas solo con el recargo (0,90 / 1,25). Es para quien recibe un día de
+descanso compensatorio remunerado por ese domingo (Arts. 180–181 CST). Todos los % son configurables (D-005).
 
 ### 4.2 Qué es dominical/festivo
 Se decide por la **fecha calendario de cada minuto** (un turno sáb 18:00 → dom 06:00 tiene 6 h de

@@ -5,6 +5,17 @@ Formato: fecha, objetivo, qué se hizo, verificación ejecutada, pendientes.
 
 ---
 
+## 2026-10-24 — Validación contra planilla real y corrección del pago dominical
+- **Objetivo:** comparar el motor con 3 reportes reales de nómina del usuario (jul, sep, oct 2026).
+- **Hecho:**
+  - Coinciden: valor hora (salario ÷ 210), nocturno desde 19:00, extras después de 8 h, factores 1,25/0,35/1,75/2,15/2,65.
+  - **Error encontrado:** horas ordinarias dominicales/festivas se pagaban 0,90/1,25; la planilla y el Art. 179
+    ("sin perjuicio del salario ordinario") indican 1,90/2,25. Corregido (D-013) con opción `solo-recargo`.
+  - Pruebas nuevas con cifras exactas de la planilla. PRD: opción en onboarding/ajustes, tabla de factores,
+    futuras novedades (permiso, descanso…) y vista "planilla" (Fase 3.5).
+- **Verificación:** `npm test` → 56/56 ✅; `tsc` sin errores nuevos (solo el conocido de la plantilla).
+- **Pendientes:** confirmar almacenamiento local; Fase 2.
+
 ## 2026-10-24 — Fase 1: motor de cálculo
 - **Objetivo:** implementar y probar el cálculo legal de turnos y nómina.
 - **Hecho:**

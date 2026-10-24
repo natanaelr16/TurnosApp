@@ -9,13 +9,16 @@
 ## Qué existe hoy
 - Proyecto Expo SDK 58 (Expo Router, TypeScript estricto). Pantallas aún de la plantilla.
 - Documentación en `docs/` y configuración de agentes Devin (`AGENTS.md`, `.devin/`).
-- **Motor de cálculo** en `src/domain/` (TypeScript puro), 50 pruebas en verde:
+- **Motor de cálculo** en `src/domain/` (TypeScript puro), 56 pruebas en verde, **validado contra la
+  planilla real de nómina del usuario** (valores exactos: 362.612, 238.560, 95.424, 224.777…):
   - `holidays.ts` festivos de Colombia · `legal-params.ts` parámetros por fecha/año, FSP, tabla de retención
   - `shift-calc.ts` `computeShifts()` minuto a minuto (diurno/nocturno, dominical/festivo, extras por
     8 h/día o 42 h/semana), avisos de 2 h/día y 12 h/semana, `validateShifts()`
   - `payroll.ts` `periodFor()`, `computePeriod()` (básico, recargos, extras, auxilio opcional, salud,
     pensión, FSP, retención estimada), `withholdingMonthly()`
 - Usuario confirmó: 8 h ordinarias/día (resto extra), cálculo según hora real de entrada y salida.
+- D-013: horas ordinarias en domingo/festivo = hora + recargo (1,90 / 2,25), configurable a "solo recargo".
+- Requisito: todo debe ser configurable por cada usuario (salario, auxilio, jornada, factores, pago festivo).
 
 ## En curso
 - Nada.

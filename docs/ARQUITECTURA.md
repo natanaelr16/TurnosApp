@@ -32,6 +32,7 @@ fuera de sí mismo. `data` puede importar tipos de `domain`.
 - `Shift { id, start: 'YYYY-MM-DDTHH:mm', end: 'YYYY-MM-DDTHH:mm', note?, createdAt, updatedAt }`
 - `Settings { baseSalary, monthlyDivisor?, dailyLimitHours, weeklyLimitHours, payPeriod: 'quincenal'|'mensual',
   overrides: { nightPct?, sundayPct?, extraDayPct?, extraNightPct? },
+  holidayOrdinaryPay?: 'completa' | 'solo-recargo',
   transportAllowance: { enabled: boolean, amount?: number /* por defecto el legal del año */ },
   monthlyDeductions?, onboardingCompletedAt?: string, legalNoticeAcceptedAt?: string }`
 - Si no existe `Settings` u `onboardingCompletedAt` está vacío, `src/app/_layout.tsx` redirige a

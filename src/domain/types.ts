@@ -28,6 +28,8 @@ export interface Settings {
   weeklyLimitHours: number;
   payPeriod: PayPeriodType;
   overrides?: RateOverrides;
+  /** Horas ordinarias en domingo/festivo: hora + recargo (por defecto) o solo recargo (D-013). */
+  holidayOrdinaryPay?: 'completa' | 'solo-recargo';
   /** Interruptor manual (D-009). `amount` por defecto: el legal del año. */
   transportAllowance: { enabled: boolean; amount?: number };
   /** Deducciones mensuales para retención (dependientes, vivienda, etc.). */

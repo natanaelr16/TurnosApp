@@ -33,9 +33,10 @@ export function effectiveRates(date: LocalDate, settings: Settings): LegalRates 
 }
 
 /** Factor sobre el valor hora que se paga adicional al salario (REGLAS_LEGALES §4.1). */
-function factorFor(isExtra: boolean, isNight: boolean, isHoliday: boolean, r: LegalRates): number {
-  const base = isExtra ? 1 + (isNight ? r.extraNightPct : r.extraDayPct) / 100 : isNight ? r.nightPct / 100 : 0;
-  return base + (isHoliday ? r.sundayPct / 100 : 0);
+function factorFor(isExtra: boolean, isNight: boolean, isHoliday: boolean, r: LegalRates, settings: Settings): number {
+  const fullHour = isExtra || (isHoliday && settings.holidayOrdinaryPay !== 'solo-recargo') ? 1 : 0;
+  const pct = isExtra ? (isNight ? r.extraNightPct : r.extraDayPct) : isNight ? r.nightPct : 0;
+  return fullHour + (pct + (isHoliday ? r.sundayPct : 0)) / 100;
 }
 
 function categoryOf(isExtra: boolean, isNight: boolean, isHoliday: boolean): MinuteCategory {
@@ -92,7 +93,7 @@ export function computeShifts(shifts: Shift[], settings: Settings): ShiftResult[
       }
       const category = categoryOf(isExtra, isNight, holiday);
       minutes[category] += 1;
-      rawAmounts[category] += (hourValue * factorFor(isExtra, isNight, holiday, rates)) / 60;
+      rawAmounts[category] += (hourValue * factorFor(isExtra, isNight, holiday, rates, settings)) / 60;
     }
 
     const amounts = emptyByCategory();

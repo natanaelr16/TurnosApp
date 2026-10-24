@@ -42,17 +42,25 @@ describe('cálculo de un turno (REGLAS_LEGALES §3–4)', () => {
     expect(r.minutes.ordinaryNightHoliday).toBe(120); // dom 00–02
     expect(r.minutes.extraNightHoliday).toBe(240); // dom 02–06
     expect(r.amounts.ordinaryNight).toBe(25_000); // 5 × 0,35
-    expect(r.amounts.ordinaryNightHoliday).toBe(35_714); // 2 × (0,35 + 0,90)
+    expect(r.amounts.ordinaryNightHoliday).toBe(64_286); // 2 × (1 + 0,90 + 0,35) = 2 × 2,25
     expect(r.amounts.extraNightHoliday).toBe(151_429); // 4 × (1,75 + 0,90)
-    expect(r.total).toBe(212_143);
+    expect(r.total).toBe(240_715);
   });
 
   test('festivo (lunes 2 nov 2026) 06–18', () => {
     const r = one(shift('2026-11-02T06:00', '2026-11-02T18:00'));
     expect(r.minutes.ordinaryDayHoliday).toBe(480);
     expect(r.minutes.extraDayHoliday).toBe(240);
-    expect(r.amounts.ordinaryDayHoliday).toBe(102_857); // 8 × 0,90
+    expect(r.amounts.ordinaryDayHoliday).toBe(217_143); // 8 × 1,90
     expect(r.amounts.extraDayHoliday).toBe(122_857); // 4 × (1,25 + 0,90)
+  });
+
+  test('opción solo-recargo para horas ordinarias dominicales (D-013)', () => {
+    const cfg: Settings = { ...settings, holidayOrdinaryPay: 'solo-recargo' };
+    expect(one(shift('2026-11-02T06:00', '2026-11-02T14:00'), cfg).amounts.ordinaryDayHoliday).toBe(102_857); // 8 × 0,90
+    const noche = one(shift('2026-10-24T18:00', '2026-10-25T06:00'), cfg);
+    expect(noche.amounts.ordinaryNightHoliday).toBe(35_714); // 2 × 1,25
+    expect(noche.amounts.extraNightHoliday).toBe(151_429); // las extras no cambian
   });
 
   test('turno corto de 4 h diurno entre semana: sin recargos', () => {
@@ -77,9 +85,9 @@ describe('cálculo de un turno (REGLAS_LEGALES §3–4)', () => {
   });
 
   test('recargo dominical 80 % antes del 2026-07-01 y 90 % después', () => {
-    expect(one(shift('2026-06-28T06:00', '2026-06-28T14:00')).amounts.ordinaryDayHoliday).toBe(87_273);
-    expect(one(shift('2026-07-05T06:00', '2026-07-05T14:00')).amounts.ordinaryDayHoliday).toBe(98_182);
-    expect(one(shift('2026-07-19T06:00', '2026-07-19T14:00')).amounts.ordinaryDayHoliday).toBe(102_857);
+    expect(one(shift('2026-06-28T06:00', '2026-06-28T14:00')).amounts.ordinaryDayHoliday).toBe(196_364); // 8 × 1,80 ÷ 220
+    expect(one(shift('2026-07-05T06:00', '2026-07-05T14:00')).amounts.ordinaryDayHoliday).toBe(207_273); // 8 × 1,90 ÷ 220
+    expect(one(shift('2026-07-19T06:00', '2026-07-19T14:00')).amounts.ordinaryDayHoliday).toBe(217_143); // 8 × 1,90 ÷ 210
   });
 
   test('turno que cruza un cambio de vigencia: 24 dic 2025 (noche 21:00) → 25 dic festivo (noche 19:00, dominical 80 %)', () => {
@@ -88,7 +96,7 @@ describe('cálculo de un turno (REGLAS_LEGALES §3–4)', () => {
     expect(r.minutes.ordinaryNight).toBe(180); // 21–24
     expect(r.minutes.ordinaryNightHoliday).toBe(120); // 00–02 del 25
     expect(r.amounts.ordinaryNight).toBe(14_318); // 3 × 0,35 × 3.000.000/220
-    expect(r.amounts.ordinaryNightHoliday).toBe(31_364); // 2 × (0,35 + 0,80) × 3.000.000/220
+    expect(r.amounts.ordinaryNightHoliday).toBe(58_636); // 2 × (1 + 0,80 + 0,35) × 3.000.000/220
   });
 
   test('divisor de la fecha de inicio para todo el turno (D-011): 14 → 15 jul 2026', () => {
@@ -116,6 +124,49 @@ describe('cálculo de un turno (REGLAS_LEGALES §3–4)', () => {
   test('aviso al superar 2 h extra diarias', () => {
     expect(one(shift('2026-10-19T06:00', '2026-10-19T18:00')).warnings).toContain('EXTRA_DIARIO_EXCEDIDO');
     expect(one(shift('2026-10-19T06:00', '2026-10-19T16:00')).warnings).toEqual([]);
+  });
+});
+
+// Cifras de una planilla real de nómina del usuario (salario 4.453.128 → VH 21.205).
+describe('coincide con planilla real de nómina', () => {
+  const real: Settings = { ...settings, baseSalary: 4_453_128 };
+  const sum = (rs: ReturnType<typeof computeShifts>, c: keyof (typeof rs)[0]['amounts']) =>
+    rs.reduce((s, r) => s + r.amounts[c], 0);
+
+  test('valor hora 21.205', () => {
+    expect(Math.round(one(shift('2026-09-01T06:00', '2026-09-01T07:00'), real).hourValue)).toBe(21_205);
+  });
+
+  test('1–15 sep 2026: dominical 9 h = 362.612 y nocturno festivo 5 h = 238.560', () => {
+    const r = computeShifts([
+      shift('2026-09-06T06:00', '2026-09-06T14:00'), // domingo
+      shift('2026-09-13T18:00', '2026-09-14T06:00'), // domingo → lunes
+    ], real);
+    expect(sum(r, 'ordinaryDayHoliday')).toBe(362_612);
+    expect(sum(r, 'ordinaryNightHoliday')).toBe(238_560);
+    expect(r[1].minutes.ordinaryNight).toBe(120); // lunes 00–02
+    expect(r[1].minutes.extraNight).toBe(240); // lunes 02–06
+  });
+
+  test('15–31 jul 2026: sábado 18 → domingo 06 = 95.424 + 224.777', () => {
+    const r = one(shift('2026-07-18T18:00', '2026-07-19T06:00'), real);
+    expect(r.amounts.ordinaryNightHoliday).toBe(95_424); // 2 h × 2,25
+    expect(r.amounts.extraNightHoliday).toBe(224_777); // 4 h × 2,65
+  });
+
+  test('extras y recargos entre semana: factores 1,25 / 0,35 / 1,75', () => {
+    const r = computeShifts([
+      shift('2026-09-01T06:00', '2026-09-01T18:00'),
+      shift('2026-09-03T18:00', '2026-09-04T06:00'),
+    ], real);
+    expect(sum(r, 'extraDay')).toBe(106_027); // 4 h × 1,25 (planilla: 12 h = 318.081)
+    expect(sum(r, 'ordinaryNight')).toBe(51_953); // 7 h × 0,35
+    expect(sum(r, 'extraNight')).toBe(148_438); // 4 h × 1,75 (planilla: 20 h = 742.188)
+  });
+
+  test('turno 14:00–21:00: 5 h diurnas y 2 h nocturnas (desde las 19:00)', () => {
+    const r = one(shift('2026-10-08T14:00', '2026-10-08T21:00'), real);
+    expect([r.minutes.ordinaryDay, r.minutes.ordinaryNight]).toEqual([300, 120]);
   });
 });
 
