@@ -5,6 +5,18 @@ Formato: fecha, objetivo, qué se hizo, verificación ejecutada, pendientes.
 
 ---
 
+## 2026-10-24 — Cierre: repo en GitHub y ajuste de consumo de tokens
+- **Objetivo:** publicar el proyecto en GitHub y optimizar el consumo de créditos de Devin.
+- **Hecho:**
+  - `gh auth login` completado por el usuario (navegador, tras confusión token vs. código one-time).
+  - Repo creado y subido desde el editor: `origin` = https://github.com/natanaelr16/TurnosApp.git,
+    `main` remota en `ad0880b` = local. Verificado con `git ls-remote`.
+  - Config global `~/.config/devin/config.json`: `agent.model: adaptive` (enruta barato/potente
+    según la tarea) y `agent.subagent_model: swe` (subagentes baratos).
+  - Usuario pidió probar en simulador **iPhone Pro Max (18)** con compatibilidad global → tarea en ROADMAP.
+- **Verificación:** `git status` limpio; `ls-remote` confirma sync.
+- **Pendientes:** crear el simulador Pro Max y arrancar Fase 3 (onboarding F0).
+
 ## 2026-10-24 — Fase 2: datos y estructura de la app
 - **Objetivo:** base de datos local, navegación, tema y quitar la plantilla.
 - **Hecho:**

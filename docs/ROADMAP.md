@@ -6,7 +6,7 @@ Marcar `[x]` al completar. Cada fase termina con `/verificar` en verde y `ESTADO
 - [x] Proyecto Expo SDK 58 creado
 - [x] Documentación base (PRD, reglas legales, arquitectura, diseño, cumplimiento)
 - [x] Agentes, skills y hooks de Devin
-- [ ] Repositorio en GitHub (requiere `gh auth login` del usuario)
+- [x] Repositorio en GitHub (https://github.com/natanaelr16/TurnosApp, `main` sincronizada)
 
 ## Fase 1 — Motor de cálculo (`src/domain/`)
 - [x] Configurar Jest (`jest-expo`) y script `npm test`
@@ -25,6 +25,7 @@ Marcar `[x]` al completar. Cada fase termina con `/verificar` en verde y `ESTADO
 - [ ] Futuro: historial de salarios (hoy todo el historial se recalcula con el salario actual)
 
 ## Fase 3 — Funcionalidades MVP
+- [ ] Crear simulador iPhone Pro Max (18) y probar la app en pantallas grandes (pedido del usuario 2026-10-24)
 - [ ] Onboarding guiado al primer uso: aviso legal, salario, auxilio de transporte Sí/No, periodo, jornada, plantillas (F0)
 - [ ] Ajustes (F1)
 - [ ] Crear/editar/eliminar turno + plantillas (F2)
