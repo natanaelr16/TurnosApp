@@ -100,9 +100,16 @@ Máximo **2 h extra diarias y 12 semanales**. La app **no bloquea**; muestra un 
 - **Recargos + extras:** suma de los turnos cuya fecha de inicio cae en el periodo.
 - **Auxilio de transporte:** se suma **solo si el usuario lo activó** en la configuración (D-009), con el
   valor que configuró (por defecto el legal vigente); quincenal = auxilio ÷ 2. **No** es base de aportes
-  (salud, pensión, FSP) ni de retención. Referencia legal: aplica a quien devenga hasta 2 SMMLV
+  (salud, pensión, FSP), pero **sí** integra la base de retención en la fuente: la DIAN sostiene que todo
+  pago laboral, sea o no factor salarial, es gravable salvo exención expresa (Conceptos DIAN 39293 de 2003,
+  30392 de 2003 y 32320 de 1999; Art. 206 ET). Referencia: aplica a quien devenga hasta 2 SMMLV
   (Ley 15 de 1959), dato que la app usa solo como ayuda informativa.
-- **IBC (base de aportes)** = básico + recargos + extras (sin auxilio). Mínimo 1 SMMLV mensual.
+- **IBC (base de aportes)** = básico + recargos + extras (sin auxilio). Mínimo 1 SMMLV mensual; en
+  liquidación quincenal el piso es ½ SMMLV por quincena (equivalente mensual).
+- **Valor hora de un turno:** se usa el divisor vigente en la **fecha de inicio** del turno para todo el
+  turno (el divisor es mensual, no por minuto). Los porcentajes y la franja nocturna sí se evalúan con la
+  fecha de cada minuto (D-011).
+- **Años sin parámetros cargados:** se usan los del último año conocido y la UI debe avisarlo.
 
 ## 7. Descuentos al trabajador
 - **Salud:** 4 % del IBC. **Pensión:** 4 % del IBC.
@@ -124,7 +131,7 @@ Máximo **2 h extra diarias y 12 semanales**. La app **no bloquea**; muestra un 
   > `/actualizar-normativa` antes de esa fecha para confirmar.
 
 - **Retención en la fuente — procedimiento 1 (Arts. 383, 387, 388 y 206-10 ET), ESTIMADO, mensual:**
-  1. Ingreso laboral = IBC del mes (pagos salariales).
+  1. Ingreso laboral = básico + recargos + extras + auxilio de transporte del mes (todos los pagos laborales).
   2. − Ingresos no constitutivos de renta: salud + pensión + FSP del trabajador.
   3. = Subtotal. − Deducciones declaradas por el usuario (opcional, por defecto 0).
   4. Renta exenta 25 % del resultado, con tope 790 UVT anuales (≈ 65,83 UVT/mes).

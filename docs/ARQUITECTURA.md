@@ -49,8 +49,11 @@ así un cambio de salario o de porcentaje se refleja en todo el historial.
 ## Comandos
 ```bash
 npx expo start          # servidor de desarrollo (i = iOS, a = Android)
-npm test                # pruebas (Jest)
-npx expo lint           # lint
-npx tsc --noEmit        # verificación de tipos
+npm test                # pruebas (Jest, una pasada) · npm run test:watch (modo vigilancia)
+npx expo lint           # lint (ESLint 9, eslint.config.js)
+npm run typecheck       # verificación de tipos (tsc --noEmit)
 npx expo-doctor         # salud del proyecto
 ```
+
+Notas: las pruebas se nombran `*-test.ts` (convención de `jest-expo`). `expo-env.d.ts` lo genera
+`npx expo start` y está en `.gitignore`.
