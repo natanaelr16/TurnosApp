@@ -11,14 +11,31 @@ que quiere verificar su liquidación de nómina.
 
 ## Funcionalidades (MVP)
 
+### F0. Configuración inicial guiada (onboarding)
+Se muestra al abrir la app por primera vez (y si no hay configuración guardada). No se puede
+registrar turnos sin completarla. Pasos, uno por pantalla, con barra de progreso y botón "Atrás":
+1. **Bienvenida + aviso legal:** qué hace la app y aceptar que los valores son estimados.
+2. **Salario base mensual** (obligatorio, solo números, formato `$ 1.234.567`). Muestra en vivo el valor
+   hora ordinaria resultante (salario ÷ divisor vigente).
+3. **¿Recibes auxilio de transporte?** Sí / No (obligatorio, sin valor preseleccionado).
+   - Si "Sí": valor editable, por defecto el legal vigente ($249.095 en 2026).
+   - Ayuda contextual (informativa, no bloquea): si salario ≤ 2 SMMLV → "Por ley normalmente tienes
+     derecho"; si salario > 2 SMMLV → "Por ley normalmente no aplica, pero puedes activarlo si tu empresa lo paga".
+4. **Periodo de pago:** quincenal / mensual.
+5. **Jornada:** límite diario de horas ordinarias (por defecto 8) y semanal (por defecto 42).
+6. **Turnos frecuentes:** sugerir plantillas "Día 06:00–18:00" y "Noche 18:00–06:00" (marcar/desmarcar, se pueden crear después).
+7. **Resumen:** muestra todo lo elegido, permite editar cualquier paso y "Empezar".
+
+Pasos 4–6 tienen valores por defecto y botón "Omitir". Todo se puede cambiar después en Ajustes (F1).
+
 ### F1. Configuración
 - Salario base mensual (manual).
+- Auxilio de transporte: interruptor **Sí/No manual** (el usuario decide; nunca se activa solo) y valor editable.
 - Divisor de horas mensuales (por defecto según la ley vigente: 210 desde 15-jul-2026). Muestra el valor hora resultante.
 - Límite diario y semanal de horas ordinarias (por defecto 8 h y 42 h).
 - Factores/porcentajes editables: recargo nocturno, recargo dominical/festivo, extra diurna, extra nocturna
   (valores legales por defecto según la fecha, con botón "restaurar valores de ley").
 - Periodo de pago: quincenal o mensual.
-- Si recibe auxilio de transporte (automático si salario ≤ 2 SMMLV, editable).
 
 ### F2. Registro de turnos
 - Crear, editar y eliminar un turno con fecha/hora de entrada y fecha/hora de salida.
@@ -42,7 +59,7 @@ que quiere verificar su liquidación de nómina.
 - Totales del periodo.
 
 ### F6. Resumen de pago (quincena/mes)
-- Salario básico del periodo + recargos + extras + auxilio de transporte = total devengado.
+- Salario básico del periodo + recargos + extras + auxilio de transporte (solo si está activado) = total devengado.
 - Descuentos: salud 4 %, pensión 4 %, Fondo de Solidaridad Pensional (si aplica),
   retención en la fuente (procedimiento 1, **estimado**).
 - Neto estimado a recibir, con aviso: *"Valores aproximados; pueden diferir de tu liquidación oficial."*

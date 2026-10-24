@@ -18,6 +18,11 @@
 ## Siguiente paso
 1. Fase 1: instalar Jest (`npx expo install jest-expo jest @types/jest --dev`) y construir el motor de cálculo en `src/domain/` siguiendo `REGLAS_LEGALES.md`, con pruebas primero.
 
+## Requisitos agregados recientemente
+- Auxilio de transporte = interruptor manual Sí/No con valor editable; el usuario NO lo tiene incluido (D-009).
+- Onboarding guiado obligatorio al primer uso (PRD F0, D-010). Se construye en Fase 3; el motor
+  (Fase 1) debe recibir `transportAllowance.enabled/amount` desde la configuración.
+
 ## Decisiones pendientes con el usuario
 - Confirmar el límite diario de horas ordinarias de su contrato (por defecto 8 h/día y 42 h/semana, configurable).
 - Confirmar que los datos se guardan solo en el teléfono (se asumió así, ver D-002).

@@ -98,7 +98,10 @@ Máximo **2 h extra diarias y 12 semanales**. La app **no bloquea**; muestra un 
 ## 6. Devengado del periodo
 - **Salario básico del periodo:** mensual = salario; quincenal = salario ÷ 2.
 - **Recargos + extras:** suma de los turnos cuya fecha de inicio cae en el periodo.
-- **Auxilio de transporte:** si salario ≤ 2 SMMLV; quincenal = auxilio ÷ 2. **No** es base de aportes.
+- **Auxilio de transporte:** se suma **solo si el usuario lo activó** en la configuración (D-009), con el
+  valor que configuró (por defecto el legal vigente); quincenal = auxilio ÷ 2. **No** es base de aportes
+  (salud, pensión, FSP) ni de retención. Referencia legal: aplica a quien devenga hasta 2 SMMLV
+  (Ley 15 de 1959), dato que la app usa solo como ayuda informativa.
 - **IBC (base de aportes)** = básico + recargos + extras (sin auxilio). Mínimo 1 SMMLV mensual.
 
 ## 7. Descuentos al trabajador

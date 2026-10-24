@@ -14,7 +14,7 @@ Marcar `[x]` al completar. Cada fase termina con `/verificar` en verde y `ESTADO
 - [ ] `legal-params.ts` (parámetros por fecha) con pruebas
 - [ ] `shift-calc.ts`: clasificación minuto a minuto, extras diarios/semanales, valores
 - [ ] Casos de prueba: 06–18, 18–06, sábado→domingo, festivo, turno de 4 h, semana con extras
-- [ ] `payroll.ts`: devengado, auxilio, salud, pensión, FSP, retención estimada
+- [ ] `payroll.ts`: devengado, auxilio (solo si está activado), salud, pensión, FSP, retención estimada
 - [ ] `/revision-legal` aprobada
 
 ## Fase 2 — Datos y estructura de la app
@@ -24,6 +24,7 @@ Marcar `[x]` al completar. Cada fase termina con `/verificar` en verde y `ESTADO
 - [ ] Eliminar pantallas de ejemplo de la plantilla
 
 ## Fase 3 — Funcionalidades MVP
+- [ ] Onboarding guiado al primer uso: aviso legal, salario, auxilio de transporte Sí/No, periodo, jornada, plantillas (F0)
 - [ ] Ajustes (F1)
 - [ ] Crear/editar/eliminar turno + plantillas (F2)
 - [ ] Calendario (F3)

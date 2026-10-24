@@ -18,6 +18,14 @@
 
 Pantallas modales: crear/editar turno, detalle de turno.
 
+## Onboarding (primer uso, ver PRD F0)
+- Una pregunta por pantalla, título grande, barra de progreso, botón principal fijo abajo.
+- Salario: teclado numérico, formato de moneda mientras escribe, valor hora en vivo debajo.
+- Auxilio de transporte: dos tarjetas grandes "Sí, lo recibo" / "No lo recibo" (ninguna preseleccionada);
+  la ayuda contextual aparece debajo con tono informativo.
+- Animación suave entre pasos; el teclado no debe tapar el botón (`KeyboardAvoidingView`).
+- Pantalla final de resumen con cada dato tocable para editarlo.
+
 ## Lenguaje visual
 - Modo claro y oscuro (automático).
 - Colores semánticos (definir en `src/constants/theme.ts`):

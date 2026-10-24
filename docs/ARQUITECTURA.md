@@ -31,8 +31,11 @@ fuera de sí mismo. `data` puede importar tipos de `domain`.
 ## Modelo de datos (borrador)
 - `Shift { id, start: 'YYYY-MM-DDTHH:mm', end: 'YYYY-MM-DDTHH:mm', note?, createdAt, updatedAt }`
 - `Settings { baseSalary, monthlyDivisor?, dailyLimitHours, weeklyLimitHours, payPeriod: 'quincenal'|'mensual',
-  overrides: { nightPct?, sundayPct?, extraDayPct?, extraNightPct? }, transportAllowance: 'auto'|'si'|'no',
-  monthlyDeductions? }`
+  overrides: { nightPct?, sundayPct?, extraDayPct?, extraNightPct? },
+  transportAllowance: { enabled: boolean, amount?: number /* por defecto el legal del año */ },
+  monthlyDeductions?, onboardingCompletedAt?: string, legalNoticeAcceptedAt?: string }`
+- Si no existe `Settings` u `onboardingCompletedAt` está vacío, `src/app/_layout.tsx` redirige a
+  `src/app/onboarding/` (Expo Router) antes de mostrar las pestañas (D-010).
 - `ShiftTemplate { id, name, startTime: 'HH:mm', durationMinutes }`
 
 Los resultados de cálculo **no se guardan**: se recalculan desde los turnos y la configuración,
