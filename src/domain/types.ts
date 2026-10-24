@@ -36,6 +36,27 @@ export interface Settings {
   monthlyDeductions?: number;
 }
 
+/** Configuración completa guardada en el teléfono (cálculo + estado del onboarding). */
+export interface AppSettings extends Settings {
+  onboardingCompletedAt?: string;
+  legalNoticeAcceptedAt?: string;
+}
+
+export interface ShiftTemplate {
+  id: string;
+  name: string;
+  /** 'HH:mm' */
+  startTime: string;
+  durationMinutes: number;
+}
+
+/** Todo lo que la app persiste y lo que contiene un respaldo (D-014). */
+export interface AppData {
+  settings: AppSettings;
+  shifts: Shift[];
+  templates: ShiftTemplate[];
+}
+
 export const MINUTE_CATEGORIES = [
   'ordinaryDay',
   'ordinaryNight',

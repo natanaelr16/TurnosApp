@@ -5,6 +5,9 @@
 - Aun así, incluir **política de privacidad** accesible desde Ajustes y publicada en una URL
   (requisito de App Store y Google Play).
 - Opción en Ajustes: **"Borrar todos mis datos"** (requisito de las tiendas).
+- **PDF de respaldo (D-014):** contiene salario y turnos. Al exportar, avisar: *"Este PDF contiene tus datos
+  salariales; compártelo solo con quien confíes."* La app no lo envía a ningún lado: lo comparte el usuario.
+  Importar un PDF solo lee el respaldo embebido; validar estrictamente su contenido antes de guardarlo.
 - No incluir analítica ni SDKs de terceros sin documentarlo aquí y en la política.
 
 ## Apple App Store

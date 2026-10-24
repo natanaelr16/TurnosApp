@@ -1,54 +1,49 @@
 /**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://unistyl.es/), etc.
+ * Colores de TurnosApp (claro/oscuro). Colores semánticos de docs/DISENO.md:
+ * diurno = ámbar, nocturno = índigo, dominical/festivo = coral, extra = verde.
  */
-
-import '@/global.css';
 
 import { Platform } from 'react-native';
 
 export const Colors = {
   light: {
-    text: '#000000',
-    background: '#ffffff',
-    backgroundElement: '#F0F0F3',
-    backgroundSelected: '#E0E1E6',
-    textSecondary: '#60646C',
+    text: '#111418',
+    textSecondary: '#5B6270',
+    background: '#F6F7F9',
+    backgroundElement: '#FFFFFF',
+    backgroundSelected: '#E7EAF0',
+    border: '#E2E5EA',
+    primary: '#2563EB',
+    onPrimary: '#FFFFFF',
+    day: '#B45309',
+    night: '#4F46E5',
+    holiday: '#D9363E',
+    extra: '#15803D',
+    danger: '#DC2626',
   },
   dark: {
-    text: '#ffffff',
-    background: '#000000',
-    backgroundElement: '#212225',
-    backgroundSelected: '#2E3135',
-    textSecondary: '#B0B4BA',
+    text: '#F3F4F6',
+    textSecondary: '#A3A9B5',
+    background: '#0B0D10',
+    backgroundElement: '#16191E',
+    backgroundSelected: '#22262D',
+    border: '#2A2F37',
+    primary: '#60A5FA',
+    onPrimary: '#0B0D10',
+    day: '#FBBF24',
+    night: '#A5B4FC',
+    holiday: '#FF7B7B',
+    extra: '#4ADE80',
+    danger: '#F87171',
   },
 } as const;
 
 export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
 
 export const Fonts = Platform.select({
-  ios: {
-    /** iOS `UIFontDescriptorSystemDesignDefault` */
-    sans: 'system-ui',
-    /** iOS `UIFontDescriptorSystemDesignSerif` */
-    serif: 'ui-serif',
-    /** iOS `UIFontDescriptorSystemDesignRounded` */
-    rounded: 'ui-rounded',
-    /** iOS `UIFontDescriptorSystemDesignMonospaced` */
-    mono: 'ui-monospace',
-  },
-  default: {
-    sans: 'normal',
-    serif: 'serif',
-    rounded: 'normal',
-    mono: 'monospace',
-  },
-  web: {
-    sans: 'var(--font-display)',
-    serif: 'var(--font-serif)',
-    rounded: 'var(--font-rounded)',
-    mono: 'var(--font-mono)',
-  },
+  ios: { sans: 'system-ui', serif: 'ui-serif', rounded: 'ui-rounded', mono: 'ui-monospace' },
+  default: { sans: 'normal', serif: 'serif', rounded: 'normal', mono: 'monospace' },
+  web: { sans: 'var(--font-display)', serif: 'var(--font-serif)', rounded: 'var(--font-rounded)', mono: 'var(--font-mono)' },
 });
 
 export const Spacing = {
@@ -60,6 +55,8 @@ export const Spacing = {
   five: 32,
   six: 64,
 } as const;
+
+export const Radius = { card: 16, button: 12 } as const;
 
 export const BottomTabInset = Platform.select({ ios: 50, android: 80 }) ?? 0;
 export const MaxContentWidth = 800;

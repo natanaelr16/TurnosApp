@@ -5,6 +5,21 @@ Formato: fecha, objetivo, qué se hizo, verificación ejecutada, pendientes.
 
 ---
 
+## 2026-10-24 — Fase 2: datos y estructura de la app
+- **Objetivo:** base de datos local, navegación, tema y quitar la plantilla.
+- **Hecho:**
+  - Usuario confirmó datos solo en el teléfono y pidió respaldo en PDF restaurable → PRD F7, D-014,
+    CUMPLIMIENTO (aviso de privacidad), ROADMAP Fase 3.6. Formato de respaldo adelantado en `domain/backup.ts`.
+  - `expo-sqlite` + migraciones + repositorio; pruebas con SQLite real de Node (incluye exportar→restaurar
+    en "teléfono nuevo" y restauración atómica).
+  - `AppDataProvider`, `Stack.Protected` (onboarding/tabs), pestañas nativas, pantallas base, tema semántico,
+    `lib/format.ts`. Plantilla de Expo eliminada; `@types/node` agregado (solo para pruebas).
+  - Revisión UI (subagente): contraste AA OK; aplicados: ValueRow con letra grande, `Screen scroll`,
+    Button `disabled`, EmptyState con acción, import de CSS movido al layout.
+- **Verificación:** `npm test` 80/80 ✅; `tsc` ✅; `expo lint` ✅; `expo-doctor` 20/20 ✅; Metro compila y
+  carga en Expo Go (simulador iPhone) sin errores. Captura de pantalla no disponible desde el agente.
+- **Pendientes:** Fase 3.
+
 ## 2026-10-24 — Validación contra planilla real y corrección del pago dominical
 - **Objetivo:** comparar el motor con 3 reportes reales de nómina del usuario (jul, sep, oct 2026).
 - **Hecho:**

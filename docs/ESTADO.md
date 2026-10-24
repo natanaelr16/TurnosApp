@@ -4,44 +4,43 @@
 > Mantenerla corta (máx. ~60 líneas). El detalle histórico va en `BITACORA.md`.
 
 **Última actualización:** 2026-10-24
-**Fase actual:** Fase 1 — Motor de cálculo **completada**. Próxima: Fase 2 (ver `ROADMAP.md`).
+**Fase actual:** Fase 2 — Datos y estructura **completada**. Próxima: Fase 3 (ver `ROADMAP.md`).
 
 ## Qué existe hoy
-- Proyecto Expo SDK 58 (Expo Router, TypeScript estricto). Pantallas aún de la plantilla.
-- Documentación en `docs/` y configuración de agentes Devin (`AGENTS.md`, `.devin/`).
-- **Motor de cálculo** en `src/domain/` (TypeScript puro), 56 pruebas en verde, **validado contra la
-  planilla real de nómina del usuario** (valores exactos: 362.612, 238.560, 95.424, 224.777…):
-  - `holidays.ts` festivos de Colombia · `legal-params.ts` parámetros por fecha/año, FSP, tabla de retención
-  - `shift-calc.ts` `computeShifts()` minuto a minuto (diurno/nocturno, dominical/festivo, extras por
-    8 h/día o 42 h/semana), avisos de 2 h/día y 12 h/semana, `validateShifts()`
-  - `payroll.ts` `periodFor()`, `computePeriod()` (básico, recargos, extras, auxilio opcional, salud,
-    pensión, FSP, retención estimada), `withholdingMonthly()`
-- Usuario confirmó: 8 h ordinarias/día (resto extra), cálculo según hora real de entrada y salida.
-- D-013: horas ordinarias en domingo/festivo = hora + recargo (1,90 / 2,25), configurable a "solo recargo".
-- Requisito: todo debe ser configurable por cada usuario (salario, auxilio, jornada, factores, pago festivo).
-
-## En curso
-- Nada.
+- **Motor** `src/domain/` validado contra planilla real (D-013) + `backup.ts` (formato de respaldo
+  versionado, validación estricta, combinar turnos) + `defaults.ts` + `factorTable()`.
+- **Datos** `src/data/`: SQLite (`expo-sqlite`), migraciones por `PRAGMA user_version`, repositorio
+  (settings como JSON, shifts, shift_templates sembradas "Día 06–18"/"Noche 18–06"), restaurar atómico,
+  borrar todo. Probado con SQLite real de Node (`src/data/testing/node-sqlite-db.ts`).
+- **App**: `AppDataProvider` (`src/hooks/use-app-data.tsx`) carga todo y expone acciones.
+  Navegación: `Stack.Protected` → `onboarding` (si no hay `onboardingCompletedAt`) o `(tabs)` con
+  pestañas nativas Calendario / Historial / Resumen / Ajustes.
+  - Resumen ya calcula el periodo actual con el motor. Ajustes muestra configuración, tabla de factores
+    y "Borrar todos mis datos".
+  - Onboarding es **temporal**: botón "Continuar con datos de ejemplo" (salario 3.000.000).
+- Componentes base `src/components/ui.tsx` (Screen con `scroll`, Card, ValueRow, Button con `disabled`,
+  EmptyState con acción) y tema con colores semánticos claro/oscuro (contraste AA revisado).
+- Plantilla de Expo eliminada. Verificación: 80 pruebas ✅, tsc ✅, lint ✅, expo-doctor 20/20 ✅.
+- Usuario confirmó datos solo en el teléfono + respaldo PDF (F7, D-014).
 
 ## Siguiente paso
-1. Fase 2: `expo-sqlite` (tablas `settings`, `shifts`, `shift_templates`), navegación por pestañas,
-   tema con colores semánticos, eliminar pantallas de ejemplo de la plantilla.
-2. Fase 3 empieza por el onboarding (F0).
+1. Fase 3: onboarding real (F0) → Ajustes editables (F1) → crear/editar turno con plantillas (F2) →
+   calendario (F3) → detalle (F4) → historial (F5, usar `Screen scroll={false}` + FlatList) → resumen (F6).
+2. Fase 3.6: respaldo PDF (validar librería para incrustar JSON en PDF con Expo SDK 58).
 
-## Problemas conocidos
-- `npx tsc --noEmit` reporta 1 error y `npx expo lint` 1 error, ambos en código de ejemplo de la plantilla
-  (`src/components/app-tabs.web.tsx`, `src/hooks/use-color-scheme.web.ts`). Se resuelven al eliminar
-  la plantilla en Fase 2. `src/domain/` está limpio.
-- `expo-env.d.ts` es generado e ignorado por git; si falta, `npx expo start` lo recrea.
-- Los subagentes personalizados (`.devin/agents/`) solo cargan si la sesión de Devin se abre dentro de
-  `~/Developer/TurnosApp`.
+## Problemas conocidos / pendientes de verificar
+- Las capturas de pantalla del simulador desde el agente salen negras (limitación del entorno); la
+  verificación visual la hace el usuario en la ventana del Simulator.
+- Verificar en iPhone real que el padding inferior (`BottomTabInset`) no deja hueco con tabs nativas.
+- `AppDataProvider` recarga toda la BD tras cada cambio (aceptable hoy; optimizar si hay cientos de turnos).
+- Subagentes de `.devin/agents/` solo cargan si la sesión de Devin se abre en `~/Developer/TurnosApp`.
 
-## UI debe recordar (de la revisión legal)
-- Mostrar aviso si el año del periodo no tiene parámetros cargados (`hasYearlyParams`).
-- Mostrar avisos `EXTRA_DIARIO_EXCEDIDO` / `EXTRA_SEMANAL_EXCEDIDO` y errores de `validateShifts`.
+## UI debe recordar
+- Aviso si el año no tiene parámetros (`hasYearlyParams`); avisos de extras y errores de `validateShifts`.
+- Al exportar PDF, aviso de privacidad (CUMPLIMIENTO).
 
 ## Decisiones pendientes con el usuario
-- Confirmar que los datos se guardan solo en el teléfono (se asumió así, ver D-002).
+- Ninguna.
 
 ## Bloqueos / riesgos
 - Ninguno.

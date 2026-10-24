@@ -1,4 +1,4 @@
-import { computeShifts, validateShifts } from '@/domain/shift-calc';
+import { computeShifts, factorTable, validateShifts } from '@/domain/shift-calc';
 import type { Settings, Shift } from '@/domain/types';
 
 const settings: Settings = {
@@ -132,6 +132,20 @@ describe('coincide con planilla real de nómina', () => {
   const real: Settings = { ...settings, baseSalary: 4_453_128 };
   const sum = (rs: ReturnType<typeof computeShifts>, c: keyof (typeof rs)[0]['amounts']) =>
     rs.reduce((s, r) => s + r.amounts[c], 0);
+
+  test('tabla de factores igual a la planilla', () => {
+    const t = factorTable('2026-10-24', real);
+    expect(t).toEqual({
+      ordinaryDay: 0,
+      ordinaryNight: 0.35,
+      ordinaryDayHoliday: 1.9,
+      ordinaryNightHoliday: 2.25,
+      extraDay: 1.25,
+      extraNight: 1.75,
+      extraDayHoliday: 2.15,
+      extraNightHoliday: 2.65,
+    });
+  });
 
   test('valor hora 21.205', () => {
     expect(Math.round(one(shift('2026-09-01T06:00', '2026-09-01T07:00'), real).hourValue)).toBe(21_205);

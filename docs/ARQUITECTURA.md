@@ -21,9 +21,19 @@ src/
 │   ├── payroll.ts        # Resumen de periodo, deducciones, retención
 │   ├── types.ts
 │   └── __tests__/
-├── data/           # Repositorios SQLite (shifts, settings) y migraciones
-└── constants/      # Tema (colores, tipografía, espaciado)
+├── data/           # SQLite: db.ts (tipo Db), migrations.ts, repository.ts, testing/ (SQLite de Node para pruebas)
+├── lib/            # Formatos de presentación (moneda, horas, fechas)
+└── constants/      # Tema (colores semánticos, espaciado, radios)
 ```
+
+Rutas actuales: `src/app/_layout.tsx` (SQLiteProvider + AppDataProvider + Stack.Protected),
+`src/app/onboarding.tsx`, `src/app/(tabs)/_layout.tsx` (NativeTabs) con `index` (Calendario),
+`historial`, `resumen`, `ajustes`. Estado global: `src/hooks/use-app-data.tsx` (`useAppData()`).
+Componentes base: `src/components/ui.tsx`.
+
+Persistencia: `settings` es una fila única con el JSON de `AppSettings` (fácil de versionar junto al
+respaldo); `shifts` y `shift_templates` son tablas. Nueva migración = subir `DATABASE_VERSION` y
+agregar un bloque `if (version === N)` en `migrations.ts`, con prueba.
 
 **Regla de dependencias:** `app → hooks → (domain, data)`. `domain` no importa nada del proyecto
 fuera de sí mismo. `data` puede importar tipos de `domain`.

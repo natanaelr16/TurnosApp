@@ -18,10 +18,10 @@ Marcar `[x]` al completar. Cada fase termina con `/verificar` en verde y `ESTADO
 - [x] `/revision-legal` aplicada (hallazgos resueltos o documentados en D-011/D-012)
 
 ## Fase 2 — Datos y estructura de la app
-- [ ] `expo-sqlite`: tablas, migraciones, repositorios
-- [ ] Navegación por pestañas (Calendario, Historial, Resumen, Ajustes)
-- [ ] Tema y colores semánticos
-- [ ] Eliminar pantallas de ejemplo de la plantilla (resuelve los errores de tipos/lint conocidos)
+- [x] `expo-sqlite`: tablas, migraciones, repositorios
+- [x] Navegación por pestañas (Calendario, Historial, Resumen, Ajustes) + redirección a onboarding
+- [x] Tema y colores semánticos
+- [x] Eliminar pantallas de ejemplo de la plantilla (resuelve los errores de tipos/lint conocidos)
 - [ ] Futuro: historial de salarios (hoy todo el historial se recalcula con el salario actual)
 
 ## Fase 3 — Funcionalidades MVP
@@ -37,6 +37,12 @@ Marcar `[x]` al completar. Cada fase termina con `/verificar` en verde y `ESTADO
 ## Fase 3.5 — Extras inspirados en la planilla real
 - [ ] Novedades por día: Descanso, Permiso, Vacaciones, Incapacidad
 - [ ] Vista "planilla" + cuadro "Detalle de liquidación" (concepto, factor, horas, valor)
+
+## Fase 3.6 — Respaldo en PDF (F7, D-014)
+- [x] Formato de respaldo versionado + validación (`src/domain/backup.ts`) — adelantado en Fase 2
+- [ ] Generar PDF legible (`expo-print`) con JSON embebido y compartir (`expo-sharing`)
+- [ ] Importar PDF (`expo-document-picker`), leer respaldo, vista previa y confirmación (reemplazar/combinar)
+- [ ] Opción "Ya tengo un respaldo" en el onboarding
 
 ## Fase 4 — Pulido y publicación
 - [ ] Aviso legal inicial, borrar datos, política de privacidad

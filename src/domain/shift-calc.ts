@@ -39,6 +39,16 @@ function factorFor(isExtra: boolean, isNight: boolean, isHoliday: boolean, r: Le
   return fullHour + (pct + (isHoliday ? r.sundayPct : 0)) / 100;
 }
 
+/** Tabla de factores vigente en una fecha (como el "Detalle de liquidación" de una planilla de nómina). */
+export function factorTable(date: LocalDate, settings: Settings): ByCategory {
+  const r = effectiveRates(date, settings);
+  const table = emptyByCategory();
+  for (const c of MINUTE_CATEGORIES) {
+    table[c] = factorFor(c.startsWith('extra'), c.includes('Night'), c.endsWith('Holiday'), r, settings);
+  }
+  return table;
+}
+
 function categoryOf(isExtra: boolean, isNight: boolean, isHoliday: boolean): MinuteCategory {
   return `${isExtra ? 'extra' : 'ordinary'}${isNight ? 'Night' : 'Day'}${isHoliday ? 'Holiday' : ''}` as MinuteCategory;
 }

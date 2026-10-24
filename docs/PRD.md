@@ -15,6 +15,7 @@ que quiere verificar su liquidación de nómina.
 Se muestra al abrir la app por primera vez (y si no hay configuración guardada). No se puede
 registrar turnos sin completarla. Pasos, uno por pantalla, con barra de progreso y botón "Atrás":
 1. **Bienvenida + aviso legal:** qué hace la app y aceptar que los valores son estimados.
+   Botón secundario **"Ya tengo un respaldo (PDF)"** → restaura (F7) y salta el resto del onboarding.
 2. **Salario base mensual** (obligatorio, solo números, formato `$ 1.234.567`). Muestra en vivo el valor
    hora ordinaria resultante (salario ÷ divisor vigente).
 3. **¿Recibes auxilio de transporte?** Sí / No (obligatorio, sin valor preseleccionado).
@@ -69,8 +70,19 @@ Pasos 4–6 tienen valores por defecto y botón "Omitir". Todo se puede cambiar 
   retención en la fuente (procedimiento 1, **estimado**).
 - Neto estimado a recibir, con aviso: *"Valores aproximados; pueden diferir de tu liquidación oficial."*
 
+### F7. Exportar PDF + restaurar desde PDF (respaldo sin cuentas)
+- **Exportar:** genera un PDF legible del periodo elegido (o de todo el historial): resumen de pago, tabla de
+  turnos y detalle de liquidación. El PDF lleva **embebido un respaldo completo** (configuración, turnos y
+  plantillas) en formato JSON versionado, invisible al leerlo.
+- Compartir el PDF con la hoja nativa del sistema (correo, WhatsApp, Drive, Archivos…).
+- **Restaurar:** en el onboarding ("Ya tengo un respaldo") y en Ajustes, el usuario elige un PDF exportado;
+  la app lee el respaldo embebido, muestra un resumen (n.º de turnos, rango de fechas, salario) y pide
+  confirmación antes de reemplazar o combinar los datos.
+- Sirve para cambiar de teléfono o reinstalar la app sin servidor ni cuenta.
+- Si el PDF no tiene respaldo válido o es de una versión más nueva de la app, se informa claramente.
+
 ## Fuera del MVP (futuro)
-- Respaldo/exportación (CSV/PDF), sincronización en la nube, recordatorios/notificaciones,
+- Exportación CSV, sincronización en la nube, recordatorios/notificaciones,
   widgets, día de descanso distinto al domingo, primas/cesantías/vacaciones.
 - Novedades por día sin horas (Descanso, Permiso, Vacaciones, Incapacidad), como en las planillas de nómina.
 - Vista "planilla": tabla por fecha con columnas D.O, Ext. D, Ord. Noc, Ext. Noc, Dom/Fes, Ext. F.D,
