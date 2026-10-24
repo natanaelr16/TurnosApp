@@ -1,3 +1,42 @@
+# TurnosApp — reglas del proyecto
+
+App personal para registrar turnos laborales y calcular horas, recargos, extras y pago estimado
+según la legislación colombiana. Responder al usuario **en español**. El usuario está aprendiendo
+(vibe coding): explicar brevemente qué se hace y por qué.
+
+## Protocolo de memoria (obligatorio)
+1. **Al iniciar:** leer `docs/ESTADO.md` (o usar `/iniciar-sesion`). Consultar `docs/ROADMAP.md` y
+   `docs/DECISIONES.md` antes de proponer cambios de alcance o de arquitectura.
+2. **Al terminar:** usar `/cerrar-sesion` → actualizar `docs/ESTADO.md`, añadir entrada en
+   `docs/BITACORA.md`, marcar `docs/ROADMAP.md`, registrar decisiones nuevas en `docs/DECISIONES.md`.
+3. Nunca contradecir una decisión vigente sin registrar una nueva que la reemplace.
+
+## Fuentes de verdad
+| Tema | Archivo |
+|---|---|
+| Qué construir | `docs/PRD.md` |
+| Cálculos legales | `docs/REGLAS_LEGALES.md` (el código de `src/domain/` debe coincidir exactamente) |
+| Estructura/código | `docs/ARQUITECTURA.md` |
+| UI/UX | `docs/DISENO.md` |
+| Tiendas/privacidad | `docs/CUMPLIMIENTO.md` |
+
+## Reglas clave
+- `src/domain/` es TypeScript puro, sin React/Expo, con pruebas para cada regla. Pruebas primero.
+- Toda lógica de cálculo vive en `src/domain/`; las pantallas solo muestran resultados.
+- Dinero en pesos enteros; fechas como `YYYY-MM-DDTHH:mm` local (D-006).
+- Cambios en cálculos o en `REGLAS_LEGALES.md` → `/revision-legal`. Pantallas nuevas → `/revision-ui`.
+- Antes de dar algo por terminado → `/verificar` (pruebas + lint + tipos).
+- Commits pequeños en español, uno por funcionalidad. No hacer push sin permiso del usuario.
+
+## Skills y agentes disponibles
+- Skills: `/iniciar-sesion`, `/cerrar-sesion`, `/nueva-funcionalidad`, `/verificar`,
+  `/revision-legal`, `/revision-ui`, `/actualizar-normativa`.
+- Subagentes (`.devin/agents/`): `legal-reviewer`, `ui-designer`, `qa-tester`, `store-compliance`.
+
+---
+
+# Expo (guía de la plantilla)
+
 This is an Expo/React Native mobile application. Prioritize mobile-first patterns, performance, and cross-platform compatibility.
 
 ## Expo has changed — do not trust your training data

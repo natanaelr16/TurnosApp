@@ -1,0 +1,53 @@
+# Arquitectura
+
+## Stack
+- **Expo SDK 58**, React Native 0.88, React 19, TypeScript estricto, Expo Router (rutas en `src/app/`).
+- **Persistencia:** `expo-sqlite` (local, D-002).
+- **Pruebas:** Jest con `jest-expo`; pruebas del dominio en `src/domain/__tests__/*-test.ts`.
+- Dependencias nuevas: solo con `npx expo install <paquete>` y registrando el motivo en `DECISIONES.md`.
+
+## Capas y carpetas
+
+```
+src/
+├── app/            # Pantallas (Expo Router). Solo UI y navegación, sin lógica de cálculo.
+├── components/     # Componentes visuales reutilizables.
+├── hooks/          # Hooks de React (conectan UI con datos/dominio).
+├── domain/         # Motor de cálculo PURO (sin React/Expo). Fuente: docs/REGLAS_LEGALES.md
+│   ├── legal-params.ts   # Parámetros por fecha (SMMLV, UVT, divisor, %), tablas
+│   ├── holidays.ts       # Festivos de Colombia
+│   ├── time.ts           # Utilidades de fecha/hora local (YYYY-MM-DDTHH:mm)
+│   ├── shift-calc.ts     # Clasificación minuto a minuto y valor de cada turno
+│   ├── payroll.ts        # Resumen de periodo, deducciones, retención
+│   ├── types.ts
+│   └── __tests__/
+├── data/           # Repositorios SQLite (shifts, settings) y migraciones
+└── constants/      # Tema (colores, tipografía, espaciado)
+```
+
+**Regla de dependencias:** `app → hooks → (domain, data)`. `domain` no importa nada del proyecto
+fuera de sí mismo. `data` puede importar tipos de `domain`.
+
+## Modelo de datos (borrador)
+- `Shift { id, start: 'YYYY-MM-DDTHH:mm', end: 'YYYY-MM-DDTHH:mm', note?, createdAt, updatedAt }`
+- `Settings { baseSalary, monthlyDivisor?, dailyLimitHours, weeklyLimitHours, payPeriod: 'quincenal'|'mensual',
+  overrides: { nightPct?, sundayPct?, extraDayPct?, extraNightPct? }, transportAllowance: 'auto'|'si'|'no',
+  monthlyDeductions? }`
+- `ShiftTemplate { id, name, startTime: 'HH:mm', durationMinutes }`
+
+Los resultados de cálculo **no se guardan**: se recalculan desde los turnos y la configuración,
+así un cambio de salario o de porcentaje se refleja en todo el historial.
+
+## Flujo de cálculo
+1. `computeShifts(shifts, settings)` → recorre minuto a minuto en orden cronológico, clasifica
+   (diurno/nocturno, dominical/festivo, ordinario/extra) y valora cada turno.
+2. `computePeriod(shiftResults, settings, periodo)` → devengado, IBC, deducciones, neto.
+
+## Comandos
+```bash
+npx expo start          # servidor de desarrollo (i = iOS, a = Android)
+npm test                # pruebas (Jest)
+npx expo lint           # lint
+npx tsc --noEmit        # verificación de tipos
+npx expo-doctor         # salud del proyecto
+```
