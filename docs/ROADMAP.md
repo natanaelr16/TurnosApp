@@ -39,7 +39,7 @@ Marcar `[x]` al completar. Cada fase termina con `/verificar` en verde y `ESTADO
 - [x] Calendario (F3; grilla mensual con festivos y registros por día)
 - [x] Detalle de turno (F4; consulta `/detalle` separada de edición, horas extra y recargos)
 - [x] Historial (F5; lista por periodo con búsqueda, turnos y novedades)
-- [ ] Resumen de pago (F6)
+- [ ] Resumen de pago (F6): estimación y PDF salarial pendientes; requiere acordar novedades/aportes y cierre/reapertura (D-015/D-016). La Fase 3 no está cerrada.
 - [ ] `/revision-ui` aprobada (revisión F2–F5 ejecutada; hallazgos altos/medios aplicados, falta validación visual)
 - [ ] Prueba visual F2–F5: noche con Grúa: RTG19, editar/eliminar, descanso siguiente día, plantillas y persistencia
 - [x] Migración SQLite v2 + respaldo formato 2 con compatibilidad formato 1 (D-018)

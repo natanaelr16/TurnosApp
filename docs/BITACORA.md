@@ -5,6 +5,22 @@ Formato: fecha, objetivo, qué se hizo, verificación ejecutada, pendientes.
 
 ---
 
+## 2026-10-25 — Cierre del día: memoria reconciliada con Git
+- **Objetivo:** terminar la sesión sin programar más y dejar un punto claro de reanudación.
+- **Hecho:** `git status --short` y `git diff --stat` vacíos al comenzar el cierre.
+  El avance ya está en `bfceb39` (calendario directo, consulta separada y PDF de acumulados),
+  después de `a9429a6` (F0/F1). Corregida memoria que aún decía «sin commit».
+  El título «Fase 4» del commit no implica completar Fase 3: F6 sigue pendiente según ROADMAP.
+  ESTADO compactado; ROADMAP conserva implementaciones marcadas y pruebas visuales/seguridad abiertas.
+  D-020/D-021 y ARQUITECTURA ya documentaban flujo/dependencias: no hay nueva decisión técnica.
+- **Verificación reejecutada:** 111/111 pruebas (13 suites), `npm run typecheck` y `npm run lint` correctos.
+  Expo-doctor 20/20 y bundles iOS/Android HTTP 200 verificados antes en esta misma sesión;
+  no se repitieron en este cierre. Prueba visual/PDF nativo no confirmados.
+- **Pendientes:** validación del usuario; reglas de novedades/cierre, F6 y PDF salarial; respaldo
+  restaurable F7; 5 avisos high de npm audit, auditoría dedicada y caché privada de PDFs.
+  No se hizo commit ni push durante este cierre; quedan solo los cambios documentales del cierre.
+  Estado del remoto no comprobado.
+
 ## 2026-10-25 — Rediseño solicitado: calendario directo, consulta y PDF de acumulados
 - **Objetivo:** simplificar el flujo tras la revisión visual del usuario; registrar solo desde calendario.
 - **Hecho:** calendario fijo sin scroll ni botones de registro/Ir a hoy, fecha actual al enfocar/reanudar,
