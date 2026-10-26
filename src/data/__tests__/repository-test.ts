@@ -4,15 +4,16 @@ import { DEFAULT_SETTINGS, DEFAULT_TEMPLATES } from '@/domain/defaults';
 import type { Db } from '../db';
 import { DATABASE_VERSION, migrateDbIfNeeded } from '../migrations';
 import {
-  deleteAllData,
-  deleteShift,
-  loadAppData,
-  loadSettings,
-  loadShifts,
-  replaceAppData,
-  saveSettings,
-  saveTemplates,
-  upsertShift,
+    completeOnboarding,
+    deleteAllData,
+    deleteShift,
+    loadAppData,
+    loadSettings,
+    loadShifts,
+    replaceAppData,
+    saveSettings,
+    saveTemplates,
+    upsertShift
 } from '../repository';
 import { createTestDb } from '../testing/node-sqlite-db';
 
@@ -43,6 +44,21 @@ describe('configuración', () => {
     const s = await loadSettings(db);
     expect(s.baseSalary).toBe(4_453_128);
     expect(s.transportAllowance).toEqual({ enabled: true, amount: 249_095 });
+  });
+});
+
+describe('onboarding', () => {
+  test('guarda configuración y selección de plantillas juntas', async () => {
+    const settings = { ...DEFAULT_SETTINGS, baseSalary: 3_000_000, onboardingCompletedAt: '2026-10-25T12:00:00Z', legalNoticeAcceptedAt: '2026-10-25T12:00:00Z' };
+    await completeOnboarding(db, settings, [DEFAULT_TEMPLATES[1]]);
+    expect((await loadAppData(db)).settings).toEqual(settings);
+    expect((await loadAppData(db)).templates).toEqual([DEFAULT_TEMPLATES[1]]);
+  });
+
+  test('si falla una plantilla no completa el onboarding ni pierde las anteriores', async () => {
+    await expect(completeOnboarding(db, { ...DEFAULT_SETTINGS, baseSalary: 1, onboardingCompletedAt: 'x' }, [DEFAULT_TEMPLATES[0], DEFAULT_TEMPLATES[0]])).rejects.toThrow();
+    expect((await loadSettings(db)).onboardingCompletedAt).toBeUndefined();
+    expect((await loadAppData(db)).templates).toEqual(DEFAULT_TEMPLATES);
   });
 });
 
@@ -89,11 +105,13 @@ describe('respaldo y borrado', () => {
   });
 
   test('borrar todos mis datos', async () => {
+    await saveTemplates(db, []);
     await saveSettings(db, { ...DEFAULT_SETTINGS, baseSalary: 1, onboardingCompletedAt: 'x' });
     await upsertShift(db, { id: 'a', start: '2026-10-01T06:00', end: '2026-10-01T18:00' });
     await deleteAllData(db);
     const d = await loadAppData(db);
     expect(d.shifts).toEqual([]);
     expect(d.settings).toEqual(DEFAULT_SETTINGS);
+    expect(d.templates).toEqual(DEFAULT_TEMPLATES);
   });
 });

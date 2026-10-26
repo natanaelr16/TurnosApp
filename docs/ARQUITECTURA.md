@@ -29,7 +29,10 @@ src/
 Rutas actuales: `src/app/_layout.tsx` (SQLiteProvider + AppDataProvider + Stack.Protected),
 `src/app/onboarding.tsx`, `src/app/(tabs)/_layout.tsx` (NativeTabs) con `index` (Calendario),
 `historial`, `resumen`, `ajustes`. Estado global: `src/hooks/use-app-data.tsx` (`useAppData()`).
-Componentes base: `src/components/ui.tsx`.
+Componentes base: `src/components/ui.tsx` (`Screen` con footer opcional y soporte de teclado).
+Formularios F0/F1: `src/components/settings-fields.tsx` comparte campos/opciones; `src/lib/settings-form.ts`
+convierte borradores y valida entradas (sin cálculos legales). `completeOnboarding` en el repositorio guarda
+settings + plantillas en una transacción; la acción homónima del provider recarga los datos al terminar.
 
 Persistencia: `settings` es una fila única con el JSON de `AppSettings` (fácil de versionar junto al
 respaldo); `shifts` y `shift_templates` son tablas. Nueva migración = subir `DATABASE_VERSION` y

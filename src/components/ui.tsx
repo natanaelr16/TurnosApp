@@ -1,6 +1,6 @@
 // Componentes base reutilizables: pantalla, tarjeta, fila de valor, botón y estado vacío.
 import type { ReactNode } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
@@ -13,11 +13,13 @@ export function Screen({
   subtitle,
   scroll = true,
   children,
+  footer,
 }: {
   title: string;
   subtitle?: string;
   scroll?: boolean;
   children: ReactNode;
+  footer?: ReactNode;
 }) {
   const theme = useTheme();
   const header = (
@@ -29,18 +31,21 @@ export function Screen({
     </View>
   );
   return (
-    <SafeAreaView edges={['top']} style={[styles.flex, { backgroundColor: theme.background }]}>
-      {scroll ? (
-        <ScrollView contentContainerStyle={styles.content} contentInsetAdjustmentBehavior="automatic">
-          {header}
-          {children}
-        </ScrollView>
-      ) : (
-        <View style={[styles.flex, styles.content]}>
-          {header}
-          {children}
-        </View>
-      )}
+    <SafeAreaView edges={footer ? ['top', 'bottom'] : ['top']} style={[styles.flex, { backgroundColor: theme.background }]}>
+      <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        {scroll ? (
+          <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={[styles.content, footer ? { paddingBottom: Spacing.three } : undefined]} contentInsetAdjustmentBehavior="automatic">
+            {header}
+            {children}
+          </ScrollView>
+        ) : (
+          <View style={[styles.flex, styles.content]}>
+            {header}
+            {children}
+          </View>
+        )}
+        {footer ? <View style={[styles.content, { paddingBottom: Spacing.two }]}>{footer}</View> : null}
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
@@ -101,6 +106,7 @@ export function Button({
   return (
     <Pressable
       accessibilityRole="button"
+      accessibilityLabel={label}
       accessibilityHint={accessibilityHint}
       accessibilityState={{ disabled }}
       disabled={disabled}

@@ -1,4 +1,4 @@
-import { DEFAULT_SETTINGS } from '@/domain/defaults';
+import { DEFAULT_SETTINGS, DEFAULT_TEMPLATES } from '@/domain/defaults';
 import type { AppData, AppSettings, Shift, ShiftTemplate } from '@/domain/types';
 
 import type { Db } from './db';
@@ -62,15 +62,24 @@ export async function loadTemplates(db: Db): Promise<ShiftTemplate[]> {
   ).map(toTemplate);
 }
 
+async function writeTemplates(db: Db, templates: ShiftTemplate[]): Promise<void> {
+  await db.runAsync('DELETE FROM shift_templates');
+  for (const [i, t] of templates.entries()) {
+    await db.runAsync(
+      'INSERT INTO shift_templates (id, name, start_time, duration_minutes, sort_order) VALUES (?, ?, ?, ?, ?)',
+      [t.id, t.name, t.startTime, t.durationMinutes, i],
+    );
+  }
+}
+
 export async function saveTemplates(db: Db, templates: ShiftTemplate[]): Promise<void> {
+  await db.withTransactionAsync(() => writeTemplates(db, templates));
+}
+
+export async function completeOnboarding(db: Db, settings: AppSettings, templates: ShiftTemplate[]): Promise<void> {
   await db.withTransactionAsync(async () => {
-    await db.runAsync('DELETE FROM shift_templates');
-    for (const [i, t] of templates.entries()) {
-      await db.runAsync(
-        'INSERT INTO shift_templates (id, name, start_time, duration_minutes, sort_order) VALUES (?, ?, ?, ?, ?)',
-        [t.id, t.name, t.startTime, t.durationMinutes, i],
-      );
-    }
+    await saveSettings(db, settings);
+    await writeTemplates(db, templates);
   });
 }
 
@@ -99,6 +108,7 @@ export async function deleteAllData(db: Db): Promise<void> {
   await db.withTransactionAsync(async () => {
     await db.runAsync('DELETE FROM shifts');
     await db.runAsync('DELETE FROM settings');
+    await writeTemplates(db, DEFAULT_TEMPLATES);
   });
 }
 

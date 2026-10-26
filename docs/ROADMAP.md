@@ -25,10 +25,17 @@ Marcar `[x]` al completar. Cada fase termina con `/verificar` en verde y `ESTADO
 - [ ] Futuro: historial de salarios (hoy todo el historial se recalcula con el salario actual)
 
 ## Fase 3 — Funcionalidades MVP
-- [ ] Crear simulador iPhone Pro Max (18) y probar la app en pantallas grandes (pedido del usuario 2026-10-24)
-- [ ] Onboarding guiado al primer uso: aviso legal, salario, auxilio de transporte Sí/No, periodo, jornada, plantillas (F0)
-- [ ] Ajustes (F1)
+- [x] Crear simulador iPhone 18 Pro Max (2026-10-25: TurnosApp iPhone 18 Pro Max, iOS 27.0)
+- [x] Abrir app en pantalla grande: Expo Go + Metro LAN puerto 8083; usuario confirma que se ve excelente
+- [ ] Especificar y revisar reglas de novedades/cierre mensual (D-015/D-016), actualizar REGLAS_LEGALES y pruebas antes de modificar el motor
+- [x] Onboarding guiado al primer uso: aviso legal, salario, auxilio de transporte Sí/No, periodo, jornada, plantillas (F0; PDF pendiente de Fase 3.6)
+- [x] Ajustes editables (F1), divisor/porcentajes, restaurar ley y vista previa
+- [ ] Validación visual F0/F1 en iOS/Android: teclado, letra grande, oscuro, persistencia y navegación
+- [ ] Pulido F0/F1: animaciones de transición y feedback háptico
 - [ ] Crear/editar/eliminar turno + plantillas (F2)
+- [ ] Campos personalizados informativos por turno: nombre + valor texto/número/alfanumérico (D-017)
+- [ ] Registrar descansos, permisos remunerados/no remunerados e incapacidad con los turnos (D-016)
+- [ ] Ajustar básico por novedades y liquidación al completar periodo; FSP/retención en última quincena sobre mes real (D-015/D-016)
 - [ ] Calendario (F3)
 - [ ] Detalle de turno (F4)
 - [ ] Historial (F5)
@@ -36,7 +43,7 @@ Marcar `[x]` al completar. Cada fase termina con `/verificar` en verde y `ESTADO
 - [ ] `/revision-ui` aprobada
 
 ## Fase 3.5 — Extras inspirados en la planilla real
-- [ ] Novedades por día: Descanso, Permiso, Vacaciones, Incapacidad
+- [ ] Vacaciones y otras novedades (Descanso, Permiso e Incapacidad adelantados a Fase 3; aún pendientes)
 - [ ] Vista "planilla" + cuadro "Detalle de liquidación" (concepto, factor, horas, valor)
 
 ## Fase 3.6 — Respaldo en PDF (F7, D-014)

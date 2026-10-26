@@ -3,11 +3,12 @@ import { useSQLiteContext } from 'expo-sqlite';
 import { createContext, use, useEffect, useState, type ReactNode } from 'react';
 
 import * as repo from '@/data/repository';
-import type { AppData, AppSettings, Shift } from '@/domain/types';
+import type { AppData, AppSettings, Shift, ShiftTemplate } from '@/domain/types';
 
 interface AppDataContextValue {
   data: AppData;
   updateSettings: (patch: Partial<AppSettings>) => Promise<void>;
+  completeOnboarding: (settings: AppSettings, templates: ShiftTemplate[]) => Promise<void>;
   saveShift: (shift: Shift) => Promise<void>;
   removeShift: (id: string) => Promise<void>;
   restore: (data: AppData) => Promise<void>;
@@ -35,6 +36,10 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     data,
     updateSettings: async (patch) => {
       await repo.saveSettings(db, { ...data.settings, ...patch });
+      await reload();
+    },
+    completeOnboarding: async (settings, templates) => {
+      await repo.completeOnboarding(db, settings, templates);
       await reload();
     },
     saveShift: async (shift) => {

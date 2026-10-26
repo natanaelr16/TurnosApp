@@ -48,6 +48,16 @@ Pasos 4–6 tienen valores por defecto y botón "Omitir". Todo se puede cambiar 
 - Soportar turnos que cruzan la medianoche y turnos de cualquier duración (máx. 24 h).
 - Plantillas rápidas de turnos frecuentes (ej. "Día 06–18", "Noche 18–06").
 - Nota opcional.
+- Campos informativos personalizados: el usuario crea un nombre y registra un valor de texto,
+  número o alfanumérico por turno (ej.: `Grúa: RTG19`). Puede añadir varios campos.
+  No afectan horas, recargos, salario ni deducciones; se muestran en el detalle del turno.
+- Registrar descansos y novedades desde el mismo flujo/calendario: descanso remunerado,
+  permiso remunerado/no remunerado e incapacidad. Un día sin registro no se considera descanso.
+- Descanso remunerado: incluido en el básico, sin sumar ni restar dinero ni generar horas trabajadas.
+- Permisos: distinguir los remunerados de los no remunerados antes de ajustar el básico.
+- Incapacidad: el usuario confirma reconocimiento empresarial del 75 % para los días afectados;
+  no se suma encima del básico de esos mismos días. Es condición empresarial, no regla legal general.
+  Bases de aportes, mínimos y tipos/duración de incapacidad requieren especificación y revisión legal.
 - Validaciones: salida posterior a entrada, sin turnos superpuestos.
 
 ### F3. Calendario
@@ -65,7 +75,13 @@ Pasos 4–6 tienen valores por defecto y botón "Omitir". Todo se puede cambiar 
 - Totales del periodo.
 
 ### F6. Resumen de pago (quincena/mes)
-- Salario básico del periodo + recargos + extras + auxilio de transporte (solo si está activado) = total devengado.
+- Periodo incompleto: mostrar progreso y acumulados registrados de horas/recargos, no una liquidación
+  neta del periodo como si estuviera completo. Turnos, descansos y novedades documentan el periodo;
+  falta concretar la validación de cierre/reapertura, sin inferir descansos por ausencia de turnos.
+- Liquidación del periodo solo al completar sus registros. En pago quincenal, retención y fondo
+  solidario se descuentan en la última quincena usando los datos reales de todo el mes, no duplicando
+  la quincena. Si falta la primera o segunda quincena, no presentar esos descuentos como calculados.
+- Salario básico ajustado por novedades + recargos + extras + auxilio de transporte (solo si está activado) = total devengado.
 - Descuentos: salud 4 %, pensión 4 %, Fondo de Solidaridad Pensional (si aplica),
   retención en la fuente (procedimiento 1, **estimado**).
 - Neto estimado a recibir, con aviso: *"Valores aproximados; pueden diferir de tu liquidación oficial."*
@@ -84,7 +100,8 @@ Pasos 4–6 tienen valores por defecto y botón "Omitir". Todo se puede cambiar 
 ## Fuera del MVP (futuro)
 - Exportación CSV, sincronización en la nube, recordatorios/notificaciones,
   widgets, día de descanso distinto al domingo, primas/cesantías/vacaciones.
-- Novedades por día sin horas (Descanso, Permiso, Vacaciones, Incapacidad), como en las planillas de nómina.
+- Vacaciones y otros tipos de novedades no incluidos todavía en F2. Descansos, permisos e incapacidad
+  pasan al MVP por confirmación del usuario (2026-10-25).
 - Vista "planilla": tabla por fecha con columnas D.O, Ext. D, Ord. Noc, Ext. Noc, Dom/Fes, Ext. F.D,
   Rec. Noc. Fes, Ext. F.N y el cuadro "Detalle de liquidación" (concepto, factor, horas, valor).
 

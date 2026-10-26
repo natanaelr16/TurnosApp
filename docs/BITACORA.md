@@ -5,6 +5,43 @@ Formato: fecha, objetivo, qué se hizo, verificación ejecutada, pendientes.
 
 ---
 
+## 2026-10-25 — Prueba visual inicial y requisitos de nómina/novedades
+- **Objetivo:** abrir la app y precisar cómo registrar operación diaria y liquidar periodos completos.
+- **Hecho:** Expo Go instalado; apertura con localhost fallaba (servidor IPv6, enlace IPv4).
+  Metro LAN puerto 8083 respondió `packager-status:running`; simulador solicitó bundle iOS
+  (1352 módulos). Usuario confirmó: «se ve excelente». No implica checklist visual completo.
+- **Confirmado:** incapacidad al 75 % por condición empresarial; FSP/retención se descuentan
+  en última quincena con mes real completo; descanso remunerado incluido en básico, sin alterar valor.
+  Registrar descansos/novedades como turnos. Campos personalizados informativos por turno con
+  nombre y valor texto/número/alfanumérico: ejemplo Grúa → RTG19, sin efecto en cálculos.
+- **Documentación:** PRD y ROADMAP incorporan requisitos; D-015 reemplaza la proyección quincenal
+  de D-012; D-016 novedades en MVP y 75 % empresarial; D-017 campos informativos.
+- **Verificación:** solo documentación en este tramo; motor y REGLAS_LEGALES sin modificar.
+  Última verificación de código: 88 pruebas, tipos, lint y expo-doctor 20/20 correctos.
+- **Pendientes:** especificar cierre/reapertura, tratamiento de novedades y revisión legal antes del motor;
+  implementar F2–F6 con estas reglas. El resumen actual aún no las aplica. Sin commit ni push.
+
+## 2026-10-25 — Fase 3: onboarding real y Ajustes editables
+- **Objetivo:** simulador grande, F0 y F1 (resto de Fase 3 fuera de esta sesión).
+- **Hecho:**
+  - F0: siete pasos con aviso legal explícito, salario formateado/valor hora, auxilio sin preselección,
+    periodo, jornada, selección de plantillas y resumen editable. Omitir usa valores predeterminados.
+  - F1: borrador editable, validación por campo, guardar/descartar, divisor y porcentajes opcionales,
+    restaurar valores de ley y factores en vivo. Aviso de recálculo del historial y año sin parámetros.
+  - `settings-fields.tsx` y `lib/settings-form.ts` comparten campos y validaciones; sin dependencias nuevas.
+  - `completeOnboarding` guarda configuración y plantillas atómicamente; prueba de rollback.
+    Borrar todo ahora repone las plantillas predeterminadas, incluso tras desmarcarlas todas.
+  - `Screen` con footer fijo y teclado; botones con etiqueta accesible, opciones radio/checkbox.
+  - Simulador nuevo creado y arrancado: TurnosApp iPhone 18 Pro Max, iOS 27.0,
+    `EB5FAFDF-45F8-48BA-800F-5B884C38F8F9`. El identificador previo dejó de existir.
+- **Verificación:** 88/88 pruebas; tipos y lint correctos; expo-doctor 20/20.
+  Metro compiló el bundle iOS (1252 módulos; HTTP 200). No equivale a prueba funcional en dispositivo.
+- **Pendientes:** apertura visual bloqueada: no se encuentra Simulator.app; el simulador no abre
+  `exp://127.0.0.1:8081` (error 115, sin manejador Expo Go). Usuario debe ayudar desde Xcode/Developer.
+  Revisar teclado, modo oscuro, letra grande, persistencia y navegación en dispositivo.
+  Animaciones/háptica pendientes de pulido; PDF deshabilitado explícitamente hasta Fase 3.6.
+  F2–F6 y revisión UI global siguen pendientes. Sin commit ni push.
+
 ## 2026-10-24 — Cierre: repo en GitHub y ajuste de consumo de tokens
 - **Objetivo:** publicar el proyecto en GitHub y optimizar el consumo de créditos de Devin.
 - **Hecho:**
