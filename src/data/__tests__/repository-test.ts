@@ -99,7 +99,7 @@ describe('respaldo y borrado', () => {
 
   test('restaurar es atómico: si falla, no se pierde nada', async () => {
     await upsertShift(db, { id: 'a', start: '2026-10-01T06:00', end: '2026-10-01T18:00' });
-    const roto = { settings: DEFAULT_SETTINGS, shifts: [{ id: 'x', start: '2026-10-05T06:00', end: null as unknown as string }], templates: [] };
+    const roto = { settings: DEFAULT_SETTINGS, shifts: [{ id: 'x', start: '2026-10-05T06:00', end: null as unknown as string }], novelties: [], templates: [] };
     await expect(replaceAppData(db, roto)).rejects.toThrow();
     expect((await loadShifts(db)).map((s) => s.id)).toEqual(['a']);
   });

@@ -46,10 +46,13 @@ Pasos 4–6 tienen valores por defecto y botón "Omitir". Todo se puede cambiar 
 ### F2. Registro de turnos
 - Crear, editar y eliminar un turno con fecha/hora de entrada y fecha/hora de salida.
 - Soportar turnos que cruzan la medianoche y turnos de cualquier duración (máx. 24 h).
-- Plantillas rápidas de turnos frecuentes (ej. "Día 06–18", "Noche 18–06").
+- Registro desde un tap en el calendario. Elegir Día 06–18 o Noche 18–06 calcula automáticamente
+  entrada y salida, incluida la fecha siguiente para noche. Horario manual solo en opción avanzada.
+- Plantillas personalizadas disponibles; su gestión principal está en Ajustes.
 - Nota opcional.
 - Campos informativos personalizados: el usuario crea un nombre y registra un valor de texto,
-  número o alfanumérico por turno (ej.: `Grúa: RTG19`). Puede añadir varios campos.
+  número o alfanumérico por turno (ej.: `Grúa: RTG19`). Solo pedir nombre y valor: no preguntar
+  por tipo de dato. Puede añadir varios campos opcionales.
   No afectan horas, recargos, salario ni deducciones; se muestran en el detalle del turno.
 - Registrar descansos y novedades desde el mismo flujo/calendario: descanso remunerado,
   permiso remunerado/no remunerado e incapacidad. Un día sin registro no se considera descanso.
@@ -61,8 +64,11 @@ Pasos 4–6 tienen valores por defecto y botón "Omitir". Todo se puede cambiar 
 - Validaciones: salida posterior a entrada, sin turnos superpuestos.
 
 ### F3. Calendario
-- Vista mensual con los días trabajados marcados (diferenciar día/noche/festivo).
-- Tocar un día muestra sus turnos y permite agregar uno.
+- Mes completo en pantalla sin desplazamiento, abre automáticamente en el día/mes actual.
+- Sin botones de registrar ni "Ir a hoy". Tap en día vacío abre registro; tap en día con datos
+  abre consulta de horas/recargos. La consulta desde calendario permite añadir otro turno ese día.
+- Colores: día azul cielo, noche azul oscuro, descanso verde, novedad violeta; letras además del color.
+  Domingos/festivos subrayados; hoy con contorno.
 - Festivos de Colombia marcados automáticamente.
 
 ### F4. Detalle de turno
@@ -72,12 +78,19 @@ Pasos 4–6 tienen valores por defecto y botón "Omitir". Todo se puede cambiar 
 
 ### F5. Historial
 - Lista de turnos por periodo (filtrable por quincena/mes), con búsqueda por fecha.
-- Totales del periodo.
+- Consulta separada de edición: tocar un turno muestra horas extra y recargos ganados.
+- Sin accesos para crear turnos: registrar desde Calendario.
+- Exportar PDF del periodo (quincena o mes), incluyendo los acumulados parciales reales.
+  La búsqueda no limita la exportación: el PDF cubre todo el periodo seleccionado.
+- Liquidación salarial completa en el PDF cuando F6 esté disponible. Primera entrega: solo
+  acumulados, sin neto ni descuentos mensuales ficticios, con aviso de no ser respaldo restaurable.
 
 ### F6. Resumen de pago (quincena/mes)
-- Periodo incompleto: mostrar progreso y acumulados registrados de horas/recargos, no una liquidación
-  neta del periodo como si estuviera completo. Turnos, descansos y novedades documentan el periodo;
-  falta concretar la validación de cierre/reapertura, sin inferir descansos por ausencia de turnos.
+- Mostrar solo estimación quincenal/mensual. Si el periodo está incompleto, no calcular: mensaje
+  breve "Periodo incompleto. No se puede calcular todavía", sin progreso, fechas faltantes, acumulados
+  ni botones para registrar. La consulta parcial de importes está en Historial/detalle/PDF.
+- Turnos, descansos y novedades documentan el periodo sin inferir descansos por ausencia de turnos.
+  Falta concretar cierre/reapertura y adaptar el motor F6 antes de ofrecer el neto.
 - Liquidación del periodo solo al completar sus registros. En pago quincenal, retención y fondo
   solidario se descuentan en la última quincena usando los datos reales de todo el mes, no duplicando
   la quincena. Si falta la primera o segunda quincena, no presentar esos descuentos como calculados.

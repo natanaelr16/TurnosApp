@@ -1,5 +1,6 @@
 import { DEFAULT_SETTINGS, DEFAULT_TEMPLATES } from '@/domain/defaults';
-import type { AppData, AppSettings, Shift, ShiftTemplate } from '@/domain/types';
+import { validateRecords, validateTemplate } from '@/domain/records';
+import type { AppData, AppSettings, Novelty, Shift, ShiftTemplate } from '@/domain/types';
 
 import type { Db } from './db';
 
@@ -8,6 +9,7 @@ interface ShiftRow {
   start: string;
   end: string;
   note: string | null;
+  fields_json: string | null;
 }
 
 interface TemplateRow {
@@ -19,7 +21,7 @@ interface TemplateRow {
 
 const now = () => new Date().toISOString();
 
-const toShift = (r: ShiftRow): Shift => ({ id: r.id, start: r.start, end: r.end, ...(r.note ? { note: r.note } : {}) });
+const toShift = (r: ShiftRow): Shift => ({ id: r.id, start: r.start, end: r.end, ...(r.note ? { note: r.note } : {}), ...(r.fields_json ? { fields: JSON.parse(r.fields_json) as Shift['fields'] } : {}) });
 const toTemplate = (r: TemplateRow): ShiftTemplate => ({
   id: r.id,
   name: r.name,
@@ -40,20 +42,46 @@ export async function saveSettings(db: Db, settings: AppSettings): Promise<void>
 }
 
 export async function loadShifts(db: Db): Promise<Shift[]> {
-  return (await db.getAllAsync<ShiftRow>('SELECT id, start, end, note FROM shifts ORDER BY start')).map(toShift);
+  return (await db.getAllAsync<ShiftRow>('SELECT id, start, end, note, fields_json FROM shifts ORDER BY start')).map(toShift);
 }
 
 export async function upsertShift(db: Db, shift: Shift): Promise<void> {
   const ts = now();
   await db.runAsync(
-    `INSERT INTO shifts (id, start, end, note, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)
-     ON CONFLICT(id) DO UPDATE SET start = excluded.start, end = excluded.end, note = excluded.note, updated_at = excluded.updated_at`,
-    [shift.id, shift.start, shift.end, shift.note ?? null, ts, ts],
+    `INSERT INTO shifts (id, start, end, note, fields_json, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)
+     ON CONFLICT(id) DO UPDATE SET start = excluded.start, end = excluded.end, note = excluded.note, fields_json = excluded.fields_json, updated_at = excluded.updated_at`,
+    [shift.id, shift.start, shift.end, shift.note ?? null, shift.fields ? JSON.stringify(shift.fields) : null, ts, ts],
   );
 }
 
 export async function deleteShift(db: Db, id: string): Promise<void> {
   await db.runAsync('DELETE FROM shifts WHERE id = ?', [id]);
+}
+
+export async function loadNovelties(db: Db): Promise<Novelty[]> {
+  const rows = await db.getAllAsync<Novelty & { note: string | null }>('SELECT id, date, kind, note FROM novelties ORDER BY date');
+  return rows.map((r) => ({ id: r.id, date: r.date, kind: r.kind, ...(r.note ? { note: r.note } : {}) }));
+}
+
+export async function upsertNovelty(db: Db, novelty: Novelty): Promise<void> {
+  await db.runAsync('INSERT INTO novelties (id, date, kind, note) VALUES (?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET date = excluded.date, kind = excluded.kind, note = excluded.note', [novelty.id, novelty.date, novelty.kind, novelty.note ?? null]);
+}
+
+export async function deleteNovelty(db: Db, id: string): Promise<void> {
+  await db.runAsync('DELETE FROM novelties WHERE id = ?', [id]);
+}
+
+export async function saveRecord(db: Db, record: { shift: Shift } | { novelty: Novelty }): Promise<void> {
+  await db.withTransactionAsync(async () => {
+    const shifts = await loadShifts(db);
+    const novelties = await loadNovelties(db);
+    const errors = 'shift' in record
+      ? validateRecords([...shifts.filter((s) => s.id !== record.shift.id), record.shift], novelties)
+      : validateRecords(shifts, [...novelties.filter((n) => n.id !== record.novelty.id), record.novelty]);
+    if (errors.length) throw new Error(errors[0]);
+    if ('shift' in record) await upsertShift(db, record.shift);
+    else await upsertNovelty(db, record.novelty);
+  });
 }
 
 export async function loadTemplates(db: Db): Promise<ShiftTemplate[]> {
@@ -65,6 +93,7 @@ export async function loadTemplates(db: Db): Promise<ShiftTemplate[]> {
 async function writeTemplates(db: Db, templates: ShiftTemplate[]): Promise<void> {
   await db.runAsync('DELETE FROM shift_templates');
   for (const [i, t] of templates.entries()) {
+    if (validateTemplate(t).length) throw new Error(validateTemplate(t)[0]);
     await db.runAsync(
       'INSERT INTO shift_templates (id, name, start_time, duration_minutes, sort_order) VALUES (?, ?, ?, ?, ?)',
       [t.id, t.name, t.startTime, t.durationMinutes, i],
@@ -84,15 +113,17 @@ export async function completeOnboarding(db: Db, settings: AppSettings, template
 }
 
 export async function loadAppData(db: Db): Promise<AppData> {
-  return { settings: await loadSettings(db), shifts: await loadShifts(db), templates: await loadTemplates(db) };
+  return { settings: await loadSettings(db), shifts: await loadShifts(db), novelties: await loadNovelties(db), templates: await loadTemplates(db) };
 }
 
 /** Reemplaza todo (restaurar respaldo). Atómico: si algo falla no se pierde nada. */
 export async function replaceAppData(db: Db, data: AppData): Promise<void> {
   await db.withTransactionAsync(async () => {
     await db.runAsync('DELETE FROM shifts');
+    await db.runAsync('DELETE FROM novelties');
     await saveSettings(db, data.settings);
     for (const s of data.shifts) await upsertShift(db, s);
+    for (const n of data.novelties) await upsertNovelty(db, n);
     await db.runAsync('DELETE FROM shift_templates');
     for (const [i, t] of data.templates.entries()) {
       await db.runAsync(
@@ -107,6 +138,7 @@ export async function replaceAppData(db: Db, data: AppData): Promise<void> {
 export async function deleteAllData(db: Db): Promise<void> {
   await db.withTransactionAsync(async () => {
     await db.runAsync('DELETE FROM shifts');
+    await db.runAsync('DELETE FROM novelties');
     await db.runAsync('DELETE FROM settings');
     await writeTemplates(db, DEFAULT_TEMPLATES);
   });

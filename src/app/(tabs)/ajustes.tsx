@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import { useRef, useState } from 'react';
 import { Alert, Keyboard } from 'react-native';
 
@@ -77,6 +78,9 @@ export default function SettingsScreen() {
       {changed ? <Button label="Descartar cambios" variant="secondary" disabled={saving} onPress={() => {
         setDraft(draftFromSettings(settings, today)); setErrors({}); Keyboard.dismiss();
       }} /> : null}
+      <Card title="Turnos frecuentes">
+        <Button label="Gestionar plantillas" variant="secondary" onPress={() => router.push('/plantillas')} disabled={saving} />
+      </Card>
       <Card title="Datos">
         <Button label="Borrar todos mis datos" variant="danger" onPress={confirmReset} disabled={saving} />
       </Card>

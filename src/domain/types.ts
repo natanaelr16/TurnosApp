@@ -8,6 +8,15 @@ export interface Shift {
   start: LocalDateTime;
   end: LocalDateTime;
   note?: string;
+  fields?: { name: string; value: string | number }[];
+}
+
+export const NOVELTY_KINDS = ['rest', 'paid-leave', 'unpaid-leave', 'sick'] as const;
+export interface Novelty {
+  id: string;
+  date: LocalDate;
+  kind: typeof NOVELTY_KINDS[number];
+  note?: string;
 }
 
 /** Porcentajes (35 = 35 %) que el usuario puede sobrescribir (D-005). */
@@ -54,6 +63,7 @@ export interface ShiftTemplate {
 export interface AppData {
   settings: AppSettings;
   shifts: Shift[];
+  novelties: Novelty[];
   templates: ShiftTemplate[];
 }
 

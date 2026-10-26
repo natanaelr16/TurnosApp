@@ -2,7 +2,7 @@ import { DEFAULT_TEMPLATES } from '@/domain/defaults';
 
 import type { Db } from './db';
 
-export const DATABASE_VERSION = 1;
+export const DATABASE_VERSION = 2;
 
 /** Crea/actualiza el esquema según `PRAGMA user_version`. Agregar migraciones como `if (version === N)`. */
 export async function migrateDbIfNeeded(db: Db): Promise<void> {
@@ -42,6 +42,22 @@ export async function migrateDbIfNeeded(db: Db): Promise<void> {
       );
     }
     version = 1;
+  }
+
+  if (version === 1) {
+    await db.withTransactionAsync(async () => {
+      await db.execAsync(`
+        ALTER TABLE shifts ADD COLUMN fields_json TEXT;
+        CREATE TABLE novelties (
+          id TEXT PRIMARY KEY NOT NULL,
+          date TEXT NOT NULL UNIQUE,
+          kind TEXT NOT NULL CHECK (kind IN ('rest', 'paid-leave', 'unpaid-leave', 'sick')),
+          note TEXT
+        );
+        PRAGMA user_version = 2;
+      `);
+    });
+    version = 2;
   }
 
   await db.execAsync(`PRAGMA user_version = ${DATABASE_VERSION}`);

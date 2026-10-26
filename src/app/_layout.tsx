@@ -32,6 +32,9 @@ function RootNavigator() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Protected guard={onboarded}>
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="registro" options={{ presentation: 'modal', gestureEnabled: false }} />
+        <Stack.Screen name="plantillas" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="detalle" options={{ presentation: 'modal' }} />
       </Stack.Protected>
       <Stack.Protected guard={!onboarded}>
         <Stack.Screen name="onboarding" />

@@ -1,11 +1,11 @@
 // Formato del respaldo que va embebido en el PDF exportado (PRD F7, D-014).
-import { validateShifts } from './shift-calc';
+import { validateRecords, validateTemplate } from './records';
 import { datePart, toEpochMinutes } from './time';
-import type { AppData, AppSettings, Shift, ShiftTemplate } from './types';
+import type { AppData, AppSettings, Novelty, Shift, ShiftTemplate } from './types';
 
 export const BACKUP_APP = 'TurnosApp';
 /** Subir cuando cambie la forma de `AppData`, y agregar la migración en `parseBackup`. */
-export const BACKUP_FORMAT = 1;
+export const BACKUP_FORMAT = 2;
 /** Clave con la que se guarda el JSON dentro del PDF. */
 export const BACKUP_KEY = 'TurnosAppBackup';
 
@@ -60,7 +60,8 @@ function isSettings(v: unknown): v is AppSettings {
 
 const isShift = (v: unknown): v is Shift =>
   isObj(v) && typeof v.id === 'string' && typeof v.start === 'string' && DATETIME.test(v.start) &&
-  typeof v.end === 'string' && DATETIME.test(v.end) && isOptStr(v.note);
+  typeof v.end === 'string' && DATETIME.test(v.end) && isOptStr(v.note) &&
+  (v.fields === undefined || (Array.isArray(v.fields) && v.fields.every((f) => isObj(f) && typeof f.name === 'string' && (typeof f.value === 'string' || (typeof f.value === 'number' && Number.isFinite(f.value))))));
 
 const isTemplate = (v: unknown): v is ShiftTemplate =>
   isObj(v) && typeof v.id === 'string' && typeof v.name === 'string' && typeof v.startTime === 'string' &&
@@ -74,17 +75,19 @@ export function parseBackup(text: string): BackupParseResult {
     return { ok: false, error: 'JSON_INVALIDO' };
   }
   if (!isObj(raw) || raw.app !== BACKUP_APP || !isNum(raw.format, 1)) return { ok: false, error: 'NO_ES_RESPALDO' };
-  if (raw.format > BACKUP_FORMAT) return { ok: false, error: 'VERSION_NO_SOPORTADA' };
+  if (!Number.isInteger(raw.format) || raw.format > BACKUP_FORMAT) return { ok: false, error: 'VERSION_NO_SOPORTADA' };
 
   const d = raw.data;
+  if (raw.format === 1 && isObj(d) && d.novelties === undefined) d.novelties = [];
   const valid =
     typeof raw.exportedAt === 'string' && isObj(d) && isSettings(d.settings) &&
     Array.isArray(d.shifts) && d.shifts.every(isShift) &&
-    Array.isArray(d.templates) && d.templates.every(isTemplate) &&
-    validateShifts(d.shifts as Shift[]).length === 0;
+    Array.isArray(d.templates) && d.templates.every(isTemplate) && d.templates.every((t) => validateTemplate(t).length === 0) &&
+    Array.isArray(d.novelties) && d.novelties.every((n) => isObj(n) && typeof n.id === 'string' && typeof n.date === 'string' && typeof n.kind === 'string' && isOptStr(n.note)) &&
+    validateRecords(d.shifts as Shift[], d.novelties as Novelty[]).length === 0;
   if (!valid) return { ok: false, error: 'DATOS_INVALIDOS' };
 
-  const backup = raw as unknown as BackupFile;
+  const backup = { ...raw, format: BACKUP_FORMAT } as unknown as BackupFile;
   const dates = backup.data.shifts.map((s) => datePart(s.start)).sort();
   return {
     ok: true,

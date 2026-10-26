@@ -5,6 +5,71 @@ Formato: fecha, objetivo, qué se hizo, verificación ejecutada, pendientes.
 
 ---
 
+## 2026-10-25 — Rediseño solicitado: calendario directo, consulta y PDF de acumulados
+- **Objetivo:** simplificar el flujo tras la revisión visual del usuario; registrar solo desde calendario.
+- **Hecho:** calendario fijo sin scroll ni botones de registro/Ir a hoy, fecha actual al enfocar/reanudar,
+  colores azul cielo/azul oscuro/verde/violeta con letras y leyenda, tap registra o consulta.
+  Día 06–18 y Noche 18–06 calculan salida automáticamente; horario especial plegado y campos
+  opcionales solo nombre/valor, sin selector de tipo. Consulta `/detalle` separada de edición.
+  Historial compacto con importes, filtro por periodo y búsqueda, sin CTA de registro.
+  Resumen solo muestra aviso breve de incompleto/no disponible, sin listas ni progreso (D-020).
+- **PDF:** instalados expo-print 58.0.7 y expo-sharing 58.0.20 exactos por compatibilidad SDK 58;
+  Historial genera informe de acumulados del periodo seleccionado, con consentimiento, escape HTML
+  y sin recursos remotos. Aviso explícito: no es neto salarial ni respaldo restaurable (D-021).
+  PDF de liquidación salarial mensual y JSON embebido siguen pendientes de F6/F7.
+- **Revisiones:** QA 111 pruebas/tipos/lint correctos; UI ejecutada. Aplicados validación visible,
+  formato de fechas y subtítulo de jornada; no se acepta reintroducir faltantes/CTA en Resumen
+  porque contradice el pedido. Animaciones/háptica y comprobación visual siguen pendientes.
+- **Seguridad:** npm audit --omit=dev reportó 5 high vía Expo CLI/code-signing/node-forge/zod;
+  npm ls confirmó esas rutas y uso de zod en lint. No se aplicó --force (propone Expo 44),
+  overrides ni cambios de políticas. Revisar actualización compatible y caché de PDFs privados.
+- **Verificación:** 111 pruebas, tipos, lint y expo-doctor 20/20 correctos. PDF/colores probados
+  con pruebas puras; exportación nativa y UI aún por confirmar por el usuario.
+- **Pendientes:** prueba visual/nativa, estimación y PDF salarial F6, respaldo F7, vulnerabilidades.
+  Sin commit ni push de este avance.
+
+## 2026-10-25 — Continuación F2–F5: validación, respaldo y revisión UI
+- **Objetivo:** completar el flujo de registro con campos informativos y novedades, sin liquidar datos parciales.
+- **Hecho:**
+  - Turnos y plantillas: crear/editar/eliminar, fechas/horas nativas con @expo/ui existente, notas,
+    campos texto/número/alfanuméricos y reutilización de nombres, sin alterar importes (probado).
+  - Novedades por jornada de inicio: descanso remunerado, permiso remunerado/no remunerado e incapacidad.
+    No se calcula aún su efecto monetario. Noche seguida de descanso permitida (D-019).
+  - SQLite v2 conserva datos de v1; guardado validado transaccional; respaldo formato 2 incluye
+    campos/novedades y migra formato 1 (D-018). Borrado/restauración incluyen novedades.
+  - Calendario mensual con festivos y registros; historial FlatList con periodo/búsqueda.
+    Resumen solo muestra acumulado y jornadas faltantes, sin neto ni descuento mensual proyectado.
+  - Revisión UI: aplicados desglose expandible de horas/importes, fechas legibles, memoización,
+    valores largos, límites de letra en celdas, CTA sin plantillas y error/reintento de carga inicial.
+    Cancelar confirma solo cambios; Atrás Android protegido y gesto de cierre deshabilitado en registro.
+  - Añadidas pruebas de límites de plantilla/campos/notas, periodo inválido y cobertura entre años.
+- **Verificación:** 107/107 pruebas, tipos y lint correctos; expo-doctor 20/20.
+  Bundles iOS y Android HTTP 200. Recarga y enlace a `/registro` enviados al simulador; no sustituye prueba visual.
+- **Pendientes:** usuario debe probar turno nocturno con Grúa: RTG19, edición/borrado, descanso siguiente,
+  plantillas, teclado/letra grande/oscuro y persistencia. F6: cierre/reapertura, básico por novedades,
+  aportes y FSP/retención sobre mes real. Mantener pruebas sugeridas por auditoría de la entrada siguiente.
+  Animaciones/háptica, permisos por horas y PDF pendientes. Sin commit ni push de este avance.
+
+## 2026-10-26 — Auditoría del motor + avance F2–F5 (registro, novedades, calendario, historial)
+- **Objetivo:** auditar `src/domain/` contra `REGLAS_LEGALES.md` y registrar el avance de Fase 3.
+- **Hecho:**
+  - Auditoría completa del motor: veredicto **APROBADO**. Sección por sección verificada
+    (divisor 210 desde 2026-07-15, nocturno 19:00 desde 2025-12-25, dominical 80/90/100 %,
+    factores §4.1, festivos 2026 día por día, deducciones, FSP ambas tablas, retención proc. 1).
+    4 cálculos manuales coinciden con las pruebas (71.429 / 240.715 / 217.143 / 617.000).
+  - Observaciones menores (no bloquean): retención quincenal puede dar 308.500 (no múltiplo de
+    $1.000); motor aún proyecta quincena ×2 (D-012, ya reemplazada por D-015, implementación pendiente).
+  - Pruebas sugeridas para agregar: frontera 20:59/21:00 pre-2025-12-25, dominical 100 % a nivel
+    turno, FSP en 17/18 SMMLV, tramos altos de retención con valores literales, festivo en domingo.
+  - En el árbol de trabajo (sin commit) hay implementado: `/registro` (crear/editar/eliminar turno
+    o novedad), `/plantillas`, `record-card`/`record-fields`, calendario con festivos y registros,
+    historial con filtro por periodo y búsqueda, migración DB v2 (`fields_json`, `novelties`),
+    `domain/records.ts` (validación, `accruedForPeriod`, `recordCoverage`). Resumen muestra
+    acumulado y cobertura, sin liquidación (a propósito, hasta D-015/D-016).
+- **Verificación:** `npm test` → 103/103 ✅; `npx tsc --noEmit` ✅. Lint y expo-doctor pendientes.
+- **Pendientes:** ajuste del básico por novedades y liquidación con cierre/reapertura (F6);
+  `/revision-ui` de las pantallas nuevas; commit y push del avance; pruebas de la auditoría.
+
 ## 2026-10-25 — Prueba visual inicial y requisitos de nómina/novedades
 - **Objetivo:** abrir la app y precisar cómo registrar operación diaria y liquidar periodos completos.
 - **Hecho:** Expo Go instalado; apertura con localhost fallaba (servidor IPv6, enlace IPv4).

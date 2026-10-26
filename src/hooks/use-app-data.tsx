@@ -2,8 +2,10 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useSQLiteContext } from 'expo-sqlite';
 import { createContext, use, useEffect, useState, type ReactNode } from 'react';
 
+import { ThemedText } from '@/components/themed-text';
+import { Button, Screen } from '@/components/ui';
 import * as repo from '@/data/repository';
-import type { AppData, AppSettings, Shift, ShiftTemplate } from '@/domain/types';
+import type { AppData, AppSettings, Novelty, Shift, ShiftTemplate } from '@/domain/types';
 
 interface AppDataContextValue {
   data: AppData;
@@ -11,6 +13,9 @@ interface AppDataContextValue {
   completeOnboarding: (settings: AppSettings, templates: ShiftTemplate[]) => Promise<void>;
   saveShift: (shift: Shift) => Promise<void>;
   removeShift: (id: string) => Promise<void>;
+  saveNovelty: (novelty: Novelty) => Promise<void>;
+  removeNovelty: (id: string) => Promise<void>;
+  updateTemplates: (templates: ShiftTemplate[]) => Promise<void>;
   restore: (data: AppData) => Promise<void>;
   resetAll: () => Promise<void>;
 }
@@ -22,14 +27,24 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
   const db = useSQLiteContext();
   const [data, setData] = useState<AppData | null>(null);
 
+  const [loadError, setLoadError] = useState(false);
+  const [attempt, setAttempt] = useState(0);
   useEffect(() => {
+    let active = true;
     repo.loadAppData(db).then((loaded) => {
-      setData(loaded);
-      SplashScreen.hideAsync();
+      if (active) { setData(loaded); SplashScreen.hideAsync(); }
+    }).catch(() => {
+      if (active) { setLoadError(true); SplashScreen.hideAsync(); }
     });
-  }, [db]);
+    return () => { active = false; };
+  }, [db, attempt]);
 
-  if (!data) return null;
+  if (!data) return <Screen title={loadError ? 'No pudimos cargar tus datos' : 'Cargando tus datos…'}>
+    {loadError ? <>
+      <ThemedText accessibilityRole="alert">No se han borrado tus datos. Intenta cargarlos de nuevo.</ThemedText>
+      <Button label="Reintentar" onPress={() => { setLoadError(false); setAttempt(attempt + 1); }} />
+    </> : null}
+  </Screen>;
 
   const reload = async () => setData(await repo.loadAppData(db));
   const value: AppDataContextValue = {
@@ -43,11 +58,23 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
       await reload();
     },
     saveShift: async (shift) => {
-      await repo.upsertShift(db, shift);
+      await repo.saveRecord(db, { shift });
       await reload();
     },
     removeShift: async (id) => {
       await repo.deleteShift(db, id);
+      await reload();
+    },
+    saveNovelty: async (novelty) => {
+      await repo.saveRecord(db, { novelty });
+      await reload();
+    },
+    removeNovelty: async (id) => {
+      await repo.deleteNovelty(db, id);
+      await reload();
+    },
+    updateTemplates: async (templates) => {
+      await repo.saveTemplates(db, templates);
       await reload();
     },
     restore: async (backup) => {

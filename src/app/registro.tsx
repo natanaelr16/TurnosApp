@@ -1,0 +1,136 @@
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
+import { useCallback, useMemo, useRef, useState } from 'react';
+import { Alert, BackHandler, Keyboard } from 'react-native';
+
+import { DateTimeField, TextField } from '@/components/record-fields';
+import { Choice } from '@/components/settings-fields';
+import { ShiftBreakdown } from '@/components/shift-breakdown';
+import { ThemedText } from '@/components/themed-text';
+import { Button, Card, EmptyState, Screen, ValueRow } from '@/components/ui';
+import { newId } from '@/data/repository';
+import { DEFAULT_TEMPLATES } from '@/domain/defaults';
+import { applyTemplate, isLocalDate, validateRecords } from '@/domain/records';
+import { computeShifts } from '@/domain/shift-calc';
+import type { Novelty, Shift } from '@/domain/types';
+import { useAppData } from '@/hooks/use-app-data';
+import { formatCOP, formatMinutes, formatShortDate, todayLocal } from '@/lib/format';
+import { fieldsFromDraft, NOVELTY_LABELS, type FieldDraft } from '@/lib/record-form';
+
+export default function RecordScreen() {
+  const params = useLocalSearchParams<{ id?: string; type?: string; date?: string }>();
+  const { data, saveShift, removeShift, saveNovelty, removeNovelty } = useAppData();
+  const originalShift = params.type !== 'novelty' ? data.shifts.find((s) => s.id === params.id) : undefined;
+  const originalNovelty = params.type === 'novelty' ? data.novelties.find((n) => n.id === params.id) : undefined;
+  const [id] = useState(() => params.id ?? newId());
+  const initialDate = typeof params.date === 'string' && isLocalDate(params.date) ? params.date : todayLocal();
+  const [type, setType] = useState<'shift' | 'novelty'>(originalNovelty || params.type === 'novelty' ? 'novelty' : 'shift');
+  const [start, setStart] = useState(originalShift?.start ?? `${originalNovelty?.date ?? initialDate}T06:00`);
+  const [end, setEnd] = useState(originalShift?.end ?? `${initialDate}T18:00`);
+  const [kind, setKind] = useState<Novelty['kind']>(originalNovelty?.kind ?? 'rest');
+  const [note, setNote] = useState(originalShift?.note ?? originalNovelty?.note ?? '');
+  const [fields, setFields] = useState<FieldDraft[]>(() => (originalShift?.fields ?? []).map((f) => ({ id: newId(), name: f.name, value: String(f.value), type: typeof f.value === 'number' ? 'number' : 'text' })));
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  const lock = useRef(false);
+  const leave = useCallback(() => router.canGoBack() ? router.back() : router.replace('/'), []);
+  const snapshot = JSON.stringify({ type, start, end, kind, note, fields: fields.map((field) => ({ name: field.name, value: field.value, type: field.type })) });
+  const [initialSnapshot] = useState(snapshot);
+  const changed = initialSnapshot !== snapshot;
+  const cancel = useCallback(() => {
+    if (busy) return;
+    if (!changed) { leave(); return; }
+    Alert.alert('Salir sin guardar', 'Los cambios de esta pantalla no se guardarán.', [{ text: 'Seguir editando', style: 'cancel' }, { text: 'Salir', onPress: leave }]);
+  }, [busy, changed, leave]);
+  useFocusEffect(useCallback(() => {
+    const subscription = BackHandler.addEventListener('hardwareBackPress', () => { cancel(); return true; });
+    return () => subscription.remove();
+  }, [cancel]));
+  const draftShift: Shift = useMemo(() => ({ id, start, end, ...(note.trim() ? { note: note.trim() } : {}) }), [id, start, end, note]);
+  const candidates = useMemo(() => [...data.shifts.filter((s) => s.id !== id), draftShift], [data.shifts, id, draftShift]);
+  const validationErrors = useMemo(() => type === 'shift' ? validateRecords(candidates, data.novelties) : [], [type, candidates, data.novelties]);
+  const result = useMemo(() => type === 'shift' && !validationErrors.length
+    ? computeShifts(candidates, data.settings).find((r) => r.shift.id === id) : undefined, [type, candidates, validationErrors, data.settings, id]);
+  const templates = [...DEFAULT_TEMPLATES, ...data.templates.filter((t) => !DEFAULT_TEMPLATES.some((base) => base.startTime === t.startTime && base.durationMinutes === t.durationMinutes))];
+  const [customTimes, setCustomTimes] = useState(false);
+  const [showNote, setShowNote] = useState(Boolean(note));
+  const changeField = (fieldId: string, patch: Partial<FieldDraft>) => setFields(fields.map((f) => f.id === fieldId ? { ...f, ...patch } : f));
+
+  if (params.id && !originalShift && !originalNovelty) return <Screen title="Registro no disponible"><EmptyState title="No se encontró el registro" message="Puede haberse eliminado. Vuelve a tus registros." action={{ label: 'Volver', onPress: leave }} /></Screen>;
+
+  const save = async () => {
+    if (lock.current) return;
+    Keyboard.dismiss(); setError('');
+    lock.current = true; setBusy(true);
+    try {
+      if (type === 'shift') {
+        const values = fieldsFromDraft(fields);
+        await saveShift({ ...draftShift, ...(values.length ? { fields: values } : {}) });
+      } else {
+        await saveNovelty({ id, date: start.slice(0, 10), kind, ...(note.trim() ? { note: note.trim() } : {}) });
+      }
+      leave();
+    } catch (cause) { setError(cause instanceof Error ? cause.message : 'No se pudo guardar. Intenta de nuevo.'); }
+    finally { lock.current = false; setBusy(false); }
+  };
+  const confirmDelete = () => Alert.alert('Eliminar registro', 'Este registro se eliminará del teléfono. No se puede deshacer.', [
+    { text: 'Cancelar', style: 'cancel' },
+    { text: 'Eliminar', style: 'destructive', onPress: async () => {
+      if (lock.current) return;
+      lock.current = true; setBusy(true);
+      try { if (type === 'shift') await removeShift(id); else await removeNovelty(id); leave(); }
+      catch { setError('No se pudo eliminar. Intenta de nuevo.'); }
+      finally { lock.current = false; setBusy(false); }
+    } },
+  ]);
+  const addField = (name = '') => setFields([...fields, { id: newId(), name, value: '', type: 'text' }]);
+  return <Screen title={params.id ? 'Editar registro' : 'Nuevo registro'} subtitle={`${formatShortDate(start.slice(0, 10))} · ${start.slice(0, 4)}`} footer={<>
+    {error ? <ThemedText accessibilityRole="alert" themeColor="danger">{error}</ThemedText> : null}
+    <Button label={busy ? 'Guardando…' : 'Guardar registro'} onPress={save} disabled={busy} />
+    <Button label="Cancelar" variant="secondary" disabled={busy} onPress={cancel} />
+  </>}>
+    {!params.id ? <Card title="¿Qué vas a registrar?">
+      <Choice label="Turno trabajado" selected={type === 'shift'} onPress={() => { setType('shift'); setError(''); }} disabled={busy} />
+      <Choice label="Descanso o novedad" selected={type === 'novelty'} onPress={() => { setType('novelty'); setError(''); }} disabled={busy} />
+    </Card> : null}
+    {type === 'shift' ? <>
+      <Card title="Elige tu turno">
+        {templates.map((template) => {
+          const values = applyTemplate(start.slice(0, 10), template);
+          return <Choice key={template.id} label={template.id === 'tpl-dia' ? 'Día · 06:00–18:00' : template.id === 'tpl-noche' ? 'Noche · 18:00–06:00 del día siguiente' : template.name} selected={start === values.start && end === values.end} disabled={busy} onPress={() => {
+            setStart(values.start); setEnd(values.end); setCustomTimes(false); setError('');
+          }} />;
+        })}
+        <ThemedText type="small">{formatShortDate(start.slice(0, 10))} · {start.slice(11)} → {formatShortDate(end.slice(0, 10))} · {end.slice(11)}</ThemedText>
+        {validationErrors.length ? <ThemedText accessibilityRole="alert" themeColor="danger">{validationErrors[0]}</ThemedText> : null}
+        <Button label={customTimes ? 'Ocultar horario especial' : 'Necesito un horario diferente'} variant="secondary" disabled={busy} onPress={() => setCustomTimes(!customTimes)} />
+        {customTimes ? <>
+          <DateTimeField label="Entrada" value={start} onChange={setStart} disabled={busy} />
+          <DateTimeField label="Salida" value={end} onChange={setEnd} disabled={busy} />
+          <Button label="Gestionar plantillas" variant="secondary" disabled={busy} onPress={() => router.push('/plantillas')} />
+        </> : null}
+      </Card>
+      {fields.map((field, index) => <Card key={field.id} title={`Campo opcional ${index + 1}`}>
+        <TextField label="Nombre" value={field.name} onChange={(name) => changeField(field.id, { name })} maxLength={80} disabled={busy} />
+        <TextField label={field.name ? `Valor de ${field.name}` : 'Valor'} value={field.value} onChange={(value) => changeField(field.id, { value, type: 'text' })} maxLength={500} disabled={busy} />
+        <Button label={`Quitar campo ${index + 1}`} variant="secondary" disabled={busy} onPress={() => setFields(fields.filter((f) => f.id !== field.id))} />
+      </Card>)}
+      <Button label="Añadir campo opcional" variant="secondary" disabled={busy || fields.length >= 20} onPress={() => addField()} />
+      {result ? <Card title="Vista previa del turno">
+        <ValueRow label="Duración" value={formatMinutes(result.totalMinutes)} />
+        <ValueRow label="Horas extra" value={formatMinutes(result.extraMinutes)} />
+        <ValueRow label="Recargos + extras" value={formatCOP(result.total)} />
+        <ThemedText type="caption">Adicional al básico; no es la liquidación neta del periodo.</ThemedText>
+        <ShiftBreakdown result={result} />
+        {result.warnings.map((warning) => <ThemedText key={warning} accessibilityRole="alert" themeColor="danger">{warning === 'EXTRA_DIARIO_EXCEDIDO' ? 'Aviso: más de 2 horas extra en la jornada.' : 'Aviso: más de 12 horas extra en la semana.'}</ThemedText>)}
+      </Card> : null}
+    </> : <Card title="Novedad de jornada completa">
+      <DateTimeField label="Fecha de la jornada" value={start} onChange={setStart} dateOnly disabled={busy} />
+      {(Object.keys(NOVELTY_LABELS) as Novelty['kind'][]).map((key) => <Choice key={key} label={NOVELTY_LABELS[key]} selected={kind === key} onPress={() => setKind(key)} disabled={busy} />)}
+      <ThemedText type="small">La fecha corresponde al inicio de la jornada, igual que los turnos nocturnos. No se permiten turno y novedad completa con el mismo inicio.</ThemedText>
+      <ThemedText>{kind === 'rest' ? 'El descanso remunerado ya está incluido en el básico: no suma ni resta.' : kind === 'sick' ? 'Tu condición empresarial es 75 %. El ajuste monetario de incapacidad aún no está implementado.' : 'Se guarda la novedad. Los ajustes monetarios por permisos aún no están implementados.'}</ThemedText>
+      <ThemedText type="caption">Por ahora se registra una jornada por vez. Los permisos por horas se incorporarán después.</ThemedText>
+    </Card>}
+    {showNote ? <Card title="Nota opcional"><TextField label="Nota" value={note} onChange={setNote} multiline disabled={busy} /></Card> : <Button label="Añadir nota opcional" variant="secondary" onPress={() => setShowNote(true)} disabled={busy} />}
+    {params.id ? <Button label="Eliminar registro" variant="danger" onPress={confirmDelete} disabled={busy} /> : null}
+  </Screen>;
+}

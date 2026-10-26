@@ -146,7 +146,7 @@ export function EmptyState({
 const styles = StyleSheet.create({
   flex: { flex: 1 },
   label: { flexShrink: 1, flexGrow: 1 },
-  value: { flexShrink: 0, textAlign: 'right' },
+  value: { flexShrink: 1, maxWidth: '100%', textAlign: 'right' },
   content: {
     padding: Spacing.three,
     paddingBottom: BottomTabInset + Spacing.four,

@@ -16,7 +16,16 @@
 | Resumen | Pago estimado de la quincena/mes |
 | Ajustes | Salario, límites, porcentajes, periodo de pago |
 
-Pantallas modales: crear/editar turno, detalle de turno.
+Pantallas modales: crear/editar turno, consulta de detalle separada y plantillas.
+
+## Flujo simplificado (pedido del usuario, D-020)
+- Calendario: mes completo sin scroll ni botones de registro/"Ir a hoy"; abrir en fecha actual.
+  Tap vacío → registrar; tap ocupado → consultar. Navegación mensual con flechas compactas.
+- Registro: elegir Día 06–18 o Noche 18–06; salida automática. Horario especial plegado.
+  Campo opcional solo nombre + valor, sin selector de tipo ni panel de datos de operación.
+- Historial: lista por periodo, consulta de horas/recargos y exportación PDF; sin CTA de registro.
+- Resumen: solo estimación o mensaje breve de periodo incompleto, sin progreso ni lista de faltantes.
+  No reintroducir esos controles por recomendaciones genéricas de revisión UI.
 
 ## Onboarding (primer uso, ver PRD F0)
 - Una pregunta por pantalla, título grande, barra de progreso, botón principal fijo abajo.
@@ -29,7 +38,9 @@ Pantallas modales: crear/editar turno, detalle de turno.
 ## Lenguaje visual
 - Modo claro y oscuro (automático).
 - Colores semánticos (definir en `src/constants/theme.ts`):
-  - Diurno: ámbar · Nocturno: índigo · Dominical/Festivo: rojo coral · Extra: verde.
+  - Importes/desgloses: diurno ámbar, nocturno índigo, dominical/festivo rojo coral, extra verde.
+  - Calendario (`lib/calendar.ts`): día azul cielo, noche azul oscuro, descanso verde, novedad violeta;
+    letras D/N/L/V además del color, alto contraste del número. Hoy contorno, festivo subrayado.
 - Números de dinero con fuente tabular (`fontVariant: ['tabular-nums']`).
 - Formato: `$ 1.234.567`, horas `7 h 30 min`, fechas `vie 24 oct`.
 

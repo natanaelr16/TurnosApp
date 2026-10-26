@@ -9,6 +9,7 @@ const data: AppData = {
     { id: 'a', start: '2026-10-01T06:00', end: '2026-10-01T18:00', note: 'Turno día' },
   ],
   templates: DEFAULT_TEMPLATES,
+  novelties: [],
 };
 
 describe('respaldo embebido en PDF (D-014)', () => {
@@ -25,6 +26,24 @@ describe('respaldo embebido en PDF (D-014)', () => {
       baseSalary: 4_453_128,
       exportedAt: '2026-10-24T12:00:00.000Z',
     });
+  });
+
+  test('migra formato 1 a 2 sin perder turnos antiguos', () => {
+    const raw = JSON.parse(createBackup(data, '2026-10-25T12:00:00Z'));
+    raw.format = 1;
+    delete raw.data.novelties;
+    const result = parseBackup(JSON.stringify(raw));
+    expect(result.ok).toBe(true);
+    if (result.ok) { expect(result.backup.format).toBe(2); expect(result.backup.data).toEqual(data); }
+  });
+
+  test('rechaza campos informativos inválidos y novedades en conflicto', () => {
+    const raw = JSON.parse(createBackup(data, '2026-10-25T12:00:00Z'));
+    raw.data.shifts[0].fields = [{ name: 'Grúa', value: {} }];
+    expect(parseBackup(JSON.stringify(raw)).ok).toBe(false);
+    delete raw.data.shifts[0].fields;
+    raw.data.novelties = [{ id: 'n', date: '2026-10-03', kind: 'rest' }];
+    expect(parseBackup(JSON.stringify(raw)).ok).toBe(false);
   });
 
   test('texto que no es JSON', () => {
