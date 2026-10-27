@@ -31,6 +31,8 @@ Rutas actuales: `src/app/_layout.tsx` (SQLiteProvider + AppDataProvider + Stack.
 `historial`, `resumen`, `ajustes`; modales protegidos `registro.tsx`, `plantillas.tsx` y `detalle.tsx`.
 Calendario es una grilla fija (SafeAreaView, sin ScrollView); `lib/calendar.ts` genera semanas/colores
 con índice memoizado de registros. Recupera fecha actual al enfocar/reanudar y al cambiar el día.
+Modo año (D-022): tocar el nombre del mes muestra 12 `MiniMonth` con los mismos colores y puntito
+de segunda marca; tocar una miniatura abre la grilla de ese mes. Flechas cambian mes o año según el modo.
 Estado global: `src/hooks/use-app-data.tsx` (`useAppData()`), con error/reintento de carga inicial.
 Componentes base: `src/components/ui.tsx` (`Screen` con footer opcional y soporte de teclado).
 Formularios F0/F1: `src/components/settings-fields.tsx` comparte campos/opciones; `src/lib/settings-form.ts`
@@ -44,7 +46,9 @@ F2: `record-fields.tsx` usa selectores nativos de `@expo/ui/community/datetime-p
 `hooks/use-period-pdf.ts` pide consentimiento, genera PDF con expo-print y comparte con expo-sharing.
 `lib/period-report.ts` formatea acumulados reales y escapa todos los datos de usuario; sin recursos remotos.
 Este informe NO incluye JSON de respaldo ni neto; no sustituye F7 ni el motor F6.
-`lib/record-form.ts` convierte valores texto/número y fechas de selectores sin `toISOString`.
+`lib/record-form.ts` convierte valores texto/número y fechas de selectores sin `toISOString`;
+exporta `NOVELTY_LABELS` y `WARNING_LABELS` (avisos de extras compartidos por registro y detalle).
+`registro.tsx` emite háptico de éxito al guardar con `expo-haptics` ~58.0.7 (D-022).
 `domain/records.ts` valida registros/plantillas, aplica plantillas, calcula cobertura y acumulados sin neto.
 `repository.saveRecord` valida contra datos actuales y guarda en una transacción.
 

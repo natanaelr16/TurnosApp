@@ -3,43 +3,47 @@
 > Memoria viva del proyecto. **Todo agente la lee al iniciar y la actualiza al terminar.**
 > Mantenerla corta (máx. ~60 líneas). El detalle histórico va en `BITACORA.md`.
 
-**Última actualización:** 2026-10-25 — cierre del día.
-**Fase actual:** Fase 3 — F0–F5 implementados; prueba visual del rediseño pendiente.
-**Git:** avance guardado en `bfceb39` (F0/F1 en `a9429a6`). Repo limpio antes de este cierre;
-solo memoria/documentación pendiente de commit al terminar. Sincronización remota no comprobada.
-El título «Fase 4» del commit no cambia el ROADMAP: F6 aún está pendiente.
+**Última actualización:** 2026-10-26 — calendario con vista de año y hallazgos de revisión UI.
+**Fase actual:** Fase 3 — F0–F5 implementados; prueba visual del rediseño y vista de año pendiente.
+**Git:** avance previo en `bfceb39` + docs en `bfff494`. Cambios de esta sesión sin commit:
+vista de año, "Dato adicional", háptico, expo-haptics ~58.0.7 y docs de la sesión.
 
 ## Qué existe hoy
 - Motor puro de turnos/nómina validado con planilla real (D-013); auditoría previa en BITACORA.
-- SQLite v2: settings, turnos/campos opcionales, plantillas, novedades; migración v1 probada,
-  guardado validado, restauración atómica y respaldo JSON formato 2 compatible con formato 1.
+- SQLite v2: settings, turnos/campos, plantillas, novedades; respaldo JSON formato 2 compatible con 1.
 - Onboarding de siete pasos y Ajustes editables (F0/F1); gestión de plantillas en Ajustes.
-- Calendario fijo sin scroll ni CTA de registro/Ir a hoy: tap vacío registra y tap ocupado consulta.
-  Día azul cielo, noche azul oscuro, descanso verde, novedad violeta; letras D/N/L/V (D-020).
-- Registro Día 06–18/Noche 18–06 con salida automática; horario especial plegado y campos
-  opcionales solo nombre/valor, sin selector de tipo. Fechas/horas nativas con @expo/ui.
-- Consulta `/detalle` separada de edición: horas extra, recargos, importes por categoría y avisos.
-  Historial por periodo, sin botones de registro; PDF incluye todo el periodo, no solo búsqueda.
-- Resumen solo muestra aviso breve de incompleto/no disponible; sin progreso ni días faltantes.
-  La estimación salarial neta F6 todavía no está implementada.
-- PDF de acumulados (D-021): expo-print 58.0.7 + expo-sharing 58.0.20, consentimiento de privacidad,
-  HTML escapado y sin recursos externos. No incluye neto ni JSON: NO es respaldo restaurable.
-- Provider con error/reintento, validación, confirmación de salida y soporte de teclado.
+- Calendario fijo sin scroll ni CTA (D-020): tap vacío registra, tap ocupado consulta.
+  Día azul cielo, noche azul oscuro, descanso verde, novedad violeta; letras D/N/L/V.
+- Vista de año estilo iPhone (D-022): tocar el nombre del mes muestra los 12 meses en miniatura
+  con los mismos colores y puntito de segunda marca; tocar un mes abre su grilla.
+- Registro Día 06–18/Noche 18–06 con salida automática; horario especial plegado.
+  "Dato adicional" nombre + valor (ej.: Observaciones), sin selector de tipo (D-017/D-022).
+  Fechas legibles "lun 26 oct" en selectores y háptico de éxito al guardar (expo-haptics).
+- Consulta `/detalle` separada; Historial por periodo con búsqueda y PDF de acumulados;
+  Resumen solo aviso breve de incompleto. Warnings con mapa `WARNING_LABELS` compartido.
+- PDF de acumulados (D-021): expo-print + expo-sharing, consentimiento y escape HTML.
+  No incluye neto ni JSON: NO es respaldo restaurable.
 
 ## Verificación al cerrar
-- Reejecutados: **111/111 pruebas (13 suites), tipos y lint correctos**.
-- Expo-doctor 20/20 y bundles iOS/Android HTTP 200 comprobados previamente en esta sesión.
-- QA/UI ejecutadas. Prueba visual y exportación PDF nativa aún sin confirmación del usuario.
+- Reejecutados: **111/111 pruebas (13 suites), tipos, lint y expo-doctor 20/20**.
+- Revisión UI global 2026-10-26 ejecutada: CAMBIOS RECOMENDADOS; medios aplicados
+  (fechas, háptico, botón de respaldo deshabilitado, mapa de warnings).
+- Metro LAN puerto 8083 activo; app recargada en simulador `EB5FAFDF-45F8-48BA-800F-5B884C38F8F9`.
+  Prueba visual de la vista de año y del háptico aún sin confirmación del usuario.
 
 ## En curso / siguiente sesión
-1. Revisar calendario entero/colores, tap vacío/ocupado, Noche automática y campo Grúa: RTG19;
-   probar PDF nativo, letra grande, oscuro, persistencia y pantallas pequeñas/iOS/Android.
-2. Especificar reglas de básico/aportes por novedades y cierre/reapertura; revisar normas/pruebas.
-3. Implementar F6: estimación y PDF salarial, FSP/retención en última quincena sobre mes real.
-4. Completar respaldo PDF restaurable F7; pulir animaciones/háptica y permisos por horas.
+1. Confirmación visual del usuario: vista de año, miniaturas con colores, tap mes→grilla,
+   "Dato adicional", háptico al guardar. No asumir aprobación por compilar.
+2. Decisión del usuario sobre hallazgo alto de revisión UI: ¿mostrar en Resumen el acumulado
+   de recargos+extras del periodo? (compatible con D-020, pero él pidió solo aviso; pendiente).
+3. Especificar reglas de básico/aportes por novedades y cierre/reapertura; revisar normas/pruebas.
+4. Implementar F6: estimación y PDF salarial, FSP/retención en última quincena sobre mes real.
+5. Completar respaldo PDF restaurable F7; permisos por horas; animaciones de transición.
+6. Hallazgos UI menores pendientes: memoizar `snapshot` en registro, acción "Limpiar búsqueda"
+   en Historial, legibilidad de marcas D/N/L/V con letra grande.
 
 ## Decisiones pendientes con el usuario / bloqueos
-- Confirmación visual del rediseño y del PDF; no asumir aprobación por compilar.
+- Confirmación visual del rediseño, vista de año y PDF; decisión sobre acumulado en Resumen.
 - Concretar cierre/reapertura y tratamiento de aportes/mínimos/duración de incapacidad antes de F6.
 - Descanso ya incluido en básico; permisos e incapacidad 75 % empresarial solo registrados,
   sin ajuste monetario. Motor anterior proyecta quincena ×2 y no se usa para mostrar netos.
@@ -49,8 +53,7 @@ El título «Fase 4» del commit no cambia el ROADMAP: F6 aún está pendiente.
   No aplicar --force (sugiere Expo 44) ni alterar políticas. Falta solución compatible/auditoría dedicada.
 - Revisar limpieza de caché de PDFs privados al borrar datos; PDF actual no sustituye respaldo F7.
 - Provider recarga toda BD; faltan pruebas de interacción y fronteras legales sugeridas en BITACORA.
-- Simulador `EB5FAFDF-45F8-48BA-800F-5B884C38F8F9`; Metro LAN puerto 8083 evita IPv4/IPv6.
-  Capturas negras: revisión visual del usuario; verificar padding inferior en iPhone real.
+- Capturas negras: revisión visual del usuario; verificar padding inferior en iPhone real.
 
 ## Recordatorios
 - No reintroducir CTA de registro en Historial/Resumen ni listas de días faltantes (D-020).

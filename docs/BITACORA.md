@@ -5,6 +5,26 @@ Formato: fecha, objetivo, qué se hizo, verificación ejecutada, pendientes.
 
 ---
 
+## 2026-10-26 — Vista de año en calendario, "Dato adicional" y revisión UI global
+- **Objetivo:** rediseño pedido por el usuario: calendario estilo iPhone (año→mes), campos
+  genéricos sin concepto "grúa" y menos botones/más tap.
+- **Hecho:** tocar el nombre del mes abre vista de año con 12 miniaturas (mismos colores D-020,
+  puntito si hay segunda marca, borde en mes actual); flechas cambian mes o año según la vista.
+  "Campo opcional" renombrado a "Dato adicional" con placeholder "Ej.: Observaciones" (mismo
+  modelo nombre/valor de D-017). Háptico de éxito al guardar con expo-haptics ~58.0.7 (D-022).
+- **Revisión UI global:** CAMBIOS RECOMENDADOS. Aplicados: fechas `formatShortDate` en
+  DateTimeField, háptico al guardar, eliminado botón deshabilitado de respaldo en onboarding,
+  mapa `WARNING_LABELS` compartido en registro/detalle, etiqueta de búsqueda aclarada.
+  Alto pendiente: propone acumulado de recargos+extras en Resumen — queda a decisión del usuario
+  (él pidió solo aviso breve; compatible con D-020 pero no se aplicó).
+  Menores pendientes: memoizar `snapshot`, "Limpiar búsqueda", marcas con letra grande.
+- **Verificación:** 111/111 pruebas (13 suites), `npx tsc --noEmit`, `npx expo lint` y
+  `npx expo-doctor` 20/20 correctos. Metro LAN 8083 levantado y app recargada en simulador;
+  prueba visual de vista de año/háptico sin confirmar.
+- **Pendientes:** validación del usuario; decisión sobre acumulado en Resumen; reglas de
+  novedades/cierre y F6; respaldo F7; 5 avisos high de npm audit y auditoría dedicada.
+  Sin commit ni push de este avance.
+
 ## 2026-10-25 — Cierre del día: memoria reconciliada con Git
 - **Objetivo:** terminar la sesión sin programar más y dejar un punto claro de reanudación.
 - **Hecho:** `git status --short` y `git diff --stat` vacíos al comenzar el cierre.

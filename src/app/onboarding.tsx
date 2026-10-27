@@ -75,8 +75,7 @@ export default function OnboardingScreen() {
         <ThemedText>Los valores son aproximados; pueden diferir de tu liquidación oficial. Esta app no reemplaza asesoría laboral ni la nómina de tu empresa.</ThemedText>
         <ThemedText>Tus datos se guardan únicamente en este teléfono, sin cuentas ni servidor.</ThemedText>
         <Choice multiple label="Entiendo y acepto que los valores son estimados" selected={accepted} onPress={() => setAccepted(!accepted)} />
-        <Button variant="secondary" label="Ya tengo un respaldo (PDF) — próximamente" disabled onPress={() => {}} />
-        <ThemedText type="caption">La restauración desde PDF estará disponible en la Fase 3.6.</ThemedText>
+        <ThemedText type="caption">La restauración desde un respaldo PDF estará disponible en una versión próxima.</ThemedText>
       </Card> : null}
       {section ? <SettingsFields section={section} draft={draft} onChange={setDraft} errors={errors} date={date} disabled={saving} /> : null}
       {step === 5 ? <Card title="Plantillas rápidas">

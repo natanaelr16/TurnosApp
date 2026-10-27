@@ -8,6 +8,11 @@ export const NOVELTY_LABELS: Record<Novelty['kind'], string> = {
   sick: 'Incapacidad',
 };
 
+export const WARNING_LABELS: Record<string, string> = {
+  EXTRA_DIARIO_EXCEDIDO: 'Aviso: más de 2 horas extra en la jornada.',
+  EXTRA_SEMANAL_EXCEDIDO: 'Aviso: más de 12 horas extra en la semana.',
+};
+
 export interface FieldDraft { id: string; name: string; value: string; type: 'text' | 'number' }
 
 export function fieldsFromDraft(fields: FieldDraft[]): NonNullable<Shift['fields']> {

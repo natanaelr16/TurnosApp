@@ -33,7 +33,7 @@ export default function HistoryScreen() {
         <Button label={exporting ? 'Generando PDF…' : 'Exportar PDF del periodo'} onPress={() => requestExport(data, period)} disabled={exporting || !periodItems.length} />
         <ThemedText type="caption" themeColor="textSecondary">PDF de acumulados del periodo completo seleccionado, no solo de la búsqueda. La liquidación neta mensual aún está pendiente.</ThemedText>
         <Button label={searchVisible ? 'Cerrar búsqueda' : 'Buscar fecha'} variant="secondary" onPress={() => { setSearchVisible(!searchVisible); setSearch(''); }} />
-        {searchVisible ? <TextField label="Fecha (AAAA-MM-DD)" value={search} onChange={setSearch} maxLength={10} /> : null}
+        {searchVisible ? <TextField label="Filtrar por fecha (AAAA-MM-DD)" value={search} onChange={setSearch} maxLength={10} /> : null}
       </View>}
       renderItem={({ item }) => <RecordCard item={item} result={item.type === 'shift' ? resultById.get(item.value.id) : undefined} />}
       ListEmptyComponent={<EmptyState title="Sin registros en este periodo" message="Prueba otro periodo o ajusta la búsqueda." />} />

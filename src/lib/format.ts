@@ -29,6 +29,12 @@ export function formatMonth(year: number, month: number): string {
   return `${MONTHS[month - 1]} ${year}`;
 }
 
+/** 'Oct' */
+export function formatMonthShort(month: number): string {
+  const name = MONTHS[month - 1];
+  return name.slice(0, 1).toUpperCase() + name.slice(1, 3);
+}
+
 /** '1 – 15 oct 2026' */
 export function formatPeriod(start: LocalDate, end: LocalDate): string {
   const [y, m, d1] = start.split('-').map(Number);

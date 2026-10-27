@@ -14,7 +14,7 @@ export function usePeriodPdf() {
     if (lock.current) return;
     if (Platform.OS === 'web') { Alert.alert('Exportación móvil', 'Genera el PDF desde la app de iPhone o Android.'); return; }
     lock.current = true; setExporting(true);
-    Alert.alert('Exportar PDF del periodo', 'Contiene información laboral privada, incluidas notas y campos opcionales del periodo seleccionado. Compártelo solo con personas de confianza. Es un informe de acumulados; todavía no incluye neto ni respaldo restaurable.', [
+    Alert.alert('Exportar PDF del periodo', 'Contiene información laboral privada, incluidas notas y datos adicionales del periodo seleccionado. Compártelo solo con personas de confianza. Es un informe de acumulados; todavía no incluye neto ni respaldo restaurable.', [
       { text: 'Cancelar', style: 'cancel', onPress: release },
       { text: 'Generar PDF', onPress: async () => {
         try {

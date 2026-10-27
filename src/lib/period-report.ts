@@ -24,5 +24,5 @@ export function buildPeriodReport(data: AppData, period: PeriodRange): string {
     <table><thead><tr><th>Entrada / salida</th><th>Horas</th><th>H. extra</th><th>Recargos</th><th>Extras</th><th>Datos opcionales</th></tr></thead><tbody>${rows || '<tr><td colspan="6">Sin turnos registrados.</td></tr>'}</tbody></table>
     ${novelties ? `<h2>Descansos y novedades</h2><ul>${novelties}</ul><p>Descansos incluidos en el básico. Ajustes salariales por permisos/incapacidad no calculados.</p>` : ''}
     ${hasYearlyParams(Number(period.start.slice(0, 4))) ? '' : '<p>No hay parámetros legales cargados para este año; se usan los últimos conocidos.</p>'}
-    <p>Los campos opcionales no afectan los cálculos. Conserva este documento con cuidado: contiene información laboral privada.</p></body></html>`;
+    <p>Los datos adicionales no afectan los cálculos. Conserva este documento con cuidado: contiene información laboral privada.</p></body></html>`;
 }

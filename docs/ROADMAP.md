@@ -31,7 +31,7 @@ Marcar `[x]` al completar. Cada fase termina con `/verificar` en verde y `ESTADO
 - [x] Onboarding guiado al primer uso: aviso legal, salario, auxilio de transporte Sí/No, periodo, jornada, plantillas (F0; PDF pendiente de Fase 3.6)
 - [x] Ajustes editables (F1), divisor/porcentajes, restaurar ley y vista previa
 - [ ] Validación visual F0/F1 en iOS/Android: teclado, letra grande, oscuro, persistencia y navegación
-- [ ] Pulido F0/F1: animaciones de transición y feedback háptico
+- [ ] Pulido F0/F1: animaciones de transición (háptico al guardar hecho 2026-10-26, D-022)
 - [x] Crear/editar/eliminar turno + plantillas (F2; pantallas `/registro` y `/plantillas`)
 - [x] Campos personalizados informativos por turno: nombre + valor texto/número/alfanumérico (D-017; `fields_json`)
 - [x] Registrar descansos, permisos remunerados/no remunerados e incapacidad con los turnos (D-016; tabla `novelties`; ajuste monetario pendiente)
@@ -40,7 +40,7 @@ Marcar `[x]` al completar. Cada fase termina con `/verificar` en verde y `ESTADO
 - [x] Detalle de turno (F4; consulta `/detalle` separada de edición, horas extra y recargos)
 - [x] Historial (F5; lista por periodo con búsqueda, turnos y novedades)
 - [ ] Resumen de pago (F6): estimación y PDF salarial pendientes; requiere acordar novedades/aportes y cierre/reapertura (D-015/D-016). La Fase 3 no está cerrada.
-- [ ] `/revision-ui` aprobada (revisión F2–F5 ejecutada; hallazgos altos/medios aplicados, falta validación visual)
+- [ ] `/revision-ui` aprobada (revisión global 2026-10-26 ejecutada: medios aplicados; alto pendiente = acumulado en Resumen a decisión del usuario; falta validación visual)
 - [ ] Prueba visual F2–F5: noche con Grúa: RTG19, editar/eliminar, descanso siguiente día, plantillas y persistencia
 - [x] Migración SQLite v2 + respaldo formato 2 con compatibilidad formato 1 (D-018)
 - [x] Desglose expandible por categoría y avisos de extras en detalle del turno
@@ -49,6 +49,10 @@ Marcar `[x]` al completar. Cada fase termina con `/verificar` en verde y `ESTADO
 - [x] Registro rápido 06/18, salida automática y campos opcionales nombre/valor sin selector de tipo
 - [x] Historial sin botones de registro; Resumen sin acumulados/progreso/faltantes ni CTA
 - [ ] Validar en simulador y pantallas pequeñas calendario completo, colores, consulta separada y PDF
+- [x] Vista de año estilo iPhone: tap en nombre del mes → 12 miniaturas con colores → tap abre el mes (D-022)
+- [x] Campos renombrados a "Dato adicional" (ej.: Observaciones); háptico al guardar (expo-haptics ~58.0.7)
+- [ ] Decidir si Resumen muestra acumulado de recargos+extras del periodo (hallazgo alto revisión UI 2026-10-26)
+- [ ] Hallazgos UI menores: memoizar `snapshot` en registro, "Limpiar búsqueda" en Historial, marcas con letra grande
 
 ## Fase 3.5 — Extras inspirados en la planilla real
 - [ ] Vacaciones y otras novedades (Descanso, Permiso e Incapacidad ya registrables en Fase 3; liquidación pendiente)

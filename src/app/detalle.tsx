@@ -8,7 +8,7 @@ import { isLocalDate } from '@/domain/records';
 import { computeShifts } from '@/domain/shift-calc';
 import { useAppData } from '@/hooks/use-app-data';
 import { formatCOP, formatMinutes, formatShortDate } from '@/lib/format';
-import { NOVELTY_LABELS } from '@/lib/record-form';
+import { NOVELTY_LABELS, WARNING_LABELS } from '@/lib/record-form';
 
 export default function DetailScreen() {
   const params = useLocalSearchParams<{ id?: string; type?: string; date?: string; source?: string }>();
@@ -30,7 +30,7 @@ export default function DetailScreen() {
       <ShiftBreakdown result={result} initiallyExpanded />
       {(result.shift.fields ?? []).map((field) => <ValueRow key={field.name} label={field.name} value={String(field.value)} />)}
       {result.shift.note ? <ThemedText>{result.shift.note}</ThemedText> : null}
-      {result.warnings.map((warning) => <ThemedText key={warning} accessibilityRole="alert" themeColor="danger">{warning === 'EXTRA_DIARIO_EXCEDIDO' ? 'Más de 2 horas extra en la jornada.' : 'Más de 12 horas extra en la semana.'}</ThemedText>)}
+      {result.warnings.map((warning) => <ThemedText key={warning} accessibilityRole="alert" themeColor="danger">{WARNING_LABELS[warning] ?? warning}</ThemedText>)}
       <Button label="Editar turno" variant="secondary" onPress={() => router.push({ pathname: '/registro', params: { id: result.shift.id, type: 'shift' } })} />
     </Card>)}
     {novelties.map((novelty) => <Card key={novelty.id} title={NOVELTY_LABELS[novelty.kind]}>

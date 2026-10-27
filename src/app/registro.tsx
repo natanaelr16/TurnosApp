@@ -1,3 +1,4 @@
+import * as Haptics from 'expo-haptics';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { Alert, BackHandler, Keyboard } from 'react-native';
@@ -14,7 +15,7 @@ import { computeShifts } from '@/domain/shift-calc';
 import type { Novelty, Shift } from '@/domain/types';
 import { useAppData } from '@/hooks/use-app-data';
 import { formatCOP, formatMinutes, formatShortDate, todayLocal } from '@/lib/format';
-import { fieldsFromDraft, NOVELTY_LABELS, type FieldDraft } from '@/lib/record-form';
+import { fieldsFromDraft, NOVELTY_LABELS, WARNING_LABELS, type FieldDraft } from '@/lib/record-form';
 
 export default function RecordScreen() {
   const params = useLocalSearchParams<{ id?: string; type?: string; date?: string }>();
@@ -68,6 +69,7 @@ export default function RecordScreen() {
       } else {
         await saveNovelty({ id, date: start.slice(0, 10), kind, ...(note.trim() ? { note: note.trim() } : {}) });
       }
+      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       leave();
     } catch (cause) { setError(cause instanceof Error ? cause.message : 'No se pudo guardar. Intenta de nuevo.'); }
     finally { lock.current = false; setBusy(false); }
@@ -109,19 +111,19 @@ export default function RecordScreen() {
           <Button label="Gestionar plantillas" variant="secondary" disabled={busy} onPress={() => router.push('/plantillas')} />
         </> : null}
       </Card>
-      {fields.map((field, index) => <Card key={field.id} title={`Campo opcional ${index + 1}`}>
-        <TextField label="Nombre" value={field.name} onChange={(name) => changeField(field.id, { name })} maxLength={80} disabled={busy} />
+      {fields.map((field, index) => <Card key={field.id} title={`Dato adicional ${index + 1}`}>
+        <TextField label="Nombre" placeholder="Ej.: Observaciones" value={field.name} onChange={(name) => changeField(field.id, { name })} maxLength={80} disabled={busy} />
         <TextField label={field.name ? `Valor de ${field.name}` : 'Valor'} value={field.value} onChange={(value) => changeField(field.id, { value, type: 'text' })} maxLength={500} disabled={busy} />
-        <Button label={`Quitar campo ${index + 1}`} variant="secondary" disabled={busy} onPress={() => setFields(fields.filter((f) => f.id !== field.id))} />
+        <Button label={`Quitar dato ${index + 1}`} variant="secondary" disabled={busy} onPress={() => setFields(fields.filter((f) => f.id !== field.id))} />
       </Card>)}
-      <Button label="Añadir campo opcional" variant="secondary" disabled={busy || fields.length >= 20} onPress={() => addField()} />
+      <Button label="Añadir dato adicional" variant="secondary" disabled={busy || fields.length >= 20} onPress={() => addField()} />
       {result ? <Card title="Vista previa del turno">
         <ValueRow label="Duración" value={formatMinutes(result.totalMinutes)} />
         <ValueRow label="Horas extra" value={formatMinutes(result.extraMinutes)} />
         <ValueRow label="Recargos + extras" value={formatCOP(result.total)} />
         <ThemedText type="caption">Adicional al básico; no es la liquidación neta del periodo.</ThemedText>
         <ShiftBreakdown result={result} />
-        {result.warnings.map((warning) => <ThemedText key={warning} accessibilityRole="alert" themeColor="danger">{warning === 'EXTRA_DIARIO_EXCEDIDO' ? 'Aviso: más de 2 horas extra en la jornada.' : 'Aviso: más de 12 horas extra en la semana.'}</ThemedText>)}
+        {result.warnings.map((warning) => <ThemedText key={warning} accessibilityRole="alert" themeColor="danger">{WARNING_LABELS[warning] ?? warning}</ThemedText>)}
       </Card> : null}
     </> : <Card title="Novedad de jornada completa">
       <DateTimeField label="Fecha de la jornada" value={start} onChange={setStart} dateOnly disabled={busy} />

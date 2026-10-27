@@ -20,9 +20,11 @@ Pantallas modales: crear/editar turno, consulta de detalle separada y plantillas
 
 ## Flujo simplificado (pedido del usuario, D-020)
 - Calendario: mes completo sin scroll ni botones de registro/"Ir a hoy"; abrir en fecha actual.
-  Tap vacío → registrar; tap ocupado → consultar. Navegación mensual con flechas compactas.
+  Tap vacío → registrar; tap ocupado → consultar. Flechas compactas cambian de mes; tocar el
+  nombre del mes abre la vista de año con los 12 meses en miniatura (mismos colores), estilo iPhone.
 - Registro: elegir Día 06–18 o Noche 18–06; salida automática. Horario especial plegado.
-  Campo opcional solo nombre + valor, sin selector de tipo ni panel de datos de operación.
+  "Dato adicional" solo nombre + valor (ej.: Observaciones), sin selector de tipo ni panel de operación.
+  Feedback háptico de éxito al guardar (expo-haptics).
 - Historial: lista por periodo, consulta de horas/recargos y exportación PDF; sin CTA de registro.
 - Resumen: solo estimación o mensaje breve de periodo incompleto, sin progreso ni lista de faltantes.
   No reintroducir esos controles por recomendaciones genéricas de revisión UI.
