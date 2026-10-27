@@ -24,9 +24,10 @@ export function formatShortDate(date: LocalDate): string {
   return `${DAYS[dayOfWeek(date)]} ${d} ${MONTHS[m - 1].slice(0, 3)}`;
 }
 
-/** 'octubre 2026' */
+/** 'Octubre 2026' */
 export function formatMonth(year: number, month: number): string {
-  return `${MONTHS[month - 1]} ${year}`;
+  const name = MONTHS[month - 1];
+  return `${name.slice(0, 1).toUpperCase()}${name.slice(1)} ${year}`;
 }
 
 /** 'Oct' */
@@ -40,6 +41,15 @@ export function formatPeriod(start: LocalDate, end: LocalDate): string {
   const [y, m, d1] = start.split('-').map(Number);
   const d2 = Number(end.slice(8, 10));
   return `${d1} – ${d2} ${MONTHS[m - 1].slice(0, 3)} ${y}`;
+}
+
+/** '18:30' → '18:30' (24 h) o '6:30 p. m.' (12 h). Acepta 'HH:mm' o 'YYYY-MM-DDTHH:mm' (D-025). */
+export function formatTime(value: string, use12 = false): string {
+  const [h, m] = value.slice(-5).split(':').map(Number);
+  if (!use12) return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+  const suffix = h < 12 ? 'a. m.' : 'p. m.';
+  const hour12 = h % 12 === 0 ? 12 : h % 12;
+  return `${hour12}:${String(m).padStart(2, '0')} ${suffix}`;
 }
 
 /** 1.9 → '1,90' */

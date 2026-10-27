@@ -1,4 +1,4 @@
-import { computePeriod, periodFor, withholdingMonthly } from '@/domain/payroll';
+import { computePeriod, liquidationTable, periodFor, withholdingMonthly } from '@/domain/payroll';
 import { computeShifts } from '@/domain/shift-calc';
 import type { Settings } from '@/domain/types';
 
@@ -93,6 +93,40 @@ describe('resumen del periodo (REGLAS_LEGALES §6–7)', () => {
     const p = computePeriod([], cfg, periodFor('2026-10-01', 'mensual'));
     expect(p.contributionBase).toBe(1_750_905);
     expect(p.health).toBe(70_036);
+  });
+});
+
+describe('cuadro de liquidación del periodo (D-024, planilla real oct 1–15 2026)', () => {
+  const real: Settings = { baseSalary: 4_453_128, dailyLimitHours: 8, weeklyLimitHours: 42, payPeriod: 'quincenal', transportAllowance: { enabled: false } };
+  const results = computeShifts([
+    { id: '1', start: '2026-10-01T06:00', end: '2026-10-01T18:00' },
+    { id: '2', start: '2026-10-02T06:00', end: '2026-10-02T18:00' },
+    { id: '3', start: '2026-10-03T18:00', end: '2026-10-04T06:00' },
+    { id: '4', start: '2026-10-04T18:00', end: '2026-10-05T06:00' },
+    { id: '7', start: '2026-10-07T14:00', end: '2026-10-07T22:00' },
+    { id: '8', start: '2026-10-08T14:00', end: '2026-10-08T21:00' },
+    { id: '9', start: '2026-10-09T18:00', end: '2026-10-10T06:00' },
+  ], real);
+  const table = liquidationTable(results, real, { start: '2026-10-01', end: '2026-10-15' });
+  const row = (c: string) => table.rows.find((r) => r.category === c)!;
+
+  test('horas por factor como la planilla', () => {
+    expect(row('extraDay').hours).toBe(8);
+    expect(row('ordinaryNight').hours).toBe(19);
+    expect(row('extraNight').hours).toBe(8);
+    expect(row('ordinaryDayHoliday').hours).toBe(1);
+    expect(row('extraDayHoliday').hours).toBe(0);
+    expect(row('ordinaryNightHoliday').hours).toBe(7);
+    expect(row('extraNightHoliday').hours).toBe(4);
+    expect(table.workedMinutes).toBe(75 * 60);
+  });
+
+  test('valores cercanos a la planilla (±40 por redondeo del valor hora)', () => {
+    const planilla = { extraDay: 212_054, ordinaryNight: 141_016, extraNight: 296_875, ordinaryDayHoliday: 40_290, ordinaryNightHoliday: 333_985, extraNightHoliday: 224_777 };
+    for (const [category, valor] of Object.entries(planilla)) {
+      expect(Math.abs(row(category).amount - valor)).toBeLessThanOrEqual(40);
+    }
+    expect(Math.abs(table.totalAmount - 1_248_996)).toBeLessThanOrEqual(80);
   });
 });
 

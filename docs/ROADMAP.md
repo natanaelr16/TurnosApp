@@ -51,13 +51,17 @@ Marcar `[x]` al completar. Cada fase termina con `/verificar` en verde y `ESTADO
 - [ ] Validar en simulador y pantallas pequeñas calendario completo, colores, consulta separada y PDF
 - [x] Vista de año estilo iPhone: tap en nombre del mes → 12 miniaturas con colores → tap abre el mes (D-022)
 - [x] Campos renombrados a "Dato adicional" (ej.: Observaciones); háptico al guardar (expo-haptics ~58.0.7)
-- [ ] Decidir si Resumen muestra acumulado de recargos+extras del periodo (hallazgo alto revisión UI 2026-10-26)
+- [x] Decidir si Resumen muestra acumulado de recargos+extras del periodo → sí (D-026)
 - [x] Hallazgos UI menores: memoizar `snapshot` en registro, "Limpiar búsqueda" en Historial, marcas con letra grande
+- [x] Calendario estilo iOS completo (D-023/D-024): swipe entre meses, scroll por años, selector de bloques de 12, colores selección/actual diferenciados, marcas en esquina, popover por pulsación larga, zoom "genie", eliminación con basurita animada y en `/detalle`
+- [x] Creación rápida con chips de turnos programados y formato de hora 12/24 global (D-025)
+- [x] Resumen con cuadro de liquidación del periodo estilo planilla (D-026; validado con datos reales oct 1–15)
+- [ ] Validar en simulador: swipe de meses, scroll de años, selector, popover, genie, basurita, chips y formato 12/24
 
 ## Fase 3.5 — Extras inspirados en la planilla real
 - [ ] Vacaciones y otras novedades (Descanso, Permiso e Incapacidad ya registrables en Fase 3; liquidación pendiente)
 - [ ] Permisos por horas (hoy novedades solo por jornada completa, D-019)
-- [ ] Vista "planilla" + cuadro "Detalle de liquidación" (concepto, factor, horas, valor)
+- [ ] Vista "planilla" + cuadro "Detalle de liquidación" (concepto, factor, horas, valor) — cuadro en Resumen hecho (D-026); falta formato planilla/PDF
 
 ## Fase 3.6 — Respaldo en PDF (F7, D-014)
 - [x] Formato de respaldo versionado + validación (`src/domain/backup.ts`) — adelantado en Fase 2

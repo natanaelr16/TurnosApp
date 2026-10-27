@@ -43,6 +43,8 @@ export interface Settings {
   transportAllowance: { enabled: boolean; amount?: number };
   /** Deducciones mensuales para retención (dependientes, vivienda, etc.). */
   monthlyDeductions?: number;
+  /** Formato de hora de toda la app; por defecto 24 h (D-025). */
+  timeFormat?: '12h' | '24h';
 }
 
 /** Configuración completa guardada en el teléfono (cálculo + estado del onboarding). */

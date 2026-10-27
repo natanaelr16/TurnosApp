@@ -5,6 +5,39 @@ Formato: fecha, objetivo, qué se hizo, verificación ejecutada, pendientes.
 
 ---
 
+## 2026-10-26 — Calendario iOS completo, chips 8 h, formato 12/24 y cuadro de liquidación
+- **Objetivo:** iteraciones del usuario tras probar la app: navegación real del calendario
+  (swipe/scroll/selector de años), colores diferenciados, popover con datos del día,
+  eliminación con basurita animada y en `/detalle`, creación más ágil (chips 8 h),
+  formato de hora 12/24 global y acumulados en Resumen estilo planilla de la empresa.
+- **Hecho:** mes como `FlatList` horizontal paginado ±30 años; vista de año con scroll
+  vertical por año y selector de bloques de 12; selección azul vs. actual rojo; marcas
+  D/N/L/V fijas en la esquina de la celda; popover `DayPopover` animado desde la celda con
+  datos del turno/novedad, botón Abrir y `TrashButton` (ícono @expo/vector-icons con
+  sacudido + confirmación); "genie" zoom hacia la celda al abrir y al volver; eliminación
+  con confirmación en `/detalle`; chips 06–14/14–21/14–22/21–06/22–06 en registro;
+  `timeFormat` 12/24 en Ajustes aplicado por `formatTime` a selectores y textos;
+  `payroll.liquidationTable` con cuadro factor·concepto·horas·valor en Resumen validado
+  contra la planilla real (oct 1–15: horas exactas, valores ±40 por redondeo).
+- **Verificación:** `npx tsc --noEmit`, `npx expo lint` y `npm test` en verde
+  (113/113 pruebas, 13 suites) tras los cambios. Metro en 192.168.1.17:8083 recargado;
+  corregidos en caliente: interpolación de la basurita y `useWindowDimensions` ausente.
+- **Pendientes:** confirmación visual del usuario del calendario/popover/genie/chips/formato
+  y del cuadro en Resumen; reglas de novedades/cierre antes de F6; respaldo PDF restaurable.
+
+## 2026-10-26 — Calendario estilo iOS: selección por doble tap y zoom año↔mes
+- **Objetivo:** pedido del usuario tras probar la vista de año: comportamiento como el calendario
+  oficial de iPhone — tap selecciona, segundo tap abre; animación al entrar/salir del año.
+- **Hecho:** estado `selected`/`selectedMonth` en el calendario; día seleccionado con borde
+  primario y accesibilidad ("seleccionado, toca de nuevo para abrir"); mismo patrón en
+  miniaturas de mes. `Animated.Value` en estado con timing 240 ms ease-out: zoom 0.88→1 al
+  entrar al mes, 1.12→1 al volver al año. Selección se limpia al cambiar de mes/año/modo.
+- **Verificación:** 111/111 pruebas, `tsc` y `expo lint` en verde (corregido patrón ref→state
+  para Animated y set-state-in-effect). Usuario reportó un **crash de Expo Go** al inicio de la
+  sesión, sin mensaje capturado; pendiente reproducir/diagnosticar.
+- **Pendientes:** validación visual del usuario; crash por diagnosticar; acumulado en Resumen;
+  reglas de novedades/cierre y F6; F7. Sin commit ni push.
+
 ## 2026-10-26 — Hallazgos UI menores de la revisión aplicados
 - **Objetivo:** cerrar los hallazgos menores pendientes de la revisión UI global del mismo día.
 - **Hecho:** `snapshot` de `/registro` memoizado con `useMemo` (evitaba JSON.stringify por render);

@@ -1,7 +1,7 @@
 import * as Haptics from 'expo-haptics';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { Alert, BackHandler, Keyboard } from 'react-native';
+import { Alert, Animated, BackHandler, Easing, Keyboard, Pressable, StyleSheet, View } from 'react-native';
 
 import { DateTimeField, TextField } from '@/components/record-fields';
 import { Choice } from '@/components/settings-fields';
@@ -14,8 +14,15 @@ import { applyTemplate, isLocalDate, validateRecords } from '@/domain/records';
 import { computeShifts } from '@/domain/shift-calc';
 import type { Novelty, Shift } from '@/domain/types';
 import { useAppData } from '@/hooks/use-app-data';
-import { formatCOP, formatMinutes, formatShortDate, todayLocal } from '@/lib/format';
+import { useTheme } from '@/hooks/use-theme';
+import { formatCOP, formatMinutes, formatShortDate, formatTime, todayLocal } from '@/lib/format';
 import { fieldsFromDraft, NOVELTY_LABELS, WARNING_LABELS, type FieldDraft } from '@/lib/record-form';
+
+/** Turnos programados frecuentes de 8 h (D-025); la hora de fin puede cruzar medianoche. */
+const QUICK_SHIFTS = [
+  { start: '06:00', end: '14:00' }, { start: '14:00', end: '21:00' },
+  { start: '14:00', end: '22:00' }, { start: '21:00', end: '06:00' }, { start: '22:00', end: '06:00' },
+];
 
 export default function RecordScreen() {
   const params = useLocalSearchParams<{ id?: string; type?: string; date?: string }>();
@@ -32,6 +39,10 @@ export default function RecordScreen() {
   const [fields, setFields] = useState<FieldDraft[]>(() => (originalShift?.fields ?? []).map((f) => ({ id: newId(), name: f.name, value: String(f.value), type: typeof f.value === 'number' ? 'number' : 'text' })));
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const [flying, setFlying] = useState(false);
+  const use12 = data.settings.timeFormat === '12h';
+  const theme = useTheme();
+  const [fly] = useState(() => new Animated.Value(0));
   const lock = useRef(false);
   const leave = useCallback(() => router.canGoBack() ? router.back() : router.replace('/'), []);
   const snapshot = useMemo(() => JSON.stringify({ type, start, end, kind, note, fields: fields.map((field) => ({ name: field.name, value: field.value, type: field.type })) }), [type, start, end, kind, note, fields]);
@@ -70,7 +81,8 @@ export default function RecordScreen() {
         await saveNovelty({ id, date: start.slice(0, 10), kind, ...(note.trim() ? { note: note.trim() } : {}) });
       }
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      leave();
+      setFlying(true);
+      Animated.timing(fly, { toValue: 1, duration: 430, easing: Easing.in(Easing.cubic), useNativeDriver: true }).start(() => leave());
     } catch (cause) { setError(cause instanceof Error ? cause.message : 'No se pudo guardar. Intenta de nuevo.'); }
     finally { lock.current = false; setBusy(false); }
   };
@@ -98,11 +110,24 @@ export default function RecordScreen() {
       <Card title="Elige tu turno">
         {templates.map((template) => {
           const values = applyTemplate(start.slice(0, 10), template);
-          return <Choice key={template.id} label={template.id === 'tpl-dia' ? 'Día · 06:00–18:00' : template.id === 'tpl-noche' ? 'Noche · 18:00–06:00 del día siguiente' : template.name} selected={start === values.start && end === values.end} disabled={busy} onPress={() => {
+          return <Choice key={template.id} label={template.id === 'tpl-dia' ? `Día · ${formatTime('06:00', use12)}–${formatTime('18:00', use12)}` : template.id === 'tpl-noche' ? `Noche · ${formatTime('18:00', use12)}–${formatTime('06:00', use12)} del día siguiente` : template.name} selected={start === values.start && end === values.end} disabled={busy} onPress={() => {
             setStart(values.start); setEnd(values.end); setCustomTimes(false); setError('');
           }} />;
         })}
-        <ThemedText type="small">{formatShortDate(start.slice(0, 10))} · {start.slice(11)} → {formatShortDate(end.slice(0, 10))} · {end.slice(11)}</ThemedText>
+        <ThemedText type="smallBold">Turnos programados</ThemedText>
+        <View style={styles.chips}>
+          {QUICK_SHIFTS.map((quick) => {
+            const durationMinutes = ((24 + Number(quick.end.slice(0, 2)) - Number(quick.start.slice(0, 2))) % 24) * 60;
+            const values = applyTemplate(start.slice(0, 10), { id: 'quick', name: 'Rápido', startTime: quick.start, durationMinutes });
+            const label = `${formatTime(quick.start, use12)}–${formatTime(quick.end, use12)}`;
+            return <Pressable key={label} accessibilityRole="button" accessibilityLabel={`Turno de ${label}`} accessibilityState={{ selected: start === values.start && end === values.end, disabled: busy }} disabled={busy}
+              onPress={() => { setStart(values.start); setEnd(values.end); setError(''); }}
+              style={[styles.chip, { borderColor: start === values.start && end === values.end ? theme.primary : theme.border, backgroundColor: start === values.start && end === values.end ? theme.backgroundSelected : theme.backgroundElement }]}>
+              <ThemedText type="smallBold">{label}</ThemedText>
+            </Pressable>;
+          })}
+        </View>
+        <ThemedText type="small">{formatShortDate(start.slice(0, 10))} · {formatTime(start, use12)} → {formatShortDate(end.slice(0, 10))} · {formatTime(end, use12)}</ThemedText>
         {validationErrors.length ? <ThemedText accessibilityRole="alert" themeColor="danger">{validationErrors[0]}</ThemedText> : null}
         <Button label={customTimes ? 'Ocultar horario especial' : 'Necesito un horario diferente'} variant="secondary" disabled={busy} onPress={() => setCustomTimes(!customTimes)} />
         {customTimes ? <>
@@ -134,5 +159,14 @@ export default function RecordScreen() {
     </Card>}
     {showNote ? <Card title="Nota opcional"><TextField label="Nota" value={note} onChange={setNote} multiline disabled={busy} /></Card> : <Button label="Añadir nota opcional" variant="secondary" onPress={() => setShowNote(true)} disabled={busy} />}
     {params.id ? <Button label="Eliminar registro" variant="danger" onPress={confirmDelete} disabled={busy} /> : null}
+    {flying ? <Animated.View pointerEvents="none" style={[styles.fly, { opacity: fly.interpolate({ inputRange: [0, 0.7, 1], outputRange: [1, 1, 0] }), transform: [{ translateY: fly.interpolate({ inputRange: [0, 1], outputRange: [0, -320] }) }, { translateX: fly.interpolate({ inputRange: [0, 1], outputRange: [0, -140] }) }, { scale: fly.interpolate({ inputRange: [0, 1], outputRange: [1, 0.35] }) }] }]}>
+      <ThemedText type="smallBold">{formatShortDate(start.slice(0, 10))} · guardado</ThemedText>
+    </Animated.View> : null}
   </Screen>;
 }
+
+const styles = StyleSheet.create({
+  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  chip: { minHeight: 44, borderWidth: 2, borderRadius: 22, paddingHorizontal: 14, alignItems: 'center', justifyContent: 'center' },
+  fly: { position: 'absolute', alignSelf: 'center', top: '42%', backgroundColor: '#DCFCE7', borderRadius: 20, paddingVertical: 12, paddingHorizontal: 22, elevation: 6, shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 10, shadowOffset: { width: 0, height: 3 } },
+});

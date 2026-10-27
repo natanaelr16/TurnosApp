@@ -75,6 +75,9 @@ export function SettingsFields({ section, draft, onChange, errors = {}, date, di
       {section === 'schedule' ? <>
         {field('daily', 'Horas ordinarias por día')}
         {field('weekly', 'Horas ordinarias por semana')}
+        <ThemedText>Formato de hora en toda la app</ThemedText>
+        <Choice label="24 horas (18:00)" selected={draft.timeFormat !== '12h'} onPress={() => update('timeFormat', '24h')} disabled={disabled} />
+        <Choice label="12 horas (6:00 p. m.)" selected={draft.timeFormat === '12h'} onPress={() => update('timeFormat', '12h')} disabled={disabled} />
         <Button variant="secondary" label={advanced ? 'Ocultar opción dominical/festiva' : 'Opción avanzada: pago dominical/festivo'} onPress={() => setAdvanced(!advanced)} disabled={disabled} />
         {advanced ? <>
           <ThemedText>¿Cómo te pagan las horas normales en domingo o festivo?</ThemedText>

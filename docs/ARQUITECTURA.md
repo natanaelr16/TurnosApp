@@ -48,7 +48,12 @@ F2: `record-fields.tsx` usa selectores nativos de `@expo/ui/community/datetime-p
 Este informe NO incluye JSON de respaldo ni neto; no sustituye F7 ni el motor F6.
 `lib/record-form.ts` convierte valores texto/número y fechas de selectores sin `toISOString`;
 exporta `NOVELTY_LABELS` y `WARNING_LABELS` (avisos de extras compartidos por registro y detalle).
-`registro.tsx` emite háptico de éxito al guardar con `expo-haptics` ~58.0.7 (D-022).
+`registro.tsx` emite háptico de éxito al guardar con `expo-haptics` ~58.0.7 (D-022) y ofrece
+chips de turnos programados + formato de hora 12/24 global (`settings.timeFormat`, D-025)
+formateado por `lib/format.ts → formatTime`. Calendario con swipe de meses, scroll de años,
+selector de década, popover por pulsación larga y eliminación con basurita animada usando
+`@expo/vector-icons` ^15.0.2 (D-024); eliminación también en `/detalle`. Resumen muestra el
+cuadro de liquidación por factor de `payroll.liquidationTable` (D-026).
 `domain/records.ts` valida registros/plantillas, aplica plantillas, calcula cobertura y acumulados sin neto.
 `repository.saveRecord` valida contra datos actuales y guarda en una transacción.
 

@@ -4,8 +4,9 @@ import { Platform, StyleSheet, TextInput, View, type KeyboardTypeOptions } from 
 
 import { ThemedText } from '@/components/themed-text';
 import { Button } from '@/components/ui';
+import { useAppData } from '@/hooks/use-app-data';
 import { useTheme } from '@/hooks/use-theme';
-import { formatShortDate } from '@/lib/format';
+import { formatShortDate, formatTime } from '@/lib/format';
 import { localFromPicker, pickerFromLocal } from '@/lib/record-form';
 
 export function TextField({ label, value, onChange, maxLength = 1000, keyboardType = 'default', multiline = false, disabled = false, placeholder }: {
@@ -24,6 +25,8 @@ export function DateTimeField({ label, value, onChange, dateOnly = false, timeOn
   label: string; value: string; onChange: (value: string) => void; dateOnly?: boolean; timeOnly?: boolean; disabled?: boolean;
 }) {
   const theme = useTheme();
+  const { data } = useAppData();
+  const use12 = data.settings.timeFormat === '12h';
   const [mode, setMode] = useState<'date' | 'time' | null>(null);
   const chosen = (date: Date) => {
     if (disabled) return;
@@ -34,9 +37,9 @@ export function DateTimeField({ label, value, onChange, dateOnly = false, timeOn
   return <View style={styles.field}>
     <ThemedText type="smallBold">{label}</ThemedText>
     {!timeOnly ? <Button variant="secondary" label={`${label}: ${formatShortDate(value.slice(0, 10))} · cambiar fecha`} onPress={() => setMode(mode === 'date' ? null : 'date')} disabled={disabled} /> : null}
-    {!dateOnly ? <Button variant="secondary" label={`${label}: ${value.slice(11)} · cambiar hora`} onPress={() => setMode(mode === 'time' ? null : 'time')} disabled={disabled} /> : null}
+    {!dateOnly ? <Button variant="secondary" label={`${label}: ${formatTime(value, use12)} · cambiar hora`} onPress={() => setMode(mode === 'time' ? null : 'time')} disabled={disabled} /> : null}
     {mode && !disabled ? <>
-      <NativeDateTimePicker value={pickerFromLocal(value)} mode={mode} is24Hour locale="es_CO" accentColor={theme.primary}
+      <NativeDateTimePicker value={pickerFromLocal(value)} mode={mode} is24Hour={!use12} locale="es_CO" accentColor={theme.primary}
         display={Platform.OS === 'ios' ? 'compact' : 'default'} presentation="dialog"
         onValueChange={(_event, date) => chosen(date)} onDismiss={() => setMode(null)} />
       {Platform.OS === 'ios' ? <Button variant="secondary" label="Listo" onPress={() => setMode(null)} /> : null}

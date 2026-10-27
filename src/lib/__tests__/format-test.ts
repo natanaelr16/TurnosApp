@@ -17,7 +17,7 @@ describe('formatos', () => {
 
   test('fechas', () => {
     expect(formatShortDate('2026-10-24')).toBe('sáb 24 oct');
-    expect(formatMonth(2026, 10)).toBe('octubre 2026');
+    expect(formatMonth(2026, 10)).toBe('Octubre 2026');
     expect(formatPeriod('2026-10-01', '2026-10-15')).toBe('1 – 15 oct 2026');
     expect(todayLocal(new Date(2026, 9, 24, 23, 59))).toBe('2026-10-24');
   });

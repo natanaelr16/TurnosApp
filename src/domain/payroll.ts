@@ -1,25 +1,74 @@
 import {
-  BENEFITS_CAP_PCT,
-  BENEFITS_CAP_UVT_YEAR,
-  EXEMPT_INCOME_CAP_UVT_YEAR,
-  EXEMPT_INCOME_PCT,
-  fspPercent,
-  HEALTH_PCT,
-  PENSION_PCT,
-  WITHHOLDING_TABLE,
-  yearlyParams,
+    BENEFITS_CAP_PCT,
+    BENEFITS_CAP_UVT_YEAR,
+    EXEMPT_INCOME_CAP_UVT_YEAR,
+    EXEMPT_INCOME_PCT,
+    fspPercent,
+    HEALTH_PCT,
+    PENSION_PCT,
+    WITHHOLDING_TABLE,
+    yearlyParams,
 } from './legal-params';
-import { emptyByCategory } from './shift-calc';
+import { emptyByCategory, factorTable } from './shift-calc';
 import { datePart, daysInMonth, makeDate } from './time';
 import {
-  MINUTE_CATEGORIES,
-  type LocalDate,
-  type PayPeriodType,
-  type PeriodRange,
-  type PeriodSummary,
-  type Settings,
-  type ShiftResult,
+    MINUTE_CATEGORIES,
+    type LocalDate,
+    type MinuteCategory,
+    type PayPeriodType,
+    type PeriodRange,
+    type PeriodSummary,
+    type Settings,
+    type ShiftResult,
 } from './types';
+
+/** Orden y nombres del "cuadro de liquidación" de la planilla empresarial (D-024). */
+export const LIQUIDATION_ROWS: { category: MinuteCategory; label: string }[] = [
+    { category: 'extraDay', label: 'Horas extras diurnas' },
+    { category: 'ordinaryNight', label: 'Recargo nocturno' },
+    { category: 'extraNight', label: 'Horas extras nocturnas' },
+    { category: 'ordinaryDayHoliday', label: 'Dominical o festivo diurno' },
+    { category: 'extraDayHoliday', label: 'Extra diurna festiva' },
+    { category: 'ordinaryNightHoliday', label: 'Festivo ordinario nocturno' },
+    { category: 'extraNightHoliday', label: 'Extra nocturna festiva' },
+];
+
+export interface LiquidationRow {
+    category: MinuteCategory;
+    label: string;
+    factor: number;
+    hours: number;
+    amount: number;
+}
+
+export interface LiquidationTable {
+    rows: LiquidationRow[];
+    /** Minutos ordinarios + extras trabajados en el periodo. */
+    workedMinutes: number;
+    /** Suma de recargos + extras (lo que la planilla paga adicional al básico). */
+    totalAmount: number;
+}
+
+/** Acumulados del periodo por factor, como la tabla "Factor · Cant. Horas · Valor" de la planilla (D-024). */
+export function liquidationTable(results: ShiftResult[], settings: Settings, period: PeriodRange): LiquidationTable {
+    const inPeriod = results.filter((r) => {
+        const d = datePart(r.shift.start);
+        return d >= period.start && d <= period.end;
+    });
+    const factors = factorTable(period.start, settings);
+    const rows = LIQUIDATION_ROWS.map(({ category, label }) => ({
+        category,
+        label,
+        factor: factors[category],
+        hours: inPeriod.reduce((s, r) => s + r.minutes[category], 0) / 60,
+        amount: inPeriod.reduce((s, r) => s + r.amounts[category], 0),
+    }));
+    return {
+        rows,
+        workedMinutes: inPeriod.reduce((s, r) => s + r.totalMinutes, 0),
+        totalAmount: rows.reduce((s, r) => s + r.amount, 0),
+    };
+}
 
 export function periodFor(date: LocalDate, type: PayPeriodType): PeriodRange {
   const [y, m, d] = date.split('-').map(Number);

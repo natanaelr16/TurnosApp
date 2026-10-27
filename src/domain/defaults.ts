@@ -8,6 +8,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   payPeriod: 'quincenal',
   transportAllowance: { enabled: false },
   holidayOrdinaryPay: 'completa',
+  timeFormat: '24h',
 };
 
 export const DEFAULT_TEMPLATES: ShiftTemplate[] = [

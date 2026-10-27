@@ -11,6 +11,7 @@ export type SettingsDraft = {
   weekly: string;
   divisor: string;
   holidayPay: 'completa' | 'solo-recargo';
+  timeFormat: '12h' | '24h';
 } & Record<keyof RateOverrides, string>;
 export type DraftErrors = Partial<Record<keyof SettingsDraft, string>>;
 
@@ -24,6 +25,7 @@ export function draftFromSettings(settings: AppSettings, date: string): Settings
     weekly: String(settings.weeklyLimitHours),
     divisor: settings.monthlyDivisor === undefined ? '' : String(settings.monthlyDivisor),
     holidayPay: settings.holidayOrdinaryPay ?? 'completa',
+    timeFormat: settings.timeFormat ?? '24h',
     nightPct: String(settings.overrides?.nightPct ?? ''),
     sundayPct: String(settings.overrides?.sundayPct ?? ''),
     extraDayPct: String(settings.overrides?.extraDayPct ?? ''),
@@ -65,6 +67,7 @@ export function settingsFromDraft(draft: SettingsDraft, previous: AppSettings): 
     weeklyLimitHours: numeric(draft.weekly),
     monthlyDivisor: draft.divisor === '' ? undefined : numeric(draft.divisor),
     holidayOrdinaryPay: draft.holidayPay,
+    timeFormat: draft.timeFormat,
     overrides,
   };
 }
