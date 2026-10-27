@@ -5,6 +5,16 @@ Formato: fecha, objetivo, qué se hizo, verificación ejecutada, pendientes.
 
 ---
 
+## 2026-10-26 — Hallazgos UI menores de la revisión aplicados
+- **Objetivo:** cerrar los hallazgos menores pendientes de la revisión UI global del mismo día.
+- **Hecho:** `snapshot` de `/registro` memoizado con `useMemo` (evitaba JSON.stringify por render);
+  acción "Limpiar búsqueda" en Historial (botón secundario visible solo con texto escrito, no cierra
+  el campo); marcas D/N/L/V del calendario con `maxFontSizeMultiplier` 1.1→1.3 y peso 600 para
+  letra grande del sistema.
+- **Verificación:** 111/111 pruebas (13 suites), `npx tsc --noEmit` y `npx expo lint` correctos.
+- **Pendientes:** confirmación visual del usuario; decisión sobre acumulado en Resumen;
+  reglas de novedades/cierre y F6; respaldo F7; npm audit. Sin commit ni push.
+
 ## 2026-10-26 — Vista de año en calendario, "Dato adicional" y revisión UI global
 - **Objetivo:** rediseño pedido por el usuario: calendario estilo iPhone (año→mes), campos
   genéricos sin concepto "grúa" y menos botones/más tap.

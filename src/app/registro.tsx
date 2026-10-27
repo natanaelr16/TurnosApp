@@ -34,7 +34,7 @@ export default function RecordScreen() {
   const [error, setError] = useState('');
   const lock = useRef(false);
   const leave = useCallback(() => router.canGoBack() ? router.back() : router.replace('/'), []);
-  const snapshot = JSON.stringify({ type, start, end, kind, note, fields: fields.map((field) => ({ name: field.name, value: field.value, type: field.type })) });
+  const snapshot = useMemo(() => JSON.stringify({ type, start, end, kind, note, fields: fields.map((field) => ({ name: field.name, value: field.value, type: field.type })) }), [type, start, end, kind, note, fields]);
   const [initialSnapshot] = useState(snapshot);
   const changed = initialSnapshot !== snapshot;
   const cancel = useCallback(() => {

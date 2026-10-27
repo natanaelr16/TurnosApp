@@ -60,7 +60,7 @@ export default function CalendarScreen() {
               return <Pressable key={date} accessibilityRole="button" accessibilityLabel={`${formatShortDate(date)}${date === today ? ', hoy' : ''}${dayOfWeek(date) === 0 ? ', domingo' : holidays.has(date) ? ', festivo' : ''}, ${kinds.length ? kinds.map((key) => CALENDAR_KINDS[key].label).join(' y ') + ', consultar' : 'sin registro, registrar'}`} accessibilityState={{ selected: date === today }} onPress={() => openDay(date)}
                 style={[styles.cell, styles.day, { backgroundColor: palette?.background ?? theme.backgroundElement, borderColor: date === today ? theme.primary : 'transparent', borderWidth: date === today ? 2 : 0 }]}>
                 <ThemedText type={date === today ? 'smallBold' : 'small'} maxFontSizeMultiplier={1.4} style={{ color: palette?.text ?? (festive ? theme.holiday : theme.text), textDecorationLine: festive ? 'underline' : 'none' }}>{Number(date.slice(8))}</ThemedText>
-                <View style={styles.marks}>{kinds.map((key) => <View key={key} style={[styles.mark, { backgroundColor: CALENDAR_KINDS[key].background }]}><ThemedText type="caption" maxFontSizeMultiplier={1.1} style={{ color: CALENDAR_KINDS[key].text }}>{CALENDAR_KINDS[key].mark}</ThemedText></View>)}</View>
+                <View style={styles.marks}>{kinds.map((key) => <View key={key} style={[styles.mark, { backgroundColor: CALENDAR_KINDS[key].background }]}><ThemedText type="caption" maxFontSizeMultiplier={1.3} style={{ color: CALENDAR_KINDS[key].text, fontWeight: '600' }}>{CALENDAR_KINDS[key].mark}</ThemedText></View>)}</View>
               </Pressable>;
             })}
           </View>)}

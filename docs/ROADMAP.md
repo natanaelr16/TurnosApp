@@ -52,7 +52,7 @@ Marcar `[x]` al completar. Cada fase termina con `/verificar` en verde y `ESTADO
 - [x] Vista de año estilo iPhone: tap en nombre del mes → 12 miniaturas con colores → tap abre el mes (D-022)
 - [x] Campos renombrados a "Dato adicional" (ej.: Observaciones); háptico al guardar (expo-haptics ~58.0.7)
 - [ ] Decidir si Resumen muestra acumulado de recargos+extras del periodo (hallazgo alto revisión UI 2026-10-26)
-- [ ] Hallazgos UI menores: memoizar `snapshot` en registro, "Limpiar búsqueda" en Historial, marcas con letra grande
+- [x] Hallazgos UI menores: memoizar `snapshot` en registro, "Limpiar búsqueda" en Historial, marcas con letra grande
 
 ## Fase 3.5 — Extras inspirados en la planilla real
 - [ ] Vacaciones y otras novedades (Descanso, Permiso e Incapacidad ya registrables en Fase 3; liquidación pendiente)

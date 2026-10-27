@@ -3,10 +3,11 @@
 > Memoria viva del proyecto. **Todo agente la lee al iniciar y la actualiza al terminar.**
 > Mantenerla corta (máx. ~60 líneas). El detalle histórico va en `BITACORA.md`.
 
-**Última actualización:** 2026-10-26 — calendario con vista de año y hallazgos de revisión UI.
+**Última actualización:** 2026-10-26 — hallazgos UI menores de la revisión aplicados.
 **Fase actual:** Fase 3 — F0–F5 implementados; prueba visual del rediseño y vista de año pendiente.
-**Git:** avance previo en `bfceb39` + docs en `bfff494`. Cambios de esta sesión sin commit:
-vista de año, "Dato adicional", háptico, expo-haptics ~58.0.7 y docs de la sesión.
+**Git:** último commit `72c9e70` (vista de año, "Dato adicional", háptico, revisión UI).
+Cambios de esta sesión sin commit: snapshot memoizado en registro, "Limpiar búsqueda"
+en Historial, marcas D/N/L/V más legibles con letra grande.
 
 ## Qué existe hoy
 - Motor puro de turnos/nómina validado con planilla real (D-013); auditoría previa en BITACORA.
@@ -33,14 +34,13 @@ vista de año, "Dato adicional", háptico, expo-haptics ~58.0.7 y docs de la ses
 
 ## En curso / siguiente sesión
 1. Confirmación visual del usuario: vista de año, miniaturas con colores, tap mes→grilla,
-   "Dato adicional", háptico al guardar. No asumir aprobación por compilar.
+   "Dato adicional", háptico al guardar, "Limpiar búsqueda" y marcas D/N/L/V.
+   No asumir aprobación por compilar.
 2. Decisión del usuario sobre hallazgo alto de revisión UI: ¿mostrar en Resumen el acumulado
    de recargos+extras del periodo? (compatible con D-020, pero él pidió solo aviso; pendiente).
 3. Especificar reglas de básico/aportes por novedades y cierre/reapertura; revisar normas/pruebas.
 4. Implementar F6: estimación y PDF salarial, FSP/retención en última quincena sobre mes real.
 5. Completar respaldo PDF restaurable F7; permisos por horas; animaciones de transición.
-6. Hallazgos UI menores pendientes: memoizar `snapshot` en registro, acción "Limpiar búsqueda"
-   en Historial, legibilidad de marcas D/N/L/V con letra grande.
 
 ## Decisiones pendientes con el usuario / bloqueos
 - Confirmación visual del rediseño, vista de año y PDF; decisión sobre acumulado en Resumen.
