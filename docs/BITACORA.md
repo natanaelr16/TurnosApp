@@ -5,6 +5,21 @@ Formato: fecha, objetivo, qué se hizo, verificación ejecutada, pendientes.
 
 ---
 
+## 2026-10-28 — F6 parcial: liquidación estimada del periodo (D-029)
+- **Objetivo:** estimación de nómina del periodo: deducciones reales (salud/pensión 4 %
+  con redondeo a centenas como la planilla), FSP/retención solo en 2ª quincena sobre
+  el mes real, y neto estimado en Resumen y PDF.
+- **Hecho:** `payEstimate` en `domain/payroll.ts` (devengado = básico + incapacidad +
+  recargos/extras + auxilio; IBC con mínimo ½ SMMLV; FSP/retención con el mes completo);
+  tarjeta "Liquidación estimada" en Resumen; tabla equivalente en el PDF; aviso y prueba
+  del informe actualizados al nuevo alcance (sí muestra neto estimado).
+- **Verificación:** `npx tsc --noEmit`, `npx expo lint` y `npm test` en verde
+  (118/118 pruebas, 13 suites).
+- **Pendientes:** ingresos adicionales tipo "Bonificación" ($792.657 en la nómina real,
+  no derivable de turnos); cierre/reapertura de periodo; validación visual del usuario.
+
+---
+
 ## 2026-10-28 — Básico prorrateado por día pago en Resumen y PDF (D-027)
 - **Objetivo:** pedido del usuario: mostrar el salario básico en el detalle de liquidación,
   PDF e historial, afectado por novedades — incapacidad al 75 % del día, permiso no

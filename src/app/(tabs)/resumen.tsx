@@ -3,8 +3,8 @@ import { StyleSheet, View } from 'react-native';
 
 import { PeriodSelector } from '@/components/period-selector';
 import { ThemedText } from '@/components/themed-text';
-import { Card, EmptyState, Screen } from '@/components/ui';
-import { basicPayDetail, liquidationTable, periodFor } from '@/domain/payroll';
+import { Card, EmptyState, Screen, ValueRow } from '@/components/ui';
+import { liquidationTable, payEstimate, periodFor } from '@/domain/payroll';
 import { recordCoverage } from '@/domain/records';
 import { computeShifts } from '@/domain/shift-calc';
 import { useAppData } from '@/hooks/use-app-data';
@@ -19,7 +19,8 @@ export default function SummaryScreen() {
   const results = useMemo(() => computeShifts(data.shifts, data.settings), [data.shifts, data.settings]);
   const table = useMemo(() => liquidationTable(results, data.settings, period), [results, data.settings, period]);
   const incomplete = recordCoverage(data.shifts, data.novelties, period).missingDates.length > 0;
-  const basic = useMemo(() => basicPayDetail(results, data.novelties, data.settings, period), [results, data.novelties, data.settings, period]);
+  const estimate = useMemo(() => payEstimate(results, data.novelties, data.settings, period), [results, data.novelties, data.settings, period]);
+  const basic = estimate.basic;
   const activeRows = table.rows.filter((row) => row.hours > 0);
   return <Screen title="Resumen" subtitle="Acumulados del periodo">
     <PeriodSelector period={period} type={data.settings.payPeriod} onDateChange={setAnchor} />
@@ -57,6 +58,20 @@ export default function SummaryScreen() {
         <ThemedText type="smallBold" style={styles.amount}>{formatCOP(basic.amount + table.totalAmount)}</ThemedText>
       </View>
     </Card>}
+    {basic.amount || table.workedMinutes ? <Card title="Liquidación estimada">
+      <ValueRow label="Devengado del periodo" value={formatCOP(estimate.gross)} />
+      <ValueRow label="Salud (4 %)" value={formatCOP(estimate.health)} />
+      <ValueRow label="Pensión (4 %)" value={formatCOP(estimate.pension)} />
+      {estimate.solidarityFund ? <ValueRow label="Fondo de solidaridad" value={formatCOP(estimate.solidarityFund)} /> : null}
+      {estimate.withholding ? <ValueRow label="Retención en la fuente" value={formatCOP(estimate.withholding)} /> : null}
+      <ValueRow label="Neto estimado" value={formatCOP(estimate.net)} strong />
+      <ThemedText type="caption" themeColor="textSecondary">
+        {data.settings.payPeriod === 'quincenal' && Number(period.start.slice(8, 10)) < 16
+          ? 'Fondo de solidaridad y retención se descuentan en la segunda quincena.'
+          : 'Fondo de solidaridad y retención calculados sobre el mes completo.'}
+        {' '}Estimado — puede diferir de tu nómina oficial.
+      </ThemedText>
+    </Card> : null}
     {table.workedMinutes ? <ThemedText type="caption" themeColor="textSecondary">{formatMinutes(table.workedMinutes)} trabajados en el periodo.</ThemedText> : null}
     {incomplete ? <ThemedText type="caption" themeColor="textSecondary">Periodo incompleto: hay días sin registrar, los acumulados son parciales.</ThemedText> : null}
     <ThemedText type="caption" themeColor="textSecondary">El básico se prorratea por día pago (salario ÷ 30): descansos y permisos remunerados pagan el día; la incapacidad paga el 75 % del promedio diario devengado; permiso no remunerado no paga. Salud, pensión, retención y neto llegan con la liquidación salarial.</ThemedText>

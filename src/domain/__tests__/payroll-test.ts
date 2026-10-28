@@ -1,4 +1,4 @@
-import { basicPayDetail, computePeriod, liquidationTable, periodFor, withholdingMonthly } from '@/domain/payroll';
+import { basicPayDetail, computePeriod, liquidationTable, payEstimate, periodFor, withholdingMonthly } from '@/domain/payroll';
 import { computeShifts } from '@/domain/shift-calc';
 import type { Settings } from '@/domain/types';
 
@@ -179,6 +179,61 @@ describe('cuadro de liquidación del periodo (D-024, planilla real oct 1–15 20
     // estimación: la empresa usa el promedio devengado real (414.020); con los turnos
     // de la prueba el promedio es menor, así que el valor difiere en ~57.000
     expect(Math.abs(basic.sickAmount - 414_020)).toBeLessThan(60_000);
+  });
+});
+
+describe('liquidación estimada del periodo (D-029, finiquito sep 1–15)', () => {
+  const quincena: Settings = { baseSalary: 4_453_128, dailyLimitHours: 8, weeklyLimitHours: 42, payPeriod: 'quincenal', transportAllowance: { enabled: false } };
+  const sept = computeShifts([
+    { id: 'a', start: '2026-09-01T06:00', end: '2026-09-01T18:00' },
+    { id: 'b', start: '2026-09-02T06:00', end: '2026-09-02T18:00' },
+    { id: 'c', start: '2026-09-03T06:00', end: '2026-09-03T18:00' },
+    { id: 'd', start: '2026-09-04T06:00', end: '2026-09-04T18:00' },
+    { id: 'e', start: '2026-09-08T06:00', end: '2026-09-08T18:00' },
+    { id: 'f', start: '2026-09-09T06:00', end: '2026-09-09T18:00' },
+    { id: 'g', start: '2026-09-10T06:00', end: '2026-09-10T18:00' },
+    { id: 'h', start: '2026-09-11T06:00', end: '2026-09-11T18:00' },
+    { id: 'i', start: '2026-09-12T06:00', end: '2026-09-12T18:00' },
+    { id: 'j', start: '2026-09-14T06:00', end: '2026-09-14T18:00' },
+    { id: 'k', start: '2026-09-15T06:00', end: '2026-09-15T18:00' },
+  ], quincena);
+  const novelties = [
+    { id: 'r1', date: '2026-09-07', kind: 'rest' as const },
+    { id: 'r2', date: '2026-09-13', kind: 'rest' as const },
+    { id: 's1', date: '2026-09-05', kind: 'sick' as const },
+    { id: 's2', date: '2026-09-06', kind: 'sick' as const },
+  ];
+
+  test('primera quincena: salud y pensión 4 % redondeadas a centenas, sin FSP ni retención', () => {
+    const p = payEstimate(sept, novelties, quincena, { start: '2026-09-01', end: '2026-09-15' });
+    expect(p.gross).toBe(p.basic.amount + p.accruedAmount);
+    expect(p.contributionBase).toBe(p.gross);
+    expect(p.health).toBe(Math.round(p.gross * 0.04 / 100) * 100);
+    expect(p.pension).toBe(p.health);
+    expect(p.solidarityFund).toBe(0);
+    expect(p.withholding).toBe(0);
+    expect(p.net).toBe(p.gross - p.health - p.pension);
+  });
+
+  test('segunda quincena con salario alto: FSP y retención sobre el mes real', () => {
+    const cfg: Settings = { ...quincena, baseSalary: 12_000_000 };
+    const more = computeShifts([...Array.from({ length: 10 }, (_, i) => ({
+      id: `q${i}`, start: `2026-09-${16 + i}T06:00`, end: `2026-09-${16 + i}T18:00`,
+    }))], cfg);
+    const all = [...sept, ...more];
+    const second = payEstimate(all, novelties, cfg, { start: '2026-09-16', end: '2026-09-30' });
+    expect(second.solidarityFund).toBeGreaterThan(0);
+    expect(second.withholding).toBeGreaterThan(0);
+    const first = payEstimate(all, novelties, cfg, { start: '2026-09-01', end: '2026-09-15' });
+    expect(first.solidarityFund).toBe(0);
+    expect(first.withholding).toBe(0);
+  });
+
+  test('IBC mínimo de medio SMMLV en quincena con salario bajo', () => {
+    const cfg: Settings = { ...quincena, baseSalary: 1_000_000 };
+    const p = payEstimate([], [], cfg, { start: '2026-10-01', end: '2026-10-15' });
+    expect(p.contributionBase).toBe(Math.round(1_750_905 / 2));
+    expect(p.health).toBe(Math.round(1_750_905 / 2 * 0.04 / 100) * 100);
   });
 });
 

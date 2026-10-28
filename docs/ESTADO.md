@@ -3,10 +3,12 @@
 > Memoria viva del proyecto. **Todo agente la lee al iniciar y la actualiza al terminar.**
 > Mantenerla corta (máx. ~60 líneas). El detalle histórico va en `BITACORA.md`.
 
-**Última actualización:** 2026-10-28 — básico prorrateado por día pago en Resumen y PDF (D-027).
-**Fase actual:** Fase 3 — F0–F5 implementados; avance hacia F6 con reglas empresariales reales.
-**Git:** último commit `44a4cf1` (calendario iOS completo). Sin commit: `basicPayDetail` en
-dominio + básico/incapacidad/permiso no remunerado en Resumen y PDF.
+**Última actualización:** 2026-10-28 — liquidación estimada del periodo con deducciones
+reales y neto (D-029); incapacidad al 75 % del promedio (D-028).
+**Fase actual:** Fase 3 — F0–F5 implementados; F6 parcial (estimación hecha, faltan
+ingresos extra tipo bonificación y cierre/reapertura).
+**Git:** último commit `b8f3f70` (incapacidad 75 % del promedio). Sin commit:
+`payEstimate` + tarjeta Liquidación estimada en Resumen/PDF y D-029.
 
 ## Qué existe hoy
 - Motor puro de turnos/nómina validado con planilla real (D-013); auditoría previa en BITACORA.
@@ -26,11 +28,13 @@ dominio + básico/incapacidad/permiso no remunerado en Resumen y PDF.
 - Básico prorrateado por día pago (D-027/D-028): salario/30; descansos y permisos
   remunerados pagan día completo, incapacidad 75 % del promedio devengado, permiso
   no remunerado 0; en Resumen y PDF.
+- Liquidación estimada (D-029): devengado, salud/pensión 4 % (a centenas), FSP/retención
+  solo en 2ª quincena sobre el mes real, neto estimado; en Resumen y PDF.
 - PDF de acumulados (D-021): expo-print + expo-sharing, consentimiento y escape HTML.
-  Incluye básico del periodo; no incluye deducciones/neto ni JSON: NO es respaldo restaurable.
+  Incluye básico y liquidación estimada; sin JSON: NO es respaldo restaurable.
 
 ## Verificación al cerrar
-- **114/114 pruebas (13 suites), tipos y lint en verde** tras los cambios de esta sesión.
+- **118/118 pruebas (13 suites), tipos y lint en verde** tras los cambios de esta sesión.
 - Metro LAN puerto 8083 activo (la IP del Mac cambió a 192.168.1.8; Expo Go relanzado).
 - Crash anterior del tap sostenido corregido (interpolación de la basurita y `useWindowDimensions`);
   falta validación directa del popover y del genie en el simulador.
@@ -38,9 +42,9 @@ dominio + básico/incapacidad/permiso no remunerado en Resumen y PDF.
 ## En curso / siguiente sesión
 1. Confirmación visual del usuario: swipe de meses, scroll de años, selector de década,
    colores, popover, genie, basurita, chips 8 h y formato 12/24 h. No asumir aprobación.
-2. Definir resto de reglas para F6: deducciones salud/pensión 4 %, FSP/retención en 2ª
-   quincena, ingresos extra tipo bonificación y cierre/reapertura (D-015/D-016).
-3. Implementar F6: estimación y PDF salarial con FSP/retención sobre mes real.
+2. F6 restante: ingresos adicionales tipo "Bonificación" por periodo y
+   cierre/reapertura de periodo (D-015/D-016/D-029).
+3. Completar respaldo PDF restaurable F7; permisos por horas; limpieza de caché de PDFs.
 4. Completar respaldo PDF restaurable F7; permisos por horas; limpieza de caché de PDFs.
 
 ## Decisiones pendientes con el usuario / bloqueos

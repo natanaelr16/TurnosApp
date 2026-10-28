@@ -8,14 +8,15 @@ const data: AppData = { settings: { ...DEFAULT_SETTINGS, baseSalary: 2100000 }, 
 ] };
 const period = { start: '2026-10-01', end: '2026-10-15' };
 
-test('exporta solo el periodo completo seleccionado y sus importes reales, sin neto ficticio', () => {
+test('exporta el periodo seleccionado con sus importes reales y liquidación estimada', () => {
   const html = buildPeriodReport(data, period);
   expect(html).toContain('RTG19');
   expect(html).toContain('50.000');
   expect(html).not.toContain('FUERA_DEL_PERIODO');
   expect(html).toContain('Periodo incompleto');
   expect(html).toContain('No es un respaldo restaurable');
-  expect(html).not.toContain('Neto estimado');
+  expect(html).toContain('Neto estimado');
+  expect(html).toContain('estimación');
 });
 
 test('escapa nombres, campos y notas para que no se ejecuten como HTML', () => {

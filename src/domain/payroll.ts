@@ -117,6 +117,71 @@ export function basicPayDetail(results: ShiftResult[], novelties: Novelty[], set
   return { daily, fullDays, sickDays, unpaidDays, fullAmount, avgDaily, sickDaily, sickAmount, amount: fullAmount + sickAmount };
 }
 
+/** Redondeo a centenas, como hace la planilla real (158.722 → 158.800). */
+const round100 = (value: number) => Math.round(value / 100) * 100;
+
+export interface PayEstimate {
+  basic: BasicPay;
+  /** Recargos + extras del periodo. */
+  accruedAmount: number;
+  transportAllowance: number;
+  /** Devengado del periodo: básico + incapacidad + recargos/extras + auxilio. */
+  gross: number;
+  /** IBC: devengado sin auxilio, con mínimo del SMMLV prorrateado. */
+  contributionBase: number;
+  health: number;
+  pension: number;
+  /** FSP y retención: solo en la segunda quincena (o mes completo), sobre el mes real. */
+  solidarityFund: number;
+  withholding: number;
+  totalDeductions: number;
+  net: number;
+}
+
+/** Liquidación estimada del periodo con las reglas de la nómina real del usuario (D-028/D-029):
+ *  salud y pensión 4 % del IBC redondeadas a centenas; FSP y retención solo en la
+ *  segunda quincena (o periodo mensual), calculadas sobre el mes real completo. */
+export function payEstimate(results: ShiftResult[], novelties: Novelty[], settings: Settings, period: PeriodRange): PayEstimate {
+  const basic = basicPayDetail(results, novelties, settings, period);
+  const accruedAmount = results
+    .filter((r) => { const d = datePart(r.shift.start); return d >= period.start && d <= period.end; })
+    .reduce((s, r) => s + r.surchargeTotal + r.extraTotal, 0);
+  const { smmlv, uvt, transportAllowance: legalTransport } = yearlyParams(Number(period.start.slice(0, 4)));
+  const fraction = settings.payPeriod === 'quincenal' ? 0.5 : 1;
+  const transport = settings.transportAllowance.enabled
+    ? Math.round((settings.transportAllowance.amount ?? legalTransport) * fraction)
+    : 0;
+  const gross = basic.amount + accruedAmount + transport;
+  const contributionBase = Math.max(gross - transport, Math.round(smmlv * fraction));
+  const health = round100((contributionBase * HEALTH_PCT) / 100);
+  const pension = round100((contributionBase * PENSION_PCT) / 100);
+
+  // FSP y retención se descuentan al final del mes con el mes real completo (D-015).
+  const isLastFraction = settings.payPeriod === 'mensual' || Number(period.start.slice(8, 10)) >= 16;
+  let solidarityFund = 0, withholding = 0;
+  if (isLastFraction) {
+    const month: PeriodRange = { start: `${period.start.slice(0, 7)}-01`, end: period.end };
+    const monthBasic = basicPayDetail(results, novelties, settings, month);
+    const monthAccrued = results
+      .filter((r) => { const d = datePart(r.shift.start); return d >= month.start && d <= month.end; })
+      .reduce((s, r) => s + r.surchargeTotal + r.extraTotal, 0);
+    const monthTransport = settings.transportAllowance.enabled ? (settings.transportAllowance.amount ?? legalTransport) : 0;
+    const monthGross = monthBasic.amount + monthAccrued + monthTransport;
+    const monthBase = Math.max(monthGross - monthTransport, smmlv);
+    const monthHealth = round100((monthBase * HEALTH_PCT) / 100);
+    const monthPension = round100((monthBase * PENSION_PCT) / 100);
+    solidarityFund = round100((monthBase * fspPercent(monthBase / smmlv, period.start)) / 100);
+    withholding = withholdingMonthly({
+      laborIncome: monthGross,
+      nonTaxable: monthHealth + monthPension + solidarityFund,
+      deductions: settings.monthlyDeductions ?? 0,
+      uvt,
+    });
+  }
+  const totalDeductions = health + pension + solidarityFund + withholding;
+  return { basic, accruedAmount, transportAllowance: transport, gross, contributionBase, health, pension, solidarityFund, withholding, totalDeductions, net: gross - totalDeductions };
+}
+
 export function periodFor(date: LocalDate, type: PayPeriodType): PeriodRange {
   const [y, m, d] = date.split('-').map(Number);
   const last = makeDate(y, m, daysInMonth(y, m));
