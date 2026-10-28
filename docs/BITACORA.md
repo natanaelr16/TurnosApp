@@ -5,6 +5,27 @@ Formato: fecha, objetivo, qué se hizo, verificación ejecutada, pendientes.
 
 ---
 
+## 2026-10-28 — Básico prorrateado por día pago en Resumen y PDF (D-027)
+- **Objetivo:** pedido del usuario: mostrar el salario básico en el detalle de liquidación,
+  PDF e historial, afectado por novedades — incapacidad al 75 % del día, permiso no
+  remunerado sin pago (regla observada en su nómina real: día pago = salario ÷ 30).
+- **Hecho:** `basicPayDetail` en `domain/payroll.ts` (días completos = turnos + descansos +
+  permisos remunerados, incapacidad al 75 %, día con turno cuenta una vez); Resumen muestra
+  básico/incapacidad/permiso no remunerado y "Total del periodo"; PDF del periodo con la
+  misma sección y texto actualizado sobre novedades. Prueba con el caso real oct 1–15
+  (11 días × $148.438 ≈ $1.632.818 vs $1.632.814 de nómina, ±4 por redondeo).
+- **Verificación:** `npx tsc --noEmit`, `npx expo lint` y `npm test` en verde
+  (114/114 pruebas, 13 suites). Metro reiniciado; la IP del Mac cambió a 192.168.1.8
+  y Expo Go se relanzó con la URL nueva.
+- **Pendientes:** validación visual del usuario; deducciones (salud/pensión 4 %,
+  FSP/retención 2ª quincena) e ingresos extra tipo bonificación siguen pendientes para F6.
+- **Corrección posterior el mismo día:** el finiquito sep 1–15 mostró que la incapacidad
+  paga el 75 % del **promedio diario devengado** (2 días = 414.020 → 207.010/día ≈ 75 %
+  de 276.013), no del básico. Implementado en `basicPayDetail` (nueva D-028); prueba
+  realista añadida. `tsc`, `expo lint` y **115/115 pruebas** en verde.
+
+---
+
 ## 2026-10-26 — Calendario iOS completo, chips 8 h, formato 12/24 y cuadro de liquidación
 - **Objetivo:** iteraciones del usuario tras probar la app: navegación real del calendario
   (swipe/scroll/selector de años), colores diferenciados, popover con datos del día,

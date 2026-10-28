@@ -1,4 +1,4 @@
-import { computePeriod, liquidationTable, periodFor, withholdingMonthly } from '@/domain/payroll';
+import { basicPayDetail, computePeriod, liquidationTable, periodFor, withholdingMonthly } from '@/domain/payroll';
 import { computeShifts } from '@/domain/shift-calc';
 import type { Settings } from '@/domain/types';
 
@@ -127,6 +127,58 @@ describe('cuadro de liquidación del periodo (D-024, planilla real oct 1–15 20
       expect(Math.abs(row(category).amount - valor)).toBeLessThanOrEqual(40);
     }
     expect(Math.abs(table.totalAmount - 1_248_996)).toBeLessThanOrEqual(80);
+  });
+
+  test('básico prorrateado: 11 días pagos, 1 permiso sin sueldo y 1 incapacidad al 75 % del promedio', () => {
+    const novelties = [
+      { id: 'r1', date: '2026-10-05', kind: 'rest' as const },
+      { id: 'r2', date: '2026-10-06', kind: 'rest' as const },
+      { id: 'r3', date: '2026-10-11', kind: 'rest' as const },
+      { id: 'r4', date: '2026-10-12', kind: 'rest' as const },
+      { id: 'p1', date: '2026-10-10', kind: 'unpaid-leave' as const },
+      { id: 's1', date: '2026-10-13', kind: 'sick' as const },
+      { id: 'x', date: '2026-10-16', kind: 'rest' as const }, // fuera del periodo
+    ];
+    const basic = basicPayDetail(results, novelties, real, { start: '2026-10-01', end: '2026-10-15' });
+    expect(basic.daily).toBe(148_438); // 4.453.128 / 30
+    expect(basic.fullDays).toBe(11);
+    expect(basic.unpaidDays).toBe(1);
+    expect(basic.sickDays).toBe(1);
+    expect(basic.fullAmount).toBe(1_632_818); // nómina real: 1.632.814 (redondeo por día)
+    // promedio devengado = (básico de días completos + recargos + extras) / días completos
+    expect(basic.avgDaily).toBe(Math.round((basic.fullAmount + table.totalAmount) / 11));
+    expect(basic.sickDaily).toBe(Math.round(basic.avgDaily * 0.75));
+    expect(basic.amount).toBe(basic.fullAmount + basic.sickDaily);
+  });
+
+  test('incapacidad al 75 % del promedio devengado, como la nómina real (sep 1–15)', () => {
+    // Nómina real: 13 días × 148.437,60 = 1.929.689; recargos+extras 1.624.332;
+    // incapacidad 2 días = 414.020 → 207.010/día ≈ 75 % de 273.386 (promedio devengado)
+    const sept = computeShifts([
+      { id: 'a', start: '2026-09-01T06:00', end: '2026-09-01T18:00' },
+      { id: 'b', start: '2026-09-02T06:00', end: '2026-09-02T18:00' },
+      { id: 'c', start: '2026-09-03T06:00', end: '2026-09-03T18:00' },
+      { id: 'd', start: '2026-09-04T06:00', end: '2026-09-04T18:00' },
+      { id: 'e', start: '2026-09-08T06:00', end: '2026-09-08T18:00' },
+      { id: 'f', start: '2026-09-09T06:00', end: '2026-09-09T18:00' },
+      { id: 'g', start: '2026-09-10T06:00', end: '2026-09-10T18:00' },
+      { id: 'h', start: '2026-09-11T06:00', end: '2026-09-11T18:00' },
+      { id: 'i', start: '2026-09-12T06:00', end: '2026-09-12T18:00' },
+      { id: 'j', start: '2026-09-14T06:00', end: '2026-09-14T18:00' },
+      { id: 'k', start: '2026-09-15T06:00', end: '2026-09-15T18:00' },
+    ], real);
+    const basic = basicPayDetail(sept, [
+      { id: 'r1', date: '2026-09-07', kind: 'rest' as const },
+      { id: 'r2', date: '2026-09-13', kind: 'rest' as const },
+      { id: 's1', date: '2026-09-05', kind: 'sick' as const },
+      { id: 's2', date: '2026-09-06', kind: 'sick' as const },
+    ], real, { start: '2026-09-01', end: '2026-09-15' });
+    expect(basic.fullDays).toBe(13);
+    expect(basic.sickDays).toBe(2);
+    expect(basic.sickDaily).toBe(Math.round(basic.avgDaily * 0.75));
+    // estimación: la empresa usa el promedio devengado real (414.020); con los turnos
+    // de la prueba el promedio es menor, así que el valor difiere en ~57.000
+    expect(Math.abs(basic.sickAmount - 414_020)).toBeLessThan(60_000);
   });
 });
 

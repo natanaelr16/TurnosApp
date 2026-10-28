@@ -15,6 +15,7 @@ import {
     MINUTE_CATEGORIES,
     type LocalDate,
     type MinuteCategory,
+    type Novelty,
     type PayPeriodType,
     type PeriodRange,
     type PeriodSummary,
@@ -68,6 +69,52 @@ export function liquidationTable(results: ShiftResult[], settings: Settings, per
         workedMinutes: inPeriod.reduce((s, r) => s + r.totalMinutes, 0),
         totalAmount: rows.reduce((s, r) => s + r.amount, 0),
     };
+}
+
+/** Porcentaje del promedio devengado que paga la empresa por incapacidad (D-016/D-027). */
+export const SICK_DAY_PCT = 75;
+
+export interface BasicPay {
+  /** Valor del día básico: salario mensual / 30 (regla de la planilla real). */
+  daily: number;
+  /** Días pagos completos: turnos, descansos y permisos remunerados. */
+  fullDays: number;
+  sickDays: number;
+  unpaidDays: number;
+  fullAmount: number;
+  /** Promedio diario devengado: (básico de días completos + recargos + extras) / días completos. */
+  avgDaily: number;
+  /** Valor del día de incapacidad: 75 % del promedio devengado (como la nómina real). */
+  sickDaily: number;
+  sickAmount: number;
+  /** Básico del periodo: días completos + incapacidades al 75 % del promedio. */
+  amount: number;
+}
+
+/** Básico prorrateado por días pagos, como en la nómina real del usuario (D-016/D-027).
+ *  Un día con turno cuenta una vez aunque haya varios turnos; la novedad solo cuenta
+ *  si el día no tiene turno registrado. La incapacidad paga el 75 % del promedio
+ *  diario devengado del periodo (básico + recargos + extras), no del básico puro. */
+export function basicPayDetail(results: ShiftResult[], novelties: Novelty[], settings: Settings, period: PeriodRange): BasicPay {
+  const daily = Math.round(settings.baseSalary / 30);
+  const worked = new Set(
+    results.map((r) => datePart(r.shift.start)).filter((d) => d >= period.start && d <= period.end),
+  );
+  let fullDays = worked.size, sickDays = 0, unpaidDays = 0;
+  for (const n of novelties) {
+    if (n.date < period.start || n.date > period.end || worked.has(n.date)) continue;
+    if (n.kind === 'sick') sickDays++;
+    else if (n.kind === 'unpaid-leave') unpaidDays++;
+    else fullDays++;
+  }
+  const fullAmount = fullDays * daily;
+  const accrued = results
+    .filter((r) => { const d = datePart(r.shift.start); return d >= period.start && d <= period.end; })
+    .reduce((s, r) => s + r.surchargeTotal + r.extraTotal, 0);
+  const avgDaily = fullDays ? Math.round((fullAmount + accrued) / fullDays) : daily;
+  const sickDaily = Math.round((avgDaily * SICK_DAY_PCT) / 100);
+  const sickAmount = sickDays * sickDaily;
+  return { daily, fullDays, sickDays, unpaidDays, fullAmount, avgDaily, sickDaily, sickAmount, amount: fullAmount + sickAmount };
 }
 
 export function periodFor(date: LocalDate, type: PayPeriodType): PeriodRange {

@@ -35,7 +35,7 @@ Marcar `[x]` al completar. Cada fase termina con `/verificar` en verde y `ESTADO
 - [x] Crear/editar/eliminar turno + plantillas (F2; pantallas `/registro` y `/plantillas`)
 - [x] Campos personalizados informativos por turno: nombre + valor texto/número/alfanumérico (D-017; `fields_json`)
 - [x] Registrar descansos, permisos remunerados/no remunerados e incapacidad con los turnos (D-016; tabla `novelties`; ajuste monetario pendiente)
-- [ ] Ajustar básico por novedades y liquidación al completar periodo; FSP/retención en última quincena sobre mes real (D-015/D-016)
+- [ ] Ajustar básico por novedades y liquidación al completar periodo; FSP/retención en última quincena sobre mes real (D-015/D-016) — básico prorrateado por día pago hecho (D-027); faltan deducciones y neto
 - [x] Calendario (F3; grilla mensual con festivos y registros por día)
 - [x] Detalle de turno (F4; consulta `/detalle` separada de edición, horas extra y recargos)
 - [x] Historial (F5; lista por periodo con búsqueda, turnos y novedades)
