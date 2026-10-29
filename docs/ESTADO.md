@@ -3,11 +3,10 @@
 > Memoria viva del proyecto. **Todo agente la lee al iniciar y la actualiza al terminar.**
 > Mantenerla corta (máx. ~60 líneas). El detalle histórico va en `BITACORA.md`.
 
-**Última actualización:** 2026-10-28 — vista "Mes completo" en Resumen; FSP/retención
-siempre visibles con su umbral legal; PDF de liquidación corregido; tabs sin animación.
+**Última actualización:** 2026-10-28 — incapacidad aparte del básico (app + PDF);
+proyección de FSP/retención en la 1ª quincena; camino oficial vía EAS/TestFlight explicado.
 **Fase actual:** Fase 3 — F0–F7 implementados; pulido tras prueba en iPhone real.
-**Git:** último commit `7d70a59`. Sin commit: vista de mes (D-036), umbrales FSP/
-retención en Resumen/PDF, PDF sin valores cortados, quitar TabSlide (D-035 revisada).
+**Git:** último commit `2b858a0`. Árbol limpio.
 
 ## Qué existe hoy
 - Motor puro de turnos/nómina validado con planilla real (D-013); auditoría previa en BITACORA.
@@ -66,6 +65,11 @@ retención en Resumen/PDF, PDF sin valores cortados, quitar TabSlide (D-035 revi
 4. Fase 4: EAS build/TestFlight para app instalable (requiere Apple Developer).
 
 ## Decisiones pendientes con el usuario / bloqueos
+- **App oficial (Fase 4):** el usuario pregunta cómo hacerla instalable. Camino explicado:
+  cuenta Apple Developer ($99 USD/año, trámite suyo) → `eas.json` + bundle id + ícono →
+  `eas build` producción → TestFlight. Falta que decida/compre la cuenta.
+- FSP/retención en $0 en octubre es por ley (IBC ~$5,9M < 4 SMMLV; base < 95 UVT);
+  el usuario lo sabe; la app muestra los umbrales.
 - Confirmación visual de F6/F7 completos y de los tres PDFs.
 - Restaurar **reemplaza** todos los datos (sin mezclar); verificar que así lo quiere.
 

@@ -82,4 +82,6 @@ Marcar `[x]` al completar. Cada fase termina con `/verificar` en verde y `ESTADO
 - [ ] Resolver/revisar 5 avisos high de npm audit en Expo CLI/node-forge/zod con actualización compatible (sin --force ni downgrade SDK)
 - [ ] Limpiar caché de PDFs privados al borrar todos los datos y definir retención temporal
 - [ ] Auditoría de seguridad dedicada (no sustituida por lint/pruebas/doctor)
-- [ ] Builds con EAS y publicación (checklist de `CUMPLIMIENTO.md`)
+- [ ] Cuenta Apple Developer ($99 USD/año) — trámite del usuario en developer.apple.com
+- [ ] Configurar `eas.json`, bundle identifier e ícono de la app
+- [ ] Builds con EAS y publicación/TestFlight (checklist de `CUMPLIMIENTO.md`)

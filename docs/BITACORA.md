@@ -5,6 +5,18 @@ Formato: fecha, objetivo, qué se hizo, verificación ejecutada, pendientes.
 
 ---
 
+## 2026-10-28 — Commit de liquidación/mes, explicación de FSP $0 y camino a app oficial
+- **Objetivo:** cerrar el trabajo de PDF/incapacidad/proyección; responder por qué FSP
+  y retención salen en $0 en octubre; explicar cómo llevar la app a instalable oficial.
+- **Hecho:** commit `2b858a0` (vista de mes, incapacidad aparte del básico, proyección
+  de FSP/retención en 1ª quincena, pestañas sin animación). Se explicó al usuario que
+  los $0 de FSP/retención son por ley (IBC del mes ~$5,9M < 4 SMMLV; base gravable
+  < 95 UVT) y dónde ver los umbrales en Resumen. Camino oficial: Apple Developer
+  ($99/año) → EAS build producción → TestFlight; se dejó como decisión pendiente.
+- **Verificación:** `npm test` 128/128 ✓ · `npx tsc --noEmit` ✓ · `npx expo lint` ✓.
+- **Pendientes:** `/revision-legal`; confirmación del usuario en el iPhone; decisión
+  y compra de cuenta Apple Developer para el build con EAS.
+
 ## 2026-10-28 — Vista de mes completo, umbrales FSP/retención y PDF corregido (D-036)
 - **Objetivo:** el usuario cargó octubre completo y no veía retefuente ni fondo de
   solidaridad en Resumen ni en el PDF; el PDF de mes mostraba valores cortados; pidió
