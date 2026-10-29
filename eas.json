@@ -25,6 +25,14 @@
     }
   },
   "submit": {
-    "production": {}
+    "production": {
+      "ios": {
+        "ascAppId": "6828459921",
+        "appleTeamId": "J2W4AY4LP6",
+        "ascApiKeyPath": "/Users/natanaelr16/Downloads/AuthKey_QX47VJDJBL.p8",
+        "ascApiKeyId": "QX47VJDJBL",
+        "ascApiKeyIssuerId": "116e6061-07b3-4ef9-abe3-1bef7e3104d4"
+      }
+    }
   }
 }

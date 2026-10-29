@@ -13,7 +13,7 @@
       "buildNumber": "2",
       "supportsTablet": false,
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": true
       },
       "privacyManifests": {
         "NSPrivacyAccessedAPICategories": [

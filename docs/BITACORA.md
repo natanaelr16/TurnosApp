@@ -5,6 +5,27 @@ Formato: fecha, objetivo, qué se hizo, verificación ejecutada, pendientes.
 
 ---
 
+## 2026-10-29 — Submit a App Store Connect programado + metadatos de tienda y cumplimiento de cifrado
+- **Objetivo:** subir el build 2 a App Store Connect y preparar la ficha de tienda.
+- **Hecho:** app creada en App Store Connect por el usuario (id `6828459921`, nombre
+  "TurnosApp" quedó libre). `eas.json` con `ascAppId` + llave ASC local
+  (`~/Downloads/AuthKey_QX47VJDJBL.p8`). `eas submit` programó la subida del build
+  7e7c2cb1 (v1.0.0, buildNumber 2) — **upload en curso al cerrar**. Generados los
+  assets promocionales en las 5 dimensiones pedidas por Apple (`assets/images/promo-*`)
+  y 3 capturas de simulador 1320×2868 (`assets/screenshots/`). Textos listos:
+  subtítulo, descripción, promocional (168 car.), palabras clave (99 car.),
+  copyright `© 2026 Natanaelr16`. Metadatos obligatorios pendientes explicados al
+  usuario (versión, contacto, derechos, privacidad, precio, categoría, edades).
+  **Hallazgo de cumplimiento:** el cifrado AES-JS de los respaldos hace la app
+  "encriptación no exenta" → `ITSAppUsesNonExemptEncryption` corregido a `true`
+  (D-040); el build 2 salió con `false`, sirve para TestFlight interno pero para
+  revisión conviene build 3 con el flag y el código de cumplimiento.
+- **Verificación:** resultado del submit pendiente (proceso sigue corriendo);
+  build 2 compiló con éxito en EAS.
+- **Pendientes:** declaración de encriptación en ASC ("solo algoritmos estándar",
+  sin documentos salvo Francia), código de cumplimiento → `app.json`, build 3,
+  captura de calendario desde el iPhone, completar campos obligatorios.
+
 ## 2026-10-29 — Cuenta Apple activada: credenciales de firma y primer build de producción
 - **Objetivo:** llevar la app a producción tras activarse la cuenta Apple Developer.
 - **Hecho:** `npx eas-cli init` creó y vinculó `@natanaelr16/TurnosApp` en expo.dev

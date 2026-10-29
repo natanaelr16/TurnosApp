@@ -85,5 +85,9 @@ Marcar `[x]` al completar. Cada fase termina con `/verificar` en verde y `ESTADO
 - [ ] Auditoría de seguridad dedicada (no sustituida por lint/pruebas/doctor)
 - [x] Cuenta Apple Developer activada (team J2W4AY4LP6, Individual) + llave ASC API para EAS
 - [x] Configurar `eas.json`, bundle identifier e ícono de la app; credenciales de firma creadas (bundle `com.natanaelr16.turnosapp`, certificado + provisioning hasta oct 2027)
-- [ ] Build de producción EAS completado (build 7e7c2cb1 en curso al 2026-10-29)
-- [ ] `eas submit` a App Store Connect → capturas, descripción, precio, privacidad, URL política → TestFlight
+- [x] Build de producción EAS completado (build 7e7c2cb1, v1.0.0 #2)
+- [x] App registrada en App Store Connect (id `6828459921`, nombre "TurnosApp" libre) + `ascAppId` en `eas.json`
+- [ ] `eas submit` a App Store Connect: programado 2026-10-29 (submission de4437d5, upload en curso al cerrar) → verificar resultado
+- [ ] Declaración de encriptación en ASC: "solo algoritmos estándar" (D-040) → código de cumplimiento → `app.json` → **build 3** (el 2 declaró flag `false`)
+- [ ] Metadatos obligatorios de ficha: versión, contacto, derechos, URL de política (publicar POLITICA_PRIVACIDAD.md), cuestionario privacidad, precio (Tier 1 paga), categoría, edades; assets promo y capturas ya generados (falta captura de Calendario)
+- [ ] Adjuntar build a la versión → TestFlight → revisión
