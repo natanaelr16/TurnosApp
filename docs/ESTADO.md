@@ -3,10 +3,11 @@
 > Memoria viva del proyecto. **Todo agente la lee al iniciar y la actualiza al terminar.**
 > Mantenerla corta (máx. ~60 líneas). El detalle histórico va en `BITACORA.md`.
 
-**Última actualización:** 2026-10-29 — Fase 4 en preparación (ícono, ids, eas.json,
-política) y respaldo cifrado opcional con contraseña + código de recuperación (D-038).
-**Fase actual:** Fase 3 cerrada; Fase 4 (pulido y publicación) en preparación.
-**Git:** último commit `fcb6b45` (D-038); `db73f94` (Fase 4). Árbol limpio.
+**Última actualización:** 2026-10-29 — cuenta Apple Developer activada; credenciales
+de firma creadas (bundle id, certificado, provisioning); primer build de producción
+EAS en curso.
+**Fase actual:** Fase 4 — publicación en marcha (build → submit → TestFlight).
+**Git:** último commit `10a93b2`. Sin commit: `buildNumber` 2 (autoIncrement de EAS).
 
 ## Qué existe hoy
 - Motor puro de turnos/nómina validado con planilla real (D-013); auditoría previa en BITACORA.
@@ -66,7 +67,12 @@ política) y respaldo cifrado opcional con contraseña + código de recuperació
   (cuenta expo.dev del usuario vía GitHub). App probada en iPhone real con Expo Go.
 
 ## En curso / siguiente sesión
-1. Confirmado en iPhone real: respaldo cifrado funciona (2026-10-29). Falta aún confirmar
+1. **Build de producción en curso** (EAS, build 7e7c2cb1 en expo.dev): al terminar →
+   `eas submit` con la llave ASC API (`~/Downloads/AuthKey_QX47VJDJBL.p8`, key id
+   QX47VJDJBL, issuer 116e6061…, team J2W4AY4LP6 Individual) → TestFlight.
+   En App Store Connect faltan: capturas, descripción, precio (paga), privacidad
+   "no recopila datos", URL de la política.
+2. Confirmado en iPhone real: respaldo cifrado funciona (2026-10-29). Falta aún confirmar
    vista Mes con datos de octubre, umbrales FSP/retención y PDF de mes completo.
 2. `/revision-legal` recomendada: cambió el tope de básico/fracción según duración del
    periodo en `payroll.ts` (D-036).
@@ -76,9 +82,9 @@ política) y respaldo cifrado opcional con contraseña + código de recuperació
 5. Fase 4: con cuenta Apple Developer → `npx eas-cli build --platform ios --profile production` → TestFlight.
 
 ## Decisiones pendientes con el usuario / bloqueos
-- **App oficial (Fase 4):** el usuario pregunta cómo hacerla instalable. Camino explicado:
-  cuenta Apple Developer ($99 USD/año, trámite suyo) → `eas.json` + bundle id + ícono →
-  `eas build` producción → TestFlight. Falta que decida/compre la cuenta.
+- ~~App oficial: camino EAS~~ → **cuenta Apple Developer YA activada** (team
+  J2W4AY4LP6, Individual); credenciales creadas vía ASC API key; build en curso.
+  Pendiente: decidir precio (el usuario la quiere paga a bajo costo) y metadatos de tienda.
 - FSP/retención en $0 en octubre es por ley (IBC ~$5,9M < 4 SMMLV; base < 95 UVT);
   el usuario lo sabe; la app muestra los umbrales.
 - Confirmación visual de F6/F7 completos y de los tres PDFs.

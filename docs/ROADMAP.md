@@ -83,6 +83,7 @@ Marcar `[x]` al completar. Cada fase termina con `/verificar` en verde y `ESTADO
 - [ ] Resolver/revisar avisos high de npm audit en Expo CLI/zod/deepmerge con actualización compatible (sin --force ni downgrade SDK; node-forge corregido 2026-10-29, quedan 3 en deps de desarrollo)
 - [ ] Limpiar caché de PDFs privados al borrar todos los datos y definir retención temporal
 - [ ] Auditoría de seguridad dedicada (no sustituida por lint/pruebas/doctor)
-- [ ] Cuenta Apple Developer ($99 USD/año) — trámite del usuario en developer.apple.com
-- [x] Configurar `eas.json`, bundle identifier e ícono de la app
-- [ ] Builds con EAS y publicación/TestFlight (checklist de `CUMPLIMIENTO.md`)
+- [x] Cuenta Apple Developer activada (team J2W4AY4LP6, Individual) + llave ASC API para EAS
+- [x] Configurar `eas.json`, bundle identifier e ícono de la app; credenciales de firma creadas (bundle `com.natanaelr16.turnosapp`, certificado + provisioning hasta oct 2027)
+- [ ] Build de producción EAS completado (build 7e7c2cb1 en curso al 2026-10-29)
+- [ ] `eas submit` a App Store Connect → capturas, descripción, precio, privacidad, URL política → TestFlight

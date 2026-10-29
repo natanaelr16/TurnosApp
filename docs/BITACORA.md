@@ -5,6 +5,22 @@ Formato: fecha, objetivo, qué se hizo, verificación ejecutada, pendientes.
 
 ---
 
+## 2026-10-29 — Cuenta Apple activada: credenciales de firma y primer build de producción
+- **Objetivo:** llevar la app a producción tras activarse la cuenta Apple Developer.
+- **Hecho:** `npx eas-cli init` creó y vinculó `@natanaelr16/TurnosApp` en expo.dev
+  (tomó el ícono nuevo; projectId en app.json). El usuario creó una llave App Store
+  Connect API (`AuthKey_QX47VJDJBL.p8`, issuer 116e6061-07b3-4ef9-abe3-1bef7e3104d4,
+  team J2W4AY4LP6 tipo Individual) para builds sin escribir la contraseña de Apple.
+  `eas build -p ios --profile production` en modo interactivo: registró el bundle
+  `com.natanaelr16.turnosapp`, creó certificado de distribución y provisioning
+  (vencen oct 2027), buildNumber 1→2 y subió el build a EAS — **en curso al cerrar**.
+  `eas.json` con perfiles dev/preview/production; submit pendiente de configurar
+  (la llave ASC quedó como env vars EXPO_ASC_* en el comando).
+- **Verificación:** build en vuelo (fase Bundle JavaScript al cerrar la sesión);
+  logs en expo.dev builds/7e7c2cb1-9c44-42f3-b7b9-b787711bbbcd.
+- **Pendientes:** resultado del build → `eas submit` → capturas/descripción/precio/
+  privacidad en App Store Connect → TestFlight.
+
 ## 2026-10-29 — Respaldo cifrado opcional con contraseña y recuperación local (D-038)
 - **Objetivo:** el usuario quiere que el PDF de respaldo pueda cifrarse con contraseña,
   con recuperación local sin nube, opcional desde el onboarding y activable en Ajustes.
