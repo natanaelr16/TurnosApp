@@ -5,6 +5,7 @@ import { createContext, use, useEffect, useState, type ReactNode } from 'react';
 import { ThemedText } from '@/components/themed-text';
 import { Button, Screen } from '@/components/ui';
 import * as repo from '@/data/repository';
+import { isPeriodClosed } from '@/domain/payroll';
 import type { AppData, AppSettings, Novelty, Shift, ShiftTemplate } from '@/domain/types';
 
 interface AppDataContextValue {
@@ -47,6 +48,9 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
   </Screen>;
 
   const reload = async () => setData(await repo.loadAppData(db));
+  const guardClosed = (date: string) => {
+    if (isPeriodClosed(data.settings, date)) throw new Error('Este periodo está cerrado. Reábrelo desde Resumen para hacer cambios.');
+  };
   const value: AppDataContextValue = {
     data,
     updateSettings: async (patch) => {
@@ -58,18 +62,24 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
       await reload();
     },
     saveShift: async (shift) => {
+      guardClosed(shift.start.slice(0, 10));
       await repo.saveRecord(db, { shift });
       await reload();
     },
     removeShift: async (id) => {
+      const shift = data.shifts.find((s) => s.id === id);
+      if (shift) guardClosed(shift.start.slice(0, 10));
       await repo.deleteShift(db, id);
       await reload();
     },
     saveNovelty: async (novelty) => {
+      guardClosed(novelty.date);
       await repo.saveRecord(db, { novelty });
       await reload();
     },
     removeNovelty: async (id) => {
+      const novelty = data.novelties.find((n) => n.id === id);
+      if (novelty) guardClosed(novelty.date);
       await repo.deleteNovelty(db, id);
       await reload();
     },

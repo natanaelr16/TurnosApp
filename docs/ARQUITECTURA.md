@@ -45,7 +45,10 @@ F2: `record-fields.tsx` usa selectores nativos de `@expo/ui/community/datetime-p
 `period-selector.tsx` comparte navegación compacta por periodo entre Historial/Resumen.
 `hooks/use-period-pdf.ts` pide consentimiento, genera PDF con expo-print y comparte con expo-sharing.
 `lib/period-report.ts` formatea acumulados reales y escapa todos los datos de usuario; sin recursos remotos.
-Este informe NO incluye JSON de respaldo ni neto; no sustituye F7 ni el motor F6.
+`lib/backup-file.ts` (F7, D-033) incrusta el JSON de respaldo tras `%%EOF` del PDF
+(`attachBackupToPdf`) y lo extrae (`readBackupFromPdf`); Ajustes → Datos exporta el PDF
+restaurable y restaura con `expo-document-picker` ~58.0.4 + `expo-file-system` ~58.0.13,
+reemplazando todos los datos vía `repository.replaceAppData`.
 `lib/record-form.ts` convierte valores texto/número y fechas de selectores sin `toISOString`;
 exporta `NOVELTY_LABELS` y `WARNING_LABELS` (avisos de extras compartidos por registro y detalle).
 `registro.tsx` emite háptico de éxito al guardar con `expo-haptics` ~58.0.7 (D-022) y ofrece

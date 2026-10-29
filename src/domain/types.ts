@@ -49,6 +49,9 @@ export interface Settings {
    *  del periodo `YYYY-MM-DD`. Suma al devengado completo: afecta IBC (salud/pensión)
    *  y la base de FSP/retención — D-030. */
   extraIncome?: Record<string, number>;
+  /** Fechas de inicio de periodos cerrados/liquidados: bloquean crear, editar y
+   *  eliminar registros en ese periodo hasta reabrirlo (D-032). */
+  closedPeriods?: string[];
 }
 
 /** Configuración completa guardada en el teléfono (cálculo + estado del onboarding). */

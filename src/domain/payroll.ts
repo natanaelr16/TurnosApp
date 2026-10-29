@@ -203,6 +203,11 @@ export function periodFor(date: LocalDate, type: PayPeriodType): PeriodRange {
   return d <= 15 ? { start: makeDate(y, m, 1), end: makeDate(y, m, 15) } : { start: makeDate(y, m, 16), end: last };
 }
 
+/** ¿El periodo de `date` está cerrado (liquidado)? Bloquea cambios en registros (D-032). */
+export function isPeriodClosed(settings: Settings, date: LocalDate): boolean {
+  return (settings.closedPeriods ?? []).includes(periodFor(date, settings.payPeriod).start);
+}
+
 interface WithholdingInput {
   laborIncome: number;
   /** Ingresos no constitutivos de renta: salud + pensión + FSP del trabajador. */

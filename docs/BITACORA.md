@@ -5,6 +5,22 @@ Formato: fecha, objetivo, qué se hizo, verificación ejecutada, pendientes.
 
 ---
 
+## 2026-10-28 — F6 completo + F7: cierre de periodo y respaldo restaurable (D-032/D-033)
+- **Objetivo:** terminar F6 (cierre/reapertura de periodo) e implementar F7 (respaldo
+  PDF restaurable para migrar de celular sin nube). Permisos por horas descartados por
+  el usuario: no existen en su empresa.
+- **Hecho:** `settings.closedPeriods` + `isPeriodClosed` en `domain/payroll.ts`;
+  `use-app-data` bloquea crear/editar/eliminar registros del periodo cerrado; botón
+  Cerrar/Reabrir en Resumen. `lib/backup-file.ts` incrusta el JSON de respaldo en
+  base64 tras `%%EOF` del PDF; Ajustes → Datos exporta el PDF restaurable
+  (expo-print + expo-sharing) y restaura con `expo-document-picker` ~58.0.4 +
+  `expo-file-system` ~58.0.13, validando con `parseBackup`, mostrando resumen y
+  reemplazando todos los datos tras confirmación. Nueva prueba de ida y vuelta con
+  campos nuevos (extraIncome, closedPeriods, timeFormat).
+- **Verificación:** `npx tsc --noEmit` ✓ · `npx expo lint` ✓ · `npm test` 121/121 ✓.
+- **Pendientes:** opción "Ya tengo un respaldo" en onboarding; prueba real
+  exportar→restaurar en dispositivo; limpieza de caché de PDFs.
+
 ## 2026-10-28 — F6 parcial: liquidación estimada del periodo (D-029)
 - **Objetivo:** estimación de nómina del periodo: deducciones reales (salud/pensión 4 %
   con redondeo a centenas como la planilla), FSP/retención solo en 2ª quincena sobre

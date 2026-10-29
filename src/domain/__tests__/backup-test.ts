@@ -28,6 +28,21 @@ describe('respaldo embebido en PDF (D-014)', () => {
     });
   });
 
+  test('conserva campos nuevos: bonificaciones, periodos cerrados y formato de hora', () => {
+    const conExtras: AppData = {
+      ...data,
+      settings: {
+        ...data.settings,
+        timeFormat: '12h',
+        extraIncome: { '2026-10-01': 792_657 },
+        closedPeriods: ['2026-10-01'],
+      },
+    };
+    const r = parseBackup(createBackup(conExtras, '2026-10-25T12:00:00Z'));
+    expect(r.ok).toBe(true);
+    if (r.ok) expect(r.backup.data).toEqual(conExtras);
+  });
+
   test('migra formato 1 a 2 sin perder turnos antiguos', () => {
     const raw = JSON.parse(createBackup(data, '2026-10-25T12:00:00Z'));
     raw.format = 1;

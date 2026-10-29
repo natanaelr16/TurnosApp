@@ -5,7 +5,7 @@ import { PeriodSelector } from '@/components/period-selector';
 import { NumberField } from '@/components/settings-fields';
 import { ThemedText } from '@/components/themed-text';
 import { Button, Card, EmptyState, Screen, ValueRow } from '@/components/ui';
-import { liquidationTable, payEstimate, periodFor } from '@/domain/payroll';
+import { isPeriodClosed, liquidationTable, payEstimate, periodFor } from '@/domain/payroll';
 import { recordCoverage } from '@/domain/records';
 import { computeShifts } from '@/domain/shift-calc';
 import { useAppData } from '@/hooks/use-app-data';
@@ -37,9 +37,17 @@ export default function SummaryScreen() {
     try { await updateSettings({ ...data.settings, extraIncome: next }); setExtraDraft(null); }
     catch { Alert.alert('No se pudo guardar', 'Intenta de nuevo.'); }
   };
+  const closed = isPeriodClosed(data.settings, period.start);
+  const toggleClosed = async () => {
+    const list = data.settings.closedPeriods ?? [];
+    const next = closed ? list.filter((key) => key !== period.start) : [...list, period.start];
+    try { await updateSettings({ ...data.settings, closedPeriods: next }); }
+    catch { Alert.alert('No se pudo actualizar', 'Intenta de nuevo.'); }
+  };
   const activeRows = table.rows.filter((row) => row.hours > 0);
   return <Screen title="Resumen" subtitle="Acumulados del periodo">
     <PeriodSelector period={period} type={data.settings.payPeriod} onDateChange={setAnchor} />
+    {closed ? <ThemedText accessibilityRole="alert" themeColor="danger">Periodo cerrado: no puedes crear, editar ni eliminar registros de estas fechas hasta reabrirlo.</ThemedText> : null}
     {!activeRows.length && !table.workedMinutes && !basic.amount ? <EmptyState title="Sin registros en este periodo" message="Registra turnos, descansos o novedades para ver tu liquidación acumulada." /> : <Card title="Detalle de liquidación">
       <View style={styles.tableHeader}>
         <ThemedText type="caption" themeColor="textSecondary" style={styles.concepto}>Concepto</ThemedText>
@@ -94,6 +102,7 @@ export default function SummaryScreen() {
     </Card> : null}
     {table.workedMinutes ? <ThemedText type="caption" themeColor="textSecondary">{formatMinutes(table.workedMinutes)} trabajados en el periodo.</ThemedText> : null}
     {incomplete ? <ThemedText type="caption" themeColor="textSecondary">Periodo incompleto: hay días sin registrar, los acumulados son parciales.</ThemedText> : null}
+    <Button label={closed ? 'Reabrir periodo' : 'Cerrar periodo'} variant="secondary" onPress={toggleClosed} />
     <ThemedText type="caption" themeColor="textSecondary">El básico se prorratea por día pago (salario ÷ 30): descansos y permisos remunerados pagan el día; la incapacidad paga el 75 % del promedio diario devengado; permiso no remunerado no paga. Salud, pensión, retención y neto llegan con la liquidación salarial.</ThemedText>
   </Screen>;
 }
