@@ -6,8 +6,7 @@
 **Última actualización:** 2026-10-29 — Fase 4 en preparación (ícono, ids, eas.json,
 política) y respaldo cifrado opcional con contraseña + código de recuperación (D-038).
 **Fase actual:** Fase 3 cerrada; Fase 4 (pulido y publicación) en preparación.
-**Git:** último commit `94ca853`. Sin commit: preparación de publicación completa,
-respaldo cifrado (dominio + UI + hook), D-037 y D-038.
+**Git:** último commit `fcb6b45` (D-038); `db73f94` (Fase 4). Árbol limpio.
 
 ## Qué existe hoy
 - Motor puro de turnos/nómina validado con planilla real (D-013); auditoría previa en BITACORA.
@@ -37,7 +36,7 @@ respaldo cifrado (dominio + UI + hook), D-037 y D-038.
   extras verde, Resumen).
 - Cierre/reapertura de periodo (D-032): `closedPeriods` en ajustes; bloquea crear/editar/
   eliminar registros del periodo; botón en Resumen.
-- Respaldo cifrado opcional (D-038): `domain/backup-crypto.ts` con clave maestra local +
+- Respaldo cifrado opcional (D-038, **probado en iPhone real**): `domain/backup-crypto.ts` con clave maestra local +
   wraps por contraseña y código de recuperación (AES-256-CBC + HMAC, crypto-es); opción
   en onboarding y Ajustes (`components/backup-security.tsx`); importar pide secreto con
   `components/secret-prompt.tsx`; la clave nunca sale en el PDF.
@@ -67,8 +66,8 @@ respaldo cifrado (dominio + UI + hook), D-037 y D-038.
   (cuenta expo.dev del usuario vía GitHub). App probada en iPhone real con Expo Go.
 
 ## En curso / siguiente sesión
-1. Confirmación del usuario en el iPhone: vista Mes con sus datos de octubre, umbrales
-   FSP/retención, PDF de mes completo sin cortes; ciclo exportar→restaurar.
+1. Confirmado en iPhone real: respaldo cifrado funciona (2026-10-29). Falta aún confirmar
+   vista Mes con datos de octubre, umbrales FSP/retención y PDF de mes completo.
 2. `/revision-legal` recomendada: cambió el tope de básico/fracción según duración del
    periodo en `payroll.ts` (D-036).
 3. Publicar `POLITICA_PRIVACIDAD.md` en URL pública (GitHub Pages gratis) cuando se

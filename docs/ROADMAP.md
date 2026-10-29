@@ -74,7 +74,7 @@ Marcar `[x]` al completar. Cada fase termina con `/verificar` en verde y `ESTADO
 - [x] Opción "Ya tengo un respaldo" en el onboarding (D-034)
 - [x] Tres PDFs distintos: respaldo, turnos con colores del calendario y liquidación coloreada (D-034)
 - [x] Respaldo cifrado opcional con contraseña + código de recuperación local (D-038): onboarding, Ajustes (activar/cambiar/recuperar/quitar), importar pide secreto
-- [ ] Prueba real del ciclo exportar→restaurar en dispositivo/simulador
+- [x] Prueba real del ciclo exportar→restaurar en dispositivo (iPhone + Expo Go, 2026-10-29, incluye cifrado)
 
 ## Fase 4 — Pulido y publicación
 - [x] Aviso legal inicial, borrar datos, política de privacidad (POLITICA_PRIVACIDAD.md lista; falta publicarla en URL y enlazarla en Ajustes)

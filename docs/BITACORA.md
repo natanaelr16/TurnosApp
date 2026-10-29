@@ -20,6 +20,9 @@ Formato: fecha, objetivo, qué se hizo, verificación ejecutada, pendientes.
 - **Verificación:** `npx tsc --noEmit` ✓ · `npx expo lint` ✓ · `npm test` 135/135 ✓
   (7 pruebas nuevas: unwrap, código, cambio de contraseña, HMAC alterado).
 - **Pendientes:** prueba visual en iPhone del ciclo cifrado completo; commit.
+- **Actualización:** commits `db73f94` y `fcb6b45` hechos; el usuario probó en el iPhone
+  real con Expo Go (LAN 8083) el mismo día — activar protección, exportar PDF cifrado
+  y restaurar con contraseña: **funciona bien todo**.
 
 ## 2026-10-29 — Preparación para publicación: ícono, ids de tienda, eas.json y privacidad
 - **Objetivo:** adelantar lo evitable de Fase 4 (ícono, versionado, documentación legal)
