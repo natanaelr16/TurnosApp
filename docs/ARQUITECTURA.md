@@ -43,8 +43,13 @@ F2: `record-fields.tsx` usa selectores nativos de `@expo/ui/community/datetime-p
 `detalle.tsx` consulta registros de una fecha (calendario) o por id (historial), sin abrir edición.
 `shift-breakdown.tsx` muestra minutos/importes por categoría; edición se abre como acción explícita.
 `period-selector.tsx` comparte navegación compacta por periodo entre Historial/Resumen.
-`hooks/use-period-pdf.ts` pide consentimiento, genera PDF con expo-print y comparte con expo-sharing.
-`lib/period-report.ts` formatea acumulados reales y escapa todos los datos de usuario; sin recursos remotos.
+`hooks/use-period-pdf.ts` pide consentimiento, genera PDF con expo-print y comparte con
+expo-sharing; recibe kind 'turnos' (Historial) o 'liquidacion' (Resumen).
+`lib/period-report.ts` genera tres PDFs: `buildShiftsReport` (badges de color del
+calendario), `buildPayrollReport` (liquidación con recargos índigo y extras verde) y
+`buildBackupReport` (portada de respaldo); escapa todos los datos de usuario.
+`hooks/use-backup.ts` concentra exportar (PDF + JSON incrustado) e importar/restaurar
+(elegir PDF, validar, confirmar, reemplazar); lo usan Ajustes y el onboarding (D-034).
 `lib/backup-file.ts` (F7, D-033) incrusta el JSON de respaldo tras `%%EOF` del PDF
 (`attachBackupToPdf`) y lo extrae (`readBackupFromPdf`); Ajustes → Datos exporta el PDF
 restaurable y restaura con `expo-document-picker` ~58.0.4 + `expo-file-system` ~58.0.13,

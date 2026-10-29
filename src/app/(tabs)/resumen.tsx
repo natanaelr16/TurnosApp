@@ -9,11 +9,13 @@ import { isPeriodClosed, liquidationTable, payEstimate, periodFor } from '@/doma
 import { recordCoverage } from '@/domain/records';
 import { computeShifts } from '@/domain/shift-calc';
 import { useAppData } from '@/hooks/use-app-data';
+import { usePeriodPdf } from '@/hooks/use-period-pdf';
 import { useTheme } from '@/hooks/use-theme';
 import { formatCOP, formatFactor, formatMinutes, todayLocal } from '@/lib/format';
 
 export default function SummaryScreen() {
   const { data } = useAppData();
+  const { exporting, requestExport } = usePeriodPdf();
   const theme = useTheme();
   const [anchor, setAnchor] = useState(todayLocal);
   const period = useMemo(() => periodFor(anchor, data.settings.payPeriod), [anchor, data.settings.payPeriod]);
@@ -103,6 +105,7 @@ export default function SummaryScreen() {
     {table.workedMinutes ? <ThemedText type="caption" themeColor="textSecondary">{formatMinutes(table.workedMinutes)} trabajados en el periodo.</ThemedText> : null}
     {incomplete ? <ThemedText type="caption" themeColor="textSecondary">Periodo incompleto: hay días sin registrar, los acumulados son parciales.</ThemedText> : null}
     <Button label={closed ? 'Reabrir periodo' : 'Cerrar periodo'} variant="secondary" onPress={toggleClosed} />
+    <Button label={exporting ? 'Generando PDF…' : 'Exportar liquidación (PDF)'} variant="secondary" disabled={exporting} onPress={() => requestExport(data, period, 'liquidacion')} />
     <ThemedText type="caption" themeColor="textSecondary">El básico se prorratea por día pago (salario ÷ 30): descansos y permisos remunerados pagan el día; la incapacidad paga el 75 % del promedio diario devengado; permiso no remunerado no paga. Salud, pensión, retención y neto llegan con la liquidación salarial.</ThemedText>
   </Screen>;
 }

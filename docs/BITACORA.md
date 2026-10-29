@@ -5,6 +5,20 @@ Formato: fecha, objetivo, qué se hizo, verificación ejecutada, pendientes.
 
 ---
 
+## 2026-10-28 — F7 completo: restaurar desde onboarding y tres PDFs distintos (D-034)
+- **Objetivo:** el usuario borró sus datos para probar la restauración y el onboarding
+  no ofrecía restaurar; además pidió PDFs diferenciados: respaldo propio, planilla de
+  turnos con colores del calendario y liquidación con recargos/extras coloreados.
+- **Hecho:** `lib/period-report.ts` dividido en `buildShiftsReport` (badges D/N/L/V del
+  calendario), `buildPayrollReport` (recargos índigo, extras verde como el historial) y
+  `buildBackupReport` (portada de respaldo con instrucciones). `hooks/use-backup.ts`
+  concentra exportar/importar y lo usan Ajustes y el onboarding ("Ya tengo un
+  respaldo"). `use-period-pdf` acepta kind 'turnos'|'liquidacion'; botón "Exportar
+  liquidación (PDF)" en Resumen y "Exportar turnos (PDF)" en Historial.
+- **Verificación:** `npx tsc --noEmit` ✓ · `npx expo lint` ✓ · `npm test` 123/123 ✓.
+- **Pendientes:** prueba real del ciclo exportar→borrar→restaurar en el simulador;
+  limpieza de caché de PDFs.
+
 ## 2026-10-28 — F6 completo + F7: cierre de periodo y respaldo restaurable (D-032/D-033)
 - **Objetivo:** terminar F6 (cierre/reapertura de periodo) e implementar F7 (respaldo
   PDF restaurable para migrar de celular sin nube). Permisos por horas descartados por

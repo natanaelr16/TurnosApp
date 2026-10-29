@@ -3,12 +3,11 @@
 > Memoria viva del proyecto. **Todo agente la lee al iniciar y la actualiza al terminar.**
 > Mantenerla corta (máx. ~60 líneas). El detalle histórico va en `BITACORA.md`.
 
-**Última actualización:** 2026-10-28 — F6 completo (cierre/reapertura de periodo, D-032)
-y F7 hecho (respaldo restaurable en PDF, D-033).
-**Fase actual:** Fase 3 — F0–F7 implementados; pendiente opción "Ya tengo un respaldo"
-en onboarding y prueba real exportar→restaurar.
-**Git:** último commit `9d4b190` (bono + básico 15 días + día exacto). Sin commit:
-cierre de periodo (D-032) y respaldo PDF restaurable (D-033).
+**Última actualización:** 2026-10-28 — F7 completo: respaldo PDF restaurable también
+desde el onboarding; tres PDFs distintos (respaldo, turnos coloreado, liquidación).
+**Fase actual:** Fase 3 — F0–F7 implementados; pendiente prueba real exportar→restaurar.
+**Git:** último commit `5c4371e` (cierre de periodo + respaldo F7). Sin commit:
+onboarding con restauración, PDFs separados por tipo y `use-backup`/`use-period-pdf`.
 
 ## Qué existe hoy
 - Motor puro de turnos/nómina validado con planilla real (D-013); auditoría previa en BITACORA.
@@ -32,25 +31,30 @@ cierre de periodo (D-032) y respaldo PDF restaurable (D-033).
   solo en 2ª quincena sobre el mes real, neto estimado; en Resumen y PDF.
 - Ingreso adicional por periodo (D-030): bonificación variable guardada en ajustes;
   suma al devengado completo (IBC y FSP/retención); en Resumen y PDF.
-- PDF de acumulados (D-021): expo-print + expo-sharing, consentimiento y escape HTML.
-  Incluye básico y liquidación estimada.
+- Tres PDFs distintos (`lib/period-report.ts`, D-033/D-034): respaldo (portada propia
+  con instrucciones + JSON incrustado, Ajustes → Datos), turnos (planilla con badges
+  de color del calendario D/N/L/V, Historial) y liquidación estimada (recargos índigo,
+  extras verde, Resumen).
 - Cierre/reapertura de periodo (D-032): `closedPeriods` en ajustes; bloquea crear/editar/
   eliminar registros del periodo; botón en Resumen.
-- Respaldo restaurable (D-033): Ajustes → Datos exporta PDF con JSON embebido tras
-  `%%EOF` (`lib/backup-file.ts`) y restaura desde PDF con confirmación (reemplaza todo).
+- Respaldo restaurable (D-033): JSON embebido tras `%%EOF` (`lib/backup-file.ts`);
+  restaura desde Ajustes → Datos **y desde el onboarding** ("Ya tengo un respaldo"),
+  con confirmación y reemplazo total. Lógica compartida en `hooks/use-backup.ts`.
 
 ## Verificación al cerrar
-- **121/121 pruebas (13 suites), tipos y lint en verde** tras F6 cierre + F7 respaldo.
-- Metro LAN puerto 8083 activo (la IP del Mac cambió a 192.168.1.8; Expo Go relanzado).
+- **123/123 pruebas (13 suites), tipos y lint en verde** tras separar los tres PDFs
+  y añadir restauración al onboarding.
+- Metro LAN puerto 8083 activo (IP del Mac: 192.168.1.8; Expo Go relanzado).
 
 ## En curso / siguiente sesión
-1. Confirmación visual del usuario: calendario completo, chips, formato 12/24 h,
-   liquidación, básico exacto $2.226.564, cierre de periodo y ciclo exportar→restaurar.
-2. Opción "Ya tengo un respaldo" en onboarding; permisos por horas (descartado por el
-   usuario: no existen en su empresa); limpieza de caché de PDFs.
+1. Confirmación visual del usuario: calendario, chips, formato 12/24 h, liquidación,
+   básico exacto $2.226.564, cierre de periodo y ciclo exportar→restaurar completo
+   (exportar → borrar datos → restaurar desde el onboarding).
+2. Permisos por horas (descartado por el usuario: no existen en su empresa);
+   limpieza de caché de PDFs.
 
 ## Decisiones pendientes con el usuario / bloqueos
-- Confirmación visual de F6/F7 completos.
+- Confirmación visual de F6/F7 completos y de los tres PDFs.
 - Restaurar **reemplaza** todos los datos (sin mezclar); verificar que así lo quiere.
 
 ## Riesgos que retomar

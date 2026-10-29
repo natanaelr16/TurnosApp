@@ -30,7 +30,7 @@ export default function HistoryScreen() {
     <FlatList initialNumToRender={8} maxToRenderPerBatch={8} windowSize={7} data={items} keyExtractor={(item) => `${item.type}-${item.value.id}`} keyboardShouldPersistTaps="handled" style={{ flex: 1 }} contentContainerStyle={{ gap: 16, paddingBottom: 16 }}
       ListHeaderComponent={<View style={{ gap: 12 }}>
         <PeriodSelector period={period} type={type} onDateChange={(date) => { setAnchor(date); setSearch(''); }} onTypeChange={setType} />
-        <Button label={exporting ? 'Generando PDF…' : 'Exportar PDF del periodo'} onPress={() => requestExport(data, period)} disabled={exporting || !periodItems.length} />
+        <Button label={exporting ? 'Generando PDF…' : 'Exportar turnos (PDF)'} onPress={() => requestExport(data, period, 'turnos')} disabled={exporting || !periodItems.length} />
         <ThemedText type="caption" themeColor="textSecondary">PDF de acumulados del periodo completo seleccionado, no solo de la búsqueda. La liquidación neta mensual aún está pendiente.</ThemedText>
         <Button label={searchVisible ? 'Cerrar búsqueda' : 'Buscar fecha'} variant="secondary" onPress={() => { setSearchVisible(!searchVisible); setSearch(''); }} />
         {searchVisible ? <TextField label="Filtrar por fecha (AAAA-MM-DD)" value={search} onChange={setSearch} maxLength={10} /> : null}

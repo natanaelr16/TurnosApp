@@ -5,6 +5,7 @@ import { Choice, SettingsFields, type SettingsSection } from '@/components/setti
 import { ThemedText } from '@/components/themed-text';
 import { Button, Card, Screen, ValueRow } from '@/components/ui';
 import { useAppData } from '@/hooks/use-app-data';
+import { useBackup } from '@/hooks/use-backup';
 import { useTheme } from '@/hooks/use-theme';
 import { formatCOP, todayLocal } from '@/lib/format';
 import { draftFromSettings, settingsFromDraft, validateSettingsDraft, type DraftErrors } from '@/lib/settings-form';
@@ -16,6 +17,7 @@ const STEP_FIELDS = { 1: ['salary'], 2: ['allowanceEnabled', 'allowance'], 3: []
 /** Temporal: la configuración guiada completa (PRD F0) se construye en la Fase 3. */
 export default function OnboardingScreen() {
   const { data, completeOnboarding } = useAppData();
+  const { backupBusy, importBackup } = useBackup();
   const theme = useTheme();
   const date = todayLocal();
   const [step, setStep] = useState(0);
@@ -75,7 +77,8 @@ export default function OnboardingScreen() {
         <ThemedText>Los valores son aproximados; pueden diferir de tu liquidación oficial. Esta app no reemplaza asesoría laboral ni la nómina de tu empresa.</ThemedText>
         <ThemedText>Tus datos se guardan únicamente en este teléfono, sin cuentas ni servidor.</ThemedText>
         <Choice multiple label="Entiendo y acepto que los valores son estimados" selected={accepted} onPress={() => setAccepted(!accepted)} />
-        <ThemedText type="caption">La restauración desde un respaldo PDF estará disponible en una versión próxima.</ThemedText>
+        <Button variant="secondary" label={backupBusy ? 'Leyendo respaldo…' : 'Ya tengo un respaldo (restaurar PDF)'} disabled={backupBusy} onPress={importBackup} />
+        <ThemedText type="caption">Si vienes de otro teléfono, elige el PDF de respaldo que exportaste: recupera todo sin configurar de nuevo.</ThemedText>
       </Card> : null}
       {section ? <SettingsFields section={section} draft={draft} onChange={setDraft} errors={errors} date={date} disabled={saving} /> : null}
       {step === 5 ? <Card title="Plantillas rápidas">

@@ -69,7 +69,8 @@ Marcar `[x]` al completar. Cada fase termina con `/verificar` en verde y `ESTADO
 - [x] Incorporar liquidación salarial quincenal/mensual al PDF al completar F6 (básico, novedades, bonificación, deducciones y neto estimado ya están en el informe)
 - [x] Incrustar JSON de respaldo en PDF (`lib/backup-file.ts`, D-033; el PDF de respaldo es restaurable)
 - [x] Importar PDF (`expo-document-picker`), leer respaldo, resumen y confirmación; restaura reemplazando todos los datos
-- [ ] Opción "Ya tengo un respaldo" en el onboarding
+- [x] Opción "Ya tengo un respaldo" en el onboarding (D-034)
+- [x] Tres PDFs distintos: respaldo, turnos con colores del calendario y liquidación coloreada (D-034)
 - [ ] Prueba real del ciclo exportar→restaurar en dispositivo/simulador
 
 ## Fase 4 — Pulido y publicación
