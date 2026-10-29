@@ -6,8 +6,8 @@
 **Última actualización:** 2026-10-28 — app corriendo en iPhone real vía Expo Go;
 tabs con animación 'shift' direccional y PDFs con nombre descriptivo.
 **Fase actual:** Fase 3 — F0–F7 implementados; pulido visual en curso.
-**Git:** último commit `95b68bd` (tabs animadas + nombres PDF). Sin commit:
-NativeTabs restaurada + `TabSlide` para animación direccional (ajuste de D-035).
+**Git:** último commit `64683fc` (NativeTabs + TabSlide). Sin commit: suavizado
+de la animación de pestañas (28 px / 340 ms, D-035).
 
 ## Qué existe hoy
 - Motor puro de turnos/nómina validado con planilla real (D-013); auditoría previa en BITACORA.
@@ -42,7 +42,7 @@ NativeTabs restaurada + `TabSlide` para animación direccional (ajuste de D-035)
   con confirmación y reemplazo total. Lógica compartida en `hooks/use-backup.ts`.
 - Navegación entre pestañas con animación direccional (D-035): `NativeTabs` (barra
   "liquid" nativa) intacta + `components/tab-slide.tsx` desliza el contenido de cada
-  pestaña desde el lado del botón tocado según el orden de pestañas.
+  pestaña 28 px / 340 ms desde el lado del botón tocado (fundido mín. 55 %).
 - PDFs con nombre descriptivo (D-035): `TurnosApp-<Tipo>-<Mes>-<Año>-<Span>-<Completo|
   Parcial>.pdf` y `TurnosApp-Respaldo-<fecha>.pdf`.
 

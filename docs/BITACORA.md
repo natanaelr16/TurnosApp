@@ -18,7 +18,8 @@ Formato: fecha, objetivo, qué se hizo, verificación ejecutada, pendientes.
 - **Verificación:** `npx tsc --noEmit` ✓ · `npx expo lint` ✓ · `npm test` 123/123 ✓.
 - **Ajuste posterior:** el usuario pidió conservar la barra nativa "liquid";
   se revirtió a `NativeTabs` y la animación direccional se movió al contenido con
-  `components/tab-slide.tsx` (desliza 48 px desde el lado del botón + fundido).
+  `components/tab-slide.tsx` (desliza desde el lado del botón + fundido); tras la
+  prueba se suavizó a 28 px / 340 ms / fundido mínimo 55 % (parecía parpadeo).
   Verificación tras el ajuste: `tsc` ✓ · `lint` ✓ · 123/123 pruebas ✓.
 - **Pendientes:** confirmación visual de la animación y nombres en el iPhone;
   ciclo exportar→restaurar en dispositivo real; Fase 4 (EAS build).

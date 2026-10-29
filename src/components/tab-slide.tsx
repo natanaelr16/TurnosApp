@@ -17,11 +17,11 @@ export function TabSlide({ route, children }: { route: string; children: ReactNo
     const i = ORDER.indexOf(route);
     const dir = i >= lastIndex ? 1 : -1;
     lastIndex = i;
-    anim.setValue(dir * 48);
-    Animated.timing(anim, { toValue: 0, duration: 240, easing: Easing.out(Easing.cubic), useNativeDriver: true }).start();
+    anim.setValue(dir * 28);
+    Animated.timing(anim, { toValue: 0, duration: 340, easing: Easing.out(Easing.quad), useNativeDriver: true }).start();
   }, [focused, route, anim]);
   return (
-    <Animated.View style={{ flex: 1, transform: [{ translateX: anim }], opacity: anim.interpolate({ inputRange: [-48, 0, 48], outputRange: [0.3, 1, 0.3] }) }}>
+    <Animated.View style={{ flex: 1, transform: [{ translateX: anim }], opacity: anim.interpolate({ inputRange: [-28, 0, 28], outputRange: [0.55, 1, 0.55] }) }}>
       {children}
     </Animated.View>
   );
