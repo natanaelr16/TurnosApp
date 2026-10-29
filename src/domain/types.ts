@@ -52,6 +52,14 @@ export interface Settings {
   /** Fechas de inicio de periodos cerrados/liquidados: bloquean crear, editar y
    *  eliminar registros en ese periodo hasta reabrirlo (D-032). */
   closedPeriods?: string[];
+  /** Protección opcional del respaldo con contraseña (D-038). La clave maestra es
+   *  local: NUNCA se exporta dentro del PDF (se quita al crear el respaldo). */
+  backupProtection?: {
+    masterKey: string;
+    pwdWrap: { iter: number; salt: string; iv: string; ct: string; tag: string };
+    recWrap: { iter: number; salt: string; iv: string; ct: string; tag: string };
+    updatedAt: string;
+  };
 }
 
 /** Configuración completa guardada en el teléfono (cálculo + estado del onboarding). */

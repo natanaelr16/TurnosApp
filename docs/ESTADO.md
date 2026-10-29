@@ -3,10 +3,11 @@
 > Memoria viva del proyecto. **Todo agente la lee al iniciar y la actualiza al terminar.**
 > Mantenerla corta (máx. ~60 líneas). El detalle histórico va en `BITACORA.md`.
 
-**Última actualización:** 2026-10-28 — incapacidad aparte del básico (app + PDF);
-proyección de FSP/retención en la 1ª quincena; camino oficial vía EAS/TestFlight explicado.
-**Fase actual:** Fase 3 — F0–F7 implementados; pulido tras prueba en iPhone real.
-**Git:** último commit `2b858a0`. Árbol limpio.
+**Última actualización:** 2026-10-29 — Fase 4 en preparación (ícono, ids, eas.json,
+política) y respaldo cifrado opcional con contraseña + código de recuperación (D-038).
+**Fase actual:** Fase 3 cerrada; Fase 4 (pulido y publicación) en preparación.
+**Git:** último commit `94ca853`. Sin commit: preparación de publicación completa,
+respaldo cifrado (dominio + UI + hook), D-037 y D-038.
 
 ## Qué existe hoy
 - Motor puro de turnos/nómina validado con planilla real (D-013); auditoría previa en BITACORA.
@@ -36,6 +37,10 @@ proyección de FSP/retención en la 1ª quincena; camino oficial vía EAS/TestFl
   extras verde, Resumen).
 - Cierre/reapertura de periodo (D-032): `closedPeriods` en ajustes; bloquea crear/editar/
   eliminar registros del periodo; botón en Resumen.
+- Respaldo cifrado opcional (D-038): `domain/backup-crypto.ts` con clave maestra local +
+  wraps por contraseña y código de recuperación (AES-256-CBC + HMAC, crypto-es); opción
+  en onboarding y Ajustes (`components/backup-security.tsx`); importar pide secreto con
+  `components/secret-prompt.tsx`; la clave nunca sale en el PDF.
 - Respaldo restaurable (D-033): JSON embebido tras `%%EOF` (`lib/backup-file.ts`);
   restaura desde Ajustes → Datos **y desde el onboarding** ("Ya tengo un respaldo"),
   con confirmación y reemplazo total. Lógica compartida en `hooks/use-backup.ts`.
@@ -48,9 +53,14 @@ proyección de FSP/retención en la 1ª quincena; camino oficial vía EAS/TestFl
   FSP y retención siempre visibles, con IBC del mes vs 4 SMMLV y base gravable vs 95 UVT.
 - Liquidación (Resumen y PDF) con incapacidad en fila aparte del básico (D-036) y, en la
   1ª quincena, proyección de FSP/retención de fin de mes con lo registrado.
+- Fase 4 iniciada: ícono definitivo (calendario blanco + marcas D/N/L/V sobre azul,
+  también splash y adaptativos Android), `bundleIdentifier`/`package`
+  `com.natanaelr16.turnosapp`, buildNumber/versionCode 1, `privacyManifests`,
+  `ITSAppUsesNonExemptEncryption:false`, `eas.json` (development/preview/production),
+  `docs/POLITICA_PRIVACIDAD.md` lista para publicar.
 
 ## Verificación al cerrar
-- **128/128 pruebas (13 suites), tipos y lint en verde**; incluye prueba que reproduce
+- **135/135 pruebas (14 suites), tipos y lint en verde**; incluye prueba que reproduce
   la nómina real sep 16–30 (FSP $89.500, retención $215.000), PDF de mes completo,
   incapacidad aparte y proyección de la 1ª quincena.
 - Metro LAN puerto 8083 activo (IP del Mac: 192.168.1.8); `npx expo login` hecho
@@ -61,8 +71,10 @@ proyección de FSP/retención en la 1ª quincena; camino oficial vía EAS/TestFl
    FSP/retención, PDF de mes completo sin cortes; ciclo exportar→restaurar.
 2. `/revision-legal` recomendada: cambió el tope de básico/fracción según duración del
    periodo en `payroll.ts` (D-036).
-3. Limpieza de caché de PDFs. (Permisos por horas descartados: no existen en su empresa.)
-4. Fase 4: EAS build/TestFlight para app instalable (requiere Apple Developer).
+3. Publicar `POLITICA_PRIVACIDAD.md` en URL pública (GitHub Pages gratis) cuando se
+   vaya a tienda; enlazarla en Ajustes.
+4. Limpieza de caché de PDFs. (Permisos por horas descartados: no existen en su empresa.)
+5. Fase 4: con cuenta Apple Developer → `npx eas-cli build --platform ios --profile production` → TestFlight.
 
 ## Decisiones pendientes con el usuario / bloqueos
 - **App oficial (Fase 4):** el usuario pregunta cómo hacerla instalable. Camino explicado:
@@ -74,8 +86,9 @@ proyección de FSP/retención en la 1ª quincena; camino oficial vía EAS/TestFl
 - Restaurar **reemplaza** todos los datos (sin mezclar); verificar que así lo quiere.
 
 ## Riesgos que retomar
-- Último npm audit: **5 high** vía Expo CLI/code-signing/node-forge y zod (también lint).
-  No aplicar --force (sugiere Expo 44) ni alterar políticas. Falta solución compatible/auditoría dedicada.
+- npm audit al 2026-10-29: **3 high** restantes (deepmerge vía @expo/config/jest-config,
+  zod vía expo CLI) — son deps de desarrollo, no van en la app; `node-forge` ya se corrigió.
+  Solo se resuelven con `--force` que baja a Expo 51: no aplicar; auditoría dedicada pendiente.
 - Revisar limpieza de caché de PDFs privados al borrar datos; PDF actual no sustituye respaldo F7.
 - Provider recarga toda BD; faltan pruebas de interacción y fronteras legales sugeridas en BITACORA.
 - Capturas negras: revisión visual del usuario; verificar padding inferior en iPhone real.

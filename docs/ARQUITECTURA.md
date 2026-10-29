@@ -19,6 +19,7 @@ src/
 │   ├── time.ts           # Utilidades de fecha/hora local (YYYY-MM-DDTHH:mm)
 │   ├── shift-calc.ts     # Clasificación minuto a minuto y valor de cada turno
 │   ├── payroll.ts        # Resumen de periodo, deducciones, retención
+│   ├── backup-crypto.ts   # Cifrado opcional del respaldo (AES-256 + HMAC, crypto-es; D-038)
 │   ├── types.ts
 │   └── __tests__/
 ├── data/           # SQLite: db.ts (tipo Db), migrations.ts, repository.ts, testing/ (SQLite de Node para pruebas)
@@ -113,7 +114,12 @@ npm test                # pruebas (Jest, una pasada) · npm run test:watch (modo
 npx expo lint           # lint (ESLint 9, eslint.config.js)
 npm run typecheck       # verificación de tipos (tsc --noEmit)
 npx expo-doctor         # salud del proyecto
+npx eas-cli build --platform ios --profile production   # build de tienda (requiere eas.json + cuenta Apple)
 ```
+
+Distribución: `eas.json` define perfiles `development`/`preview`/`production` (autoIncrement).
+Identidad: `com.natanaelr16.turnosapp` (iOS y Android, app.json); íconos en `assets/images/`
+(icon.png 1024, splash-icon.png, adaptativos Android). Política de privacidad: `docs/POLITICA_PRIVACIDAD.md`.
 
 Notas: las pruebas se nombran `*-test.ts` (convención de `jest-expo`). `expo-env.d.ts` lo genera
 `npx expo start` y está en `.gitignore`.

@@ -5,6 +5,41 @@ Formato: fecha, objetivo, qué se hizo, verificación ejecutada, pendientes.
 
 ---
 
+## 2026-10-29 — Respaldo cifrado opcional con contraseña y recuperación local (D-038)
+- **Objetivo:** el usuario quiere que el PDF de respaldo pueda cifrarse con contraseña,
+  con recuperación local sin nube, opcional desde el onboarding y activable en Ajustes.
+- **Hecho:** `crypto-es` (JS puro, funciona en Expo Go). `domain/backup-crypto.ts`:
+  clave maestra 256 bits guardada localmente (nunca viaja en el respaldo), cifrado
+  AES-256-CBC + HMAC, PBKDF2 50.000 iteraciones; el sobre del PDF lleva la clave
+  envuelta por contraseña y por código de recuperación (XXXX-XXXX-XXXX sin ambiguos).
+  UI: tarjeta `components/backup-security.tsx` en Ajustes (activar/cambiar/restablecer
+  con código/quitar), opción en el paso 6 del onboarding con Alert del código, y
+  `components/secret-prompt.tsx` (modal multiplataforma) para pedir el secreto al
+  importar — incluido restaurar desde onboarding. Al restaurar en teléfono sin
+  protección se adopta la del respaldo. Bug corregido: `WordArray.random(n)` es bytes.
+- **Verificación:** `npx tsc --noEmit` ✓ · `npx expo lint` ✓ · `npm test` 135/135 ✓
+  (7 pruebas nuevas: unwrap, código, cambio de contraseña, HMAC alterado).
+- **Pendientes:** prueba visual en iPhone del ciclo cifrado completo; commit.
+
+## 2026-10-29 — Preparación para publicación: ícono, ids de tienda, eas.json y privacidad
+- **Objetivo:** adelantar lo evitable de Fase 4 (ícono, versionado, documentación legal)
+  y registrar las prácticas de uso de IA del usuario.
+- **Hecho:** ícono definitivo generado con `sips` desde SVG (calendario blanco con
+  marcas D/N/L/V en los colores de la app sobre azul degradado; también splash-icon y
+  adaptativos Android); se eliminó `assets/expo.icon` de plantilla. `app.json`:
+  `ios.bundleIdentifier`/`android.package` = `com.natanaelr16.turnosapp`, buildNumber/
+  versionCode 1, solo iPhone, `ITSAppUsesNonExemptEncryption:false` y `privacyManifests`
+  (FileTimestamp C617.1, UserDefaults CA92.1). `eas.json` nuevo con perfiles
+  development/preview/production (autoIncrement). `docs/POLITICA_PRIVACIDAD.md` listo
+  para publicar (100 % local, sin analítica, Ley 1581, aviso de estimado). `npm audit
+  fix` corrigió node-forge; quedan 3 high en deps de desarrollo (deepmerge, zod) que
+  solo se arreglan bajando a Expo 51 → documentado, sin `--force`. Registrada D-037
+  (prácticas de tokens: modelo potente solo al codificar, editar por línea).
+- **Verificación:** `npx tsc --noEmit` ✓ · `npx expo lint` ✓ · `npm test` 128/128 ✓ ·
+  `npx expo config --type public` ✓.
+- **Pendientes:** publicar la política en URL pública y enlazarla en Ajustes;
+  `/revision-legal`; cuenta Apple Developer → build producción → TestFlight.
+
 ## 2026-10-28 — Commit de liquidación/mes, explicación de FSP $0 y camino a app oficial
 - **Objetivo:** cerrar el trabajo de PDF/incapacidad/proyección; responder por qué FSP
   y retención salen en $0 en octubre; explicar cómo llevar la app a instalable oficial.

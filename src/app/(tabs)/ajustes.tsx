@@ -2,6 +2,8 @@ import { router } from 'expo-router';
 import { useRef, useState } from 'react';
 import { Alert, Keyboard } from 'react-native';
 
+import { BackupSecurityCard } from '@/components/backup-security';
+import { useSecretPrompt } from '@/components/secret-prompt';
 import { SettingsFields } from '@/components/settings-fields';
 import { ThemedText } from '@/components/themed-text';
 import { Button, Card, Screen, ValueRow } from '@/components/ui';
@@ -24,7 +26,8 @@ const FACTOR_LABELS: [MinuteCategory, string][] = [
 
 export default function SettingsScreen() {
   const { data, resetAll, updateSettings } = useAppData();
-  const { backupBusy, exportBackup, importBackup } = useBackup();
+  const { ask, prompt } = useSecretPrompt();
+  const { backupBusy, exportBackup, importBackup } = useBackup({ askSecret: ask });
   const { settings } = data;
   const today = todayLocal();
   const [draft, setDraft] = useState(() => draftFromSettings(settings, today));
@@ -89,6 +92,8 @@ export default function SettingsScreen() {
         <Button label="Restaurar desde PDF" variant="secondary" disabled={saving || backupBusy} onPress={importBackup} />
         <Button label="Borrar todos mis datos" variant="danger" onPress={confirmReset} disabled={saving || backupBusy} />
       </Card>
+      <BackupSecurityCard disabled={saving || backupBusy} />
+      {prompt}
     </Screen>
   );
 }

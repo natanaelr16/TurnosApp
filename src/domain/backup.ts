@@ -54,7 +54,8 @@ function isSettings(v: unknown): v is AppSettings {
     (v.holidayOrdinaryPay === undefined || v.holidayOrdinaryPay === 'completa' || v.holidayOrdinaryPay === 'solo-recargo') &&
     isOptNum(v.monthlyDeductions) &&
     isOptStr(v.onboardingCompletedAt) &&
-    isOptStr(v.legalNoticeAcceptedAt)
+    isOptStr(v.legalNoticeAcceptedAt) &&
+    (v.backupProtection === undefined || isObj(v.backupProtection))
   );
 }
 

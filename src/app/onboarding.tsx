@@ -1,9 +1,11 @@
 import { useRef, useState } from 'react';
-import { Alert, Keyboard, View } from 'react-native';
+import { Alert, Keyboard, StyleSheet, TextInput, View } from 'react-native';
 
 import { Choice, SettingsFields, type SettingsSection } from '@/components/settings-fields';
+import { useSecretPrompt } from '@/components/secret-prompt';
 import { ThemedText } from '@/components/themed-text';
 import { Button, Card, Screen, ValueRow } from '@/components/ui';
+import { createProtection } from '@/domain/backup-crypto';
 import { useAppData } from '@/hooks/use-app-data';
 import { useBackup } from '@/hooks/use-backup';
 import { useTheme } from '@/hooks/use-theme';
@@ -17,7 +19,8 @@ const STEP_FIELDS = { 1: ['salary'], 2: ['allowanceEnabled', 'allowance'], 3: []
 /** Temporal: la configuración guiada completa (PRD F0) se construye en la Fase 3. */
 export default function OnboardingScreen() {
   const { data, completeOnboarding } = useAppData();
-  const { backupBusy, importBackup } = useBackup();
+  const { ask, prompt } = useSecretPrompt();
+  const { backupBusy, importBackup } = useBackup({ askSecret: ask });
   const theme = useTheme();
   const date = todayLocal();
   const [step, setStep] = useState(0);
@@ -28,6 +31,9 @@ export default function OnboardingScreen() {
   const [saving, setSaving] = useState(false);
   const lock = useRef(false);
   const [editing, setEditing] = useState(false);
+  const [protect, setProtect] = useState(false);
+  const [pwd, setPwd] = useState('');
+  const [pwd2, setPwd2] = useState('');
   const go = (next: number) => { Keyboard.dismiss(); setErrors({}); setStep(next); };
   const edit = (next: number) => { setEditing(true); go(next); };
   const next = () => {
@@ -47,10 +53,22 @@ export default function OnboardingScreen() {
       const first = all.salary ? 1 : all.allowance || all.allowanceEnabled ? 2 : 4;
       setStep(first); setErrors(all); return;
     }
+    if (protect && (pwd.length < 6 || pwd !== pwd2)) {
+      Alert.alert('Revisa la contraseña', 'Mínimo 6 caracteres y la confirmación debe coincidir. Si no quieres proteger los respaldos, desmarca la opción.');
+      return;
+    }
     lock.current = true; setSaving(true);
     try {
       const now = new Date().toISOString();
-      await completeOnboarding({ ...settingsFromDraft(draft, data.settings), onboardingCompletedAt: now, legalNoticeAcceptedAt: now }, data.templates.filter((template) => selected.includes(template.id)));
+      const backupProtection = protect ? createProtection(pwd, now) : null;
+      await completeOnboarding(
+        { ...settingsFromDraft(draft, data.settings), onboardingCompletedAt: now, legalNoticeAcceptedAt: now, ...(backupProtection ? { backupProtection: backupProtection.protection } : {}) },
+        data.templates.filter((template) => selected.includes(template.id)));
+      if (backupProtection) {
+        Alert.alert('Protección activada',
+          `Anota este código de recuperación en un lugar seguro (lo necesitas si olvidas la contraseña):\n\n${backupProtection.recoveryCode}\n\nSin él y sin la contraseña, los respaldos cifrados no se pueden abrir.`,
+          [{ text: 'Ya lo anoté' }]);
+      }
     } catch {
       Alert.alert('No se pudo guardar', 'Tu configuración sigue aquí. Intenta de nuevo.');
     } finally { lock.current = false; setSaving(false); }
@@ -92,8 +110,25 @@ export default function OnboardingScreen() {
         {summary('Jornada', `${draft.daily} h/día · ${draft.weekly} h/semana`, 4)}
         <ValueRow label="Domingo/festivo" value={draft.holidayPay === 'completa' ? 'Hora + recargo' : 'Solo recargo'} />
         {summary('Turnos frecuentes', selected.length ? data.templates.filter((template) => selected.includes(template.id)).map((template) => template.name).join(', ') : 'Sin plantillas', 5)}
+        <Card title="Seguridad del respaldo">
+          <ThemedText type="caption" themeColor="textSecondary">Opcional: cifra tus respaldos PDF con una contraseña. Sin ella, el PDF sale legible. Puedes activarla después en Ajustes.</ThemedText>
+          <Choice multiple label="Proteger respaldos con contraseña" selected={protect} onPress={() => setProtect(!protect)} disabled={saving} />
+          {protect ? <>
+            <TextInput accessibilityLabel="Contraseña para respaldos" value={pwd} onChangeText={setPwd} secureTextEntry autoCapitalize="none" autoCorrect={false}
+              placeholder="Contraseña (mínimo 6 caracteres)" placeholderTextColor={theme.textSecondary} editable={!saving}
+              style={[styles.input, { color: theme.text, borderColor: theme.textSecondary, backgroundColor: theme.backgroundElement }]} />
+            <TextInput accessibilityLabel="Confirmar contraseña" value={pwd2} onChangeText={setPwd2} secureTextEntry autoCapitalize="none" autoCorrect={false}
+              placeholder="Confirmar contraseña" placeholderTextColor={theme.textSecondary} editable={!saving}
+              style={[styles.input, { color: theme.text, borderColor: theme.textSecondary, backgroundColor: theme.backgroundElement }]} />
+          </> : null}
+        </Card>
         <Button label="Revisar aviso legal" variant="secondary" onPress={() => edit(0)} disabled={saving} />
       </> : null}
+      {prompt}
     </Screen>
   );
 }
+
+const styles = StyleSheet.create({
+  input: { minHeight: 48, borderWidth: 1, borderRadius: 12, padding: 12, fontSize: 18 },
+});

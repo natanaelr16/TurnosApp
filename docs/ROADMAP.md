@@ -73,15 +73,16 @@ Marcar `[x]` al completar. Cada fase termina con `/verificar` en verde y `ESTADO
 - [x] Importar PDF (`expo-document-picker`), leer respaldo, resumen y confirmación; restaura reemplazando todos los datos
 - [x] Opción "Ya tengo un respaldo" en el onboarding (D-034)
 - [x] Tres PDFs distintos: respaldo, turnos con colores del calendario y liquidación coloreada (D-034)
+- [x] Respaldo cifrado opcional con contraseña + código de recuperación local (D-038): onboarding, Ajustes (activar/cambiar/recuperar/quitar), importar pide secreto
 - [ ] Prueba real del ciclo exportar→restaurar en dispositivo/simulador
 
 ## Fase 4 — Pulido y publicación
-- [ ] Aviso legal inicial, borrar datos, política de privacidad
-- [ ] Ícono y splash definitivos
+- [x] Aviso legal inicial, borrar datos, política de privacidad (POLITICA_PRIVACIDAD.md lista; falta publicarla en URL y enlazarla en Ajustes)
+- [x] Ícono y splash definitivos (calendario D/N/L/V sobre azul; adaptativos Android)
 - [ ] Pruebas en dispositivo real iOS y Android
-- [ ] Resolver/revisar 5 avisos high de npm audit en Expo CLI/node-forge/zod con actualización compatible (sin --force ni downgrade SDK)
+- [ ] Resolver/revisar avisos high de npm audit en Expo CLI/zod/deepmerge con actualización compatible (sin --force ni downgrade SDK; node-forge corregido 2026-10-29, quedan 3 en deps de desarrollo)
 - [ ] Limpiar caché de PDFs privados al borrar todos los datos y definir retención temporal
 - [ ] Auditoría de seguridad dedicada (no sustituida por lint/pruebas/doctor)
 - [ ] Cuenta Apple Developer ($99 USD/año) — trámite del usuario en developer.apple.com
-- [ ] Configurar `eas.json`, bundle identifier e ícono de la app
+- [x] Configurar `eas.json`, bundle identifier e ícono de la app
 - [ ] Builds con EAS y publicación/TestFlight (checklist de `CUMPLIMIENTO.md`)
