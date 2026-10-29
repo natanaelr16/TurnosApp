@@ -1,4 +1,5 @@
 import * as DocumentPicker from 'expo-document-picker';
+import * as FileSystem from 'expo-file-system/legacy';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import { useState } from 'react';
@@ -27,7 +28,9 @@ export function useBackup() {
           const exportedAt = new Date().toISOString();
           const { uri } = await Print.printToFileAsync({ html: buildBackupReport(data, exportedAt) });
           const out = await attachBackupToPdf(uri, createBackup(data, exportedAt));
-          await Sharing.shareAsync(out, { mimeType: 'application/pdf', dialogTitle: 'Respaldo de TurnosApp' });
+          const named = `${FileSystem.cacheDirectory}TurnosApp-Respaldo-${exportedAt.slice(0, 10)}.pdf`;
+          await FileSystem.moveAsync({ from: out, to: named });
+          await Sharing.shareAsync(named, { mimeType: 'application/pdf', dialogTitle: 'Respaldo de TurnosApp' });
         } catch { Alert.alert('No se pudo exportar', 'Tus datos no se modificaron. Intenta de nuevo.'); }
         finally { setBusy(false); }
       } },

@@ -3,11 +3,11 @@
 > Memoria viva del proyecto. **Todo agente la lee al iniciar y la actualiza al terminar.**
 > Mantenerla corta (máx. ~60 líneas). El detalle histórico va en `BITACORA.md`.
 
-**Última actualización:** 2026-10-28 — F7 completo: respaldo PDF restaurable también
-desde el onboarding; tres PDFs distintos (respaldo, turnos coloreado, liquidación).
-**Fase actual:** Fase 3 — F0–F7 implementados; pendiente prueba real exportar→restaurar.
-**Git:** último commit `5c4371e` (cierre de periodo + respaldo F7). Sin commit:
-onboarding con restauración, PDFs separados por tipo y `use-backup`/`use-period-pdf`.
+**Última actualización:** 2026-10-28 — app corriendo en iPhone real vía Expo Go;
+tabs con animación 'shift' direccional y PDFs con nombre descriptivo.
+**Fase actual:** Fase 3 — F0–F7 implementados; pulido visual en curso.
+**Git:** último commit `4ee57e7` (restaurar en onboarding + tres PDFs). Sin commit:
+tabs JS con animación, nombres de PDF descriptivos (D-035).
 
 ## Qué existe hoy
 - Motor puro de turnos/nómina validado con planilla real (D-013); auditoría previa en BITACORA.
@@ -40,18 +40,22 @@ onboarding con restauración, PDFs separados por tipo y `use-backup`/`use-period
 - Respaldo restaurable (D-033): JSON embebido tras `%%EOF` (`lib/backup-file.ts`);
   restaura desde Ajustes → Datos **y desde el onboarding** ("Ya tengo un respaldo"),
   con confirmación y reemplazo total. Lógica compartida en `hooks/use-backup.ts`.
+- Navegación entre pestañas con animación direccional 'shift' (D-035): tabs JS de
+  React Navigation con Ionicons (reemplaza NativeTabs, que no permite transiciones).
+- PDFs con nombre descriptivo (D-035): `TurnosApp-<Tipo>-<Mes>-<Año>-<Span>-<Completo|
+  Parcial>.pdf` y `TurnosApp-Respaldo-<fecha>.pdf`.
 
 ## Verificación al cerrar
-- **123/123 pruebas (13 suites), tipos y lint en verde** tras separar los tres PDFs
-  y añadir restauración al onboarding.
-- Metro LAN puerto 8083 activo (IP del Mac: 192.168.1.8; Expo Go relanzado).
+- **123/123 pruebas (13 suites), tipos y lint en verde** tras tabs animadas y nombres de PDF.
+- Metro LAN puerto 8083 activo (IP del Mac: 192.168.1.8); `npx expo login` hecho
+  (cuenta expo.dev del usuario vía GitHub). App probada en iPhone real con Expo Go.
 
 ## En curso / siguiente sesión
-1. Confirmación visual del usuario: calendario, chips, formato 12/24 h, liquidación,
-   básico exacto $2.226.564, cierre de periodo y ciclo exportar→restaurar completo
-   (exportar → borrar datos → restaurar desde el onboarding).
+1. Confirmación visual del usuario en el iPhone real: animación de tabs, ciclo
+   exportar→restaurar completo, PDFs coloreados y nombres descriptivos.
 2. Permisos por horas (descartado por el usuario: no existen en su empresa);
    limpieza de caché de PDFs.
+3. Fase 4: EAS build/TestFlight para app instalable (requiere Apple Developer).
 
 ## Decisiones pendientes con el usuario / bloqueos
 - Confirmación visual de F6/F7 completos y de los tres PDFs.

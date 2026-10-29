@@ -5,6 +5,20 @@ Formato: fecha, objetivo, qué se hizo, verificación ejecutada, pendientes.
 
 ---
 
+## 2026-10-28 — iPhone real vía Expo Go, tabs animadas y nombres de PDF (D-035)
+- **Objetivo:** probar la app en el iPhone del usuario y ajustar diseño: transición
+  animada entre pestañas y nombres de archivo claros en los PDF.
+- **Hecho:** usuario creó cuenta expo.dev (vía GitHub) y ejecutó `npx expo login`
+  con login por navegador; Expo Go en el iPhone carga la app por LAN
+  (`exp://192.168.1.8:8083`). `(tabs)/_layout.tsx` migrado de `NativeTabs` (sin
+  transiciones posibles) a `Tabs` de React Navigation con `animation: 'shift'` e
+  Ionicons — la página desliza hacia el lado del botón. Los PDFs exportados se
+  renombran antes de compartir: `TurnosApp-Turnos-Octubre-2026-Quincena-1-Parcial.pdf`,
+  `...-Salario-...-Mes-Completo.pdf`, `TurnosApp-Respaldo-<fecha>.pdf`.
+- **Verificación:** `npx tsc --noEmit` ✓ · `npx expo lint` ✓ · `npm test` 123/123 ✓.
+- **Pendientes:** confirmación visual de la animación y nombres en el iPhone;
+  ciclo exportar→restaurar en dispositivo real; Fase 4 (EAS build).
+
 ## 2026-10-28 — F7 completo: restaurar desde onboarding y tres PDFs distintos (D-034)
 - **Objetivo:** el usuario borró sus datos para probar la restauración y el onboarding
   no ofrecía restaurar; además pidió PDFs diferenciados: respaldo propio, planilla de
