@@ -3,9 +3,9 @@
 > Memoria viva del proyecto. **Todo agente la lee al iniciar y la actualiza al terminar.**
 > Mantenerla corta (máx. ~60 líneas). El detalle histórico va en `BITACORA.md`.
 
-**Última actualización:** 2026-10-29 — build 2 compilado en EAS y submit programado
-(upload en curso); app registrada en App Store Connect (`6828459921`); flag de
-encriptación corregido a `true` (D-040).
+**Última actualización:** 2026-10-29 — **build 2 subido a App Store Connect** (Apple
+lo está procesando); app registrada (`6828459921`, versión 1.0 creada, es-MX);
+flag de encriptación corregido a `true` (D-040).
 **Fase actual:** Fase 4 — publicación en marcha (submit en vuelo → metadatos →
 declaración de encriptación → build 3 → TestFlight).
 **Git:** último commit `87c5fc1`. Sin commit: `app.json` (flag encriptación),
@@ -74,9 +74,9 @@ declaración de encriptación → build 3 → TestFlight).
   (cuenta expo.dev del usuario vía GitHub). App probada en iPhone real con Expo Go.
 
 ## En curso / siguiente sesión
-1. **Submit a App Store Connect en vuelo** (build 7e7c2cb1, v1.0.0 #2, submission
-   de4437d5): verificar resultado con `npx eas-cli submission:list` o en expo.dev.
-   El build ya compiló con éxito en EAS.
+1. **Build 2 subido a App Store Connect** (submission 624d8d75, v1.0.0 #2): Apple
+   lo procesa (~5-10 min, correo al usuario). Cuando aparezca en TestFlight →
+   adjuntarlo a la versión 1.0 (sección Build → "Selecciona un build").
 2. En App Store Connect (app `6828459921`), faltan obligatorios: seleccionar versión,
    información de contacto, derechos de contenido, URL de política de privacidad,
    cuestionario de privacidad ("no se recopilan datos"), franja de precio (paga,

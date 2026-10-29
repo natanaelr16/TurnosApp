@@ -20,8 +20,10 @@ Formato: fecha, objetivo, qué se hizo, verificación ejecutada, pendientes.
   "encriptación no exenta" → `ITSAppUsesNonExemptEncryption` corregido a `true`
   (D-040); el build 2 salió con `false`, sirve para TestFlight interno pero para
   revisión conviene build 3 con el flag y el código de cumplimiento.
-- **Verificación:** resultado del submit pendiente (proceso sigue corriendo);
-  build 2 compiló con éxito en EAS.
+- **Verificación:** build 2 compiló con éxito en EAS. Primer submit falló (error
+  de servidor de Apple); el reintento (submission 624d8d75) **subió el `.ipa`
+  correctamente** y Apple lo procesó. Versión 1.0 confirmada por API (iOS,
+  es-MX, sin build adjunto aún).
 - **Pendientes:** declaración de encriptación en ASC ("solo algoritmos estándar",
   sin documentos salvo Francia), código de cumplimiento → `app.json`, build 3,
   captura de calendario desde el iPhone, completar campos obligatorios.
