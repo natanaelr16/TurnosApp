@@ -4,6 +4,7 @@ import { Alert, Keyboard, StyleSheet, View } from 'react-native';
 import { PeriodSelector } from '@/components/period-selector';
 import { NumberField } from '@/components/settings-fields';
 import { ThemedText } from '@/components/themed-text';
+import { TabSlide } from '@/components/tab-slide';
 import { Button, Card, EmptyState, Screen, ValueRow } from '@/components/ui';
 import { isPeriodClosed, liquidationTable, payEstimate, periodFor } from '@/domain/payroll';
 import { recordCoverage } from '@/domain/records';
@@ -47,7 +48,7 @@ export default function SummaryScreen() {
     catch { Alert.alert('No se pudo actualizar', 'Intenta de nuevo.'); }
   };
   const activeRows = table.rows.filter((row) => row.hours > 0);
-  return <Screen title="Resumen" subtitle="Acumulados del periodo">
+  return <TabSlide route="resumen"><Screen title="Resumen" subtitle="Acumulados del periodo">
     <PeriodSelector period={period} type={data.settings.payPeriod} onDateChange={setAnchor} />
     {closed ? <ThemedText accessibilityRole="alert" themeColor="danger">Periodo cerrado: no puedes crear, editar ni eliminar registros de estas fechas hasta reabrirlo.</ThemedText> : null}
     {!activeRows.length && !table.workedMinutes && !basic.amount ? <EmptyState title="Sin registros en este periodo" message="Registra turnos, descansos o novedades para ver tu liquidación acumulada." /> : <Card title="Detalle de liquidación">
@@ -107,7 +108,7 @@ export default function SummaryScreen() {
     <Button label={closed ? 'Reabrir periodo' : 'Cerrar periodo'} variant="secondary" onPress={toggleClosed} />
     <Button label={exporting ? 'Generando PDF…' : 'Exportar liquidación (PDF)'} variant="secondary" disabled={exporting} onPress={() => requestExport(data, period, 'liquidacion')} />
     <ThemedText type="caption" themeColor="textSecondary">El básico se prorratea por día pago (salario ÷ 30): descansos y permisos remunerados pagan el día; la incapacidad paga el 75 % del promedio diario devengado; permiso no remunerado no paga. Salud, pensión, retención y neto llegan con la liquidación salarial.</ThemedText>
-  </Screen>;
+  </Screen></TabSlide>;
 }
 
 const styles = StyleSheet.create({

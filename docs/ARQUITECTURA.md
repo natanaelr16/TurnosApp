@@ -27,7 +27,8 @@ src/
 ```
 
 Rutas actuales: `src/app/_layout.tsx` (SQLiteProvider + AppDataProvider + Stack.Protected),
-`src/app/onboarding.tsx`, `src/app/(tabs)/_layout.tsx` (Tabs JS con `animation: 'shift'` e Ionicons, D-035) con `index` (Calendario),
+`src/app/onboarding.tsx`, `src/app/(tabs)/_layout.tsx` (NativeTabs + `components/tab-slide.tsx`
+para animación direccional del contenido, D-035) con `index` (Calendario),
 `historial`, `resumen`, `ajustes`; modales protegidos `registro.tsx`, `plantillas.tsx` y `detalle.tsx`.
 Calendario es una grilla fija (SafeAreaView, sin ScrollView); `lib/calendar.ts` genera semanas/colores
 con índice memoizado de registros. Recupera fecha actual al enfocar/reanudar y al cambiar el día.

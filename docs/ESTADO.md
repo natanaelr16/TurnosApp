@@ -6,8 +6,8 @@
 **Última actualización:** 2026-10-28 — app corriendo en iPhone real vía Expo Go;
 tabs con animación 'shift' direccional y PDFs con nombre descriptivo.
 **Fase actual:** Fase 3 — F0–F7 implementados; pulido visual en curso.
-**Git:** último commit `4ee57e7` (restaurar en onboarding + tres PDFs). Sin commit:
-tabs JS con animación, nombres de PDF descriptivos (D-035).
+**Git:** último commit `95b68bd` (tabs animadas + nombres PDF). Sin commit:
+NativeTabs restaurada + `TabSlide` para animación direccional (ajuste de D-035).
 
 ## Qué existe hoy
 - Motor puro de turnos/nómina validado con planilla real (D-013); auditoría previa en BITACORA.
@@ -40,8 +40,9 @@ tabs JS con animación, nombres de PDF descriptivos (D-035).
 - Respaldo restaurable (D-033): JSON embebido tras `%%EOF` (`lib/backup-file.ts`);
   restaura desde Ajustes → Datos **y desde el onboarding** ("Ya tengo un respaldo"),
   con confirmación y reemplazo total. Lógica compartida en `hooks/use-backup.ts`.
-- Navegación entre pestañas con animación direccional 'shift' (D-035): tabs JS de
-  React Navigation con Ionicons (reemplaza NativeTabs, que no permite transiciones).
+- Navegación entre pestañas con animación direccional (D-035): `NativeTabs` (barra
+  "liquid" nativa) intacta + `components/tab-slide.tsx` desliza el contenido de cada
+  pestaña desde el lado del botón tocado según el orden de pestañas.
 - PDFs con nombre descriptivo (D-035): `TurnosApp-<Tipo>-<Mes>-<Año>-<Span>-<Completo|
   Parcial>.pdf` y `TurnosApp-Respaldo-<fecha>.pdf`.
 
