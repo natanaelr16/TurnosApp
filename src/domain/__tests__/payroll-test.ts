@@ -144,11 +144,22 @@ describe('cuadro de liquidación del periodo (D-024, planilla real oct 1–15 20
     expect(basic.fullDays).toBe(11);
     expect(basic.unpaidDays).toBe(1);
     expect(basic.sickDays).toBe(1);
-    expect(basic.fullAmount).toBe(1_632_818); // nómina real: 1.632.814 (redondeo por día)
+    expect(basic.fullAmount).toBe(1_632_814); // exacto: nómina real oct 1–15 (día 148.437,60)
     // promedio devengado = (básico de días completos + recargos + extras) / días completos
     expect(basic.avgDaily).toBe(Math.round((basic.fullAmount + table.totalAmount) / 11));
     expect(basic.sickDaily).toBe(Math.round(basic.avgDaily * 0.75));
     expect(basic.amount).toBe(basic.fullAmount + basic.sickDaily);
+  });
+
+  test('el día 31 no añade día de básico: la quincena paga máximo 15 días', () => {
+    const shifts = computeShifts([
+      ...Array.from({ length: 15 }, (_, i) => ({ id: `w${i}`, start: `2026-10-${16 + i}T06:00`, end: `2026-10-${16 + i}T18:00` })),
+      { id: 'd31', start: '2026-10-31T06:00', end: '2026-10-31T18:00' },
+    ], real);
+    const basic = basicPayDetail(shifts, [], real, { start: '2026-10-16', end: '2026-10-31' });
+    expect(basic.fullDays).toBe(16);
+    expect(basic.fullAmount).toBe(2_226_564); // exacto: mitad de 4.453.128 (15 × 148.437,60)
+    expect(basic.amount).toBe(2_226_564);
   });
 
   test('incapacidad al 75 % del promedio devengado, como la nómina real (sep 1–15)', () => {
@@ -227,6 +238,18 @@ describe('liquidación estimada del periodo (D-029, finiquito sep 1–15)', () =
     const first = payEstimate(all, novelties, cfg, { start: '2026-09-01', end: '2026-09-15' });
     expect(first.solidarityFund).toBe(0);
     expect(first.withholding).toBe(0);
+  });
+
+  test('bonificación: suma al devengado completo, IBC y FSP/retención (D-030)', () => {
+    const cfg: Settings = { ...quincena, baseSalary: 12_000_000 };
+    const shifts = computeShifts([{ id: 'a', start: '2026-09-16T06:00', end: '2026-09-16T18:00' }], cfg);
+    const sin = payEstimate(shifts, [], cfg, { start: '2026-09-16', end: '2026-09-30' });
+    const con = payEstimate(shifts, [], cfg, { start: '2026-09-16', end: '2026-09-30' }, 792_657, 792_657);
+    expect(con.gross).toBe(sin.gross + 792_657);
+    expect(con.contributionBase).toBe(con.gross); // entra al IBC (transporte 0)
+    expect(con.health).toBeGreaterThan(sin.health);
+    expect(con.pension).toBeGreaterThan(sin.pension);
+    expect(con.net - sin.net).toBe(792_657 - (con.totalDeductions - sin.totalDeductions));
   });
 
   test('IBC mínimo de medio SMMLV en quincena con salario bajo', () => {

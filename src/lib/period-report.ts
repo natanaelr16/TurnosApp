@@ -15,7 +15,10 @@ export function buildPeriodReport(data: AppData, period: PeriodRange): string {
   const rows = results.map((r) => `<tr><td>${escape(r.shift.start.replace('T', ' '))}<br>${escape(r.shift.end.replace('T', ' '))}</td><td>${escape(formatMinutes(r.totalMinutes))}</td><td>${escape(formatMinutes(r.extraMinutes))}</td><td>${escape(formatCOP(r.surchargeTotal))}</td><td>${escape(formatCOP(r.extraTotal))}</td><td>${(r.shift.fields ?? []).map((f) => `${escape(f.name)}: ${escape(f.value)}`).join('<br>')}${r.shift.note ? `<p>${escape(r.shift.note)}</p>` : ''}</td></tr>`).join('');
   const novelties = data.novelties.filter((n) => n.date >= period.start && n.date <= period.end).map((n) => `<li>${escape(n.date)} — ${escape(NOVELTY_LABELS[n.kind])}${n.note ? `: ${escape(n.note)}` : ''}</li>`).join('');
   const basic = basicPayDetail(results, data.novelties, data.settings, period);
-  const estimate = payEstimate(results, data.novelties, data.settings, period);
+  const extraIncome = data.settings.extraIncome?.[period.start] ?? 0;
+  const ym = period.start.slice(0, 7);
+  const monthExtraIncome = (data.settings.extraIncome?.[`${ym}-01`] ?? 0) + (data.settings.extraIncome?.[`${ym}-16`] ?? 0);
+  const estimate = payEstimate(results, data.novelties, data.settings, period, extraIncome, monthExtraIncome);
   return `<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'"><title>TurnosApp — acumulados</title><style>
     @page { margin: 22px; } body { font: 12px sans-serif; color: #111418; } h1 { font-size: 22px; } h2 { font-size: 16px; }
     table { width: 100%; border-collapse: collapse; } th, td { border: 1px solid #cbd5e1; padding: 7px; text-align: left; vertical-align: top; overflow-wrap: anywhere; }
@@ -25,10 +28,11 @@ export function buildPeriodReport(data: AppData, period: PeriodRange): string {
     <h2>Acumulado de turnos registrados</h2><p>Horas: ${escape(formatMinutes(accrued.totalMinutes))} · Horas extra: ${escape(formatMinutes(accrued.extraMinutes))}</p>
     <p>Recargos: ${escape(formatCOP(accrued.surcharges))} · Extras: ${escape(formatCOP(accrued.extras))}</p>
     <h2>Salario básico del periodo</h2>
-    <p>Días pagos completos: ${escape(basic.fullDays)} × ${escape(formatCOP(basic.daily))} = <b>${escape(formatCOP(basic.fullAmount))}</b>${basic.sickDays ? `<br>Incapacidad: ${escape(basic.sickDays)} ${basic.sickDays === 1 ? 'día' : 'días'} al ${SICK_DAY_PCT} % del promedio (${escape(formatCOP(basic.sickDaily))}/día) = <b>${escape(formatCOP(basic.sickAmount))}</b>` : ''}${basic.unpaidDays ? `<br>Permiso no remunerado: ${escape(basic.unpaidDays)} ${basic.unpaidDays === 1 ? 'día' : 'días'} sin pago` : ''}</p>
+    <p>Días pagos completos: ${escape(basic.paidDays)} × ${escape(formatCOP(basic.daily))} = <b>${escape(formatCOP(basic.fullAmount))}</b>${basic.sickDays ? `<br>Incapacidad: ${escape(basic.sickDays)} ${basic.sickDays === 1 ? 'día' : 'días'} al ${SICK_DAY_PCT} % del promedio (${escape(formatCOP(basic.sickDaily))}/día) = <b>${escape(formatCOP(basic.sickAmount))}</b>` : ''}${basic.unpaidDays ? `<br>Permiso no remunerado: ${escape(basic.unpaidDays)} ${basic.unpaidDays === 1 ? 'día' : 'días'} sin pago` : ''}</p>
     <p>Básico del periodo: <b>${escape(formatCOP(basic.amount))}</b> · Recargos + extras: <b>${escape(formatCOP(accrued.surcharges + accrued.extras))}</b> · Total: <b>${escape(formatCOP(basic.amount + accrued.surcharges + accrued.extras))}</b></p>
     <h2>Liquidación estimada</h2>
     <table><thead><tr><th>Concepto</th><th>Valor</th></tr></thead><tbody>
+      ${estimate.extraIncome ? `<tr><td>Ingreso adicional</td><td>${escape(formatCOP(estimate.extraIncome))}</td></tr>` : ''}
       <tr><td>Devengado del periodo</td><td>${escape(formatCOP(estimate.gross))}</td></tr>
       <tr><td>Salud (4 %)</td><td>-${escape(formatCOP(estimate.health))}</td></tr>
       <tr><td>Pensión (4 %)</td><td>-${escape(formatCOP(estimate.pension))}</td></tr>

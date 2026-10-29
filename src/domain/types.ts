@@ -45,6 +45,10 @@ export interface Settings {
   monthlyDeductions?: number;
   /** Formato de hora de toda la app; por defecto 24 h (D-025). */
   timeFormat?: '12h' | '24h';
+  /** Ingresos adicionales por periodo (bonificación bimestral, variable). Clave: inicio
+   *  del periodo `YYYY-MM-DD`. Suma al devengado completo: afecta IBC (salud/pensión)
+   *  y la base de FSP/retención — D-030. */
+  extraIncome?: Record<string, number>;
 }
 
 /** Configuración completa guardada en el teléfono (cálculo + estado del onboarding). */

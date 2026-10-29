@@ -15,8 +15,11 @@ Formato: fecha, objetivo, qué se hizo, verificación ejecutada, pendientes.
   del informe actualizados al nuevo alcance (sí muestra neto estimado).
 - **Verificación:** `npx tsc --noEmit`, `npx expo lint` y `npm test` en verde
   (118/118 pruebas, 13 suites).
-- **Pendientes:** ingresos adicionales tipo "Bonificación" ($792.657 en la nómina real,
-  no derivable de turnos); cierre/reapertura de periodo; validación visual del usuario.
+- **Pendientes:** cierre/reapertura de periodo; validación visual del usuario.
+- **Mismo día — bonificación (D-030):** `settings.extraIncome` por periodo + campo en
+  Resumen → Liquidación estimada; suma al devengado completo (IBC y FSP/retención);
+  en 2ª quincena se suman ambas quincenas; también en el PDF.
+  `tsc`, `expo lint` y **119/119 pruebas** en verde.
 
 ---
 

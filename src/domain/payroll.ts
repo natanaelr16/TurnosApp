@@ -77,8 +77,11 @@ export const SICK_DAY_PCT = 75;
 export interface BasicPay {
   /** Valor del día básico: salario mensual / 30 (regla de la planilla real). */
   daily: number;
-  /** Días pagos completos: turnos, descansos y permisos remunerados. */
+  /** Días con registro pago completo: turnos, descansos y permisos remunerados. */
   fullDays: number;
+  /** Días que efectivamente pagan el básico: fullDays con tope de 15 (quincena) o 30 (mes);
+   *  el día 31 solo aporta recargos/extras. */
+  paidDays: number;
   sickDays: number;
   unpaidDays: number;
   fullAmount: number;
@@ -96,7 +99,10 @@ export interface BasicPay {
  *  si el día no tiene turno registrado. La incapacidad paga el 75 % del promedio
  *  diario devengado del periodo (básico + recargos + extras), no del básico puro. */
 export function basicPayDetail(results: ShiftResult[], novelties: Novelty[], settings: Settings, period: PeriodRange): BasicPay {
-  const daily = Math.round(settings.baseSalary / 30);
+  // El día se muestra redondeado, pero el importe usa el día exacto (salario/30 con
+  // decimales) como la planilla: 15 × 148.437,60 = 2.226.564, no 15 × 148.438.
+  const dailyExact = settings.baseSalary / 30;
+  const daily = Math.round(dailyExact);
   const worked = new Set(
     results.map((r) => datePart(r.shift.start)).filter((d) => d >= period.start && d <= period.end),
   );
@@ -107,14 +113,18 @@ export function basicPayDetail(results: ShiftResult[], novelties: Novelty[], set
     else if (n.kind === 'unpaid-leave') unpaidDays++;
     else fullDays++;
   }
-  const fullAmount = fullDays * daily;
+  // El básico quincenal es fijo (salario/2 = 15 días); el día 31 de la segunda
+  // quincena no añade día de básico, solo aporta sus recargos/extras (regla real).
+  const capDays = settings.payPeriod === 'quincenal' ? 15 : 30;
+  const paidDays = Math.min(fullDays, capDays);
+  const fullAmount = Math.round(paidDays * dailyExact);
   const accrued = results
     .filter((r) => { const d = datePart(r.shift.start); return d >= period.start && d <= period.end; })
     .reduce((s, r) => s + r.surchargeTotal + r.extraTotal, 0);
-  const avgDaily = fullDays ? Math.round((fullAmount + accrued) / fullDays) : daily;
+  const avgDaily = paidDays ? Math.round((fullAmount + accrued) / paidDays) : daily;
   const sickDaily = Math.round((avgDaily * SICK_DAY_PCT) / 100);
   const sickAmount = sickDays * sickDaily;
-  return { daily, fullDays, sickDays, unpaidDays, fullAmount, avgDaily, sickDaily, sickAmount, amount: fullAmount + sickAmount };
+  return { daily, fullDays, paidDays, sickDays, unpaidDays, fullAmount, avgDaily, sickDaily, sickAmount, amount: fullAmount + sickAmount };
 }
 
 /** Redondeo a centenas, como hace la planilla real (158.722 → 158.800). */
@@ -134,14 +144,18 @@ export interface PayEstimate {
   /** FSP y retención: solo en la segunda quincena (o mes completo), sobre el mes real. */
   solidarityFund: number;
   withholding: number;
+  /** Ingresos adicionales del periodo (bonificación); solo afecta devengado y FSP/retención. */
+  extraIncome: number;
   totalDeductions: number;
   net: number;
 }
 
 /** Liquidación estimada del periodo con las reglas de la nómina real del usuario (D-028/D-029):
  *  salud y pensión 4 % del IBC redondeadas a centenas; FSP y retención solo en la
- *  segunda quincena (o periodo mensual), calculadas sobre el mes real completo. */
-export function payEstimate(results: ShiftResult[], novelties: Novelty[], settings: Settings, period: PeriodRange): PayEstimate {
+ *  segunda quincena (o periodo mensual), calculadas sobre el mes real completo.
+ *  `extraIncome` es la bonificación/ingreso extra del periodo: suma al devengado
+ *  completo (IBC de salud/pensión y base de FSP/retención — D-030). */
+export function payEstimate(results: ShiftResult[], novelties: Novelty[], settings: Settings, period: PeriodRange, extraIncome = 0, monthExtraIncome?: number): PayEstimate {
   const basic = basicPayDetail(results, novelties, settings, period);
   const accruedAmount = results
     .filter((r) => { const d = datePart(r.shift.start); return d >= period.start && d <= period.end; })
@@ -151,7 +165,7 @@ export function payEstimate(results: ShiftResult[], novelties: Novelty[], settin
   const transport = settings.transportAllowance.enabled
     ? Math.round((settings.transportAllowance.amount ?? legalTransport) * fraction)
     : 0;
-  const gross = basic.amount + accruedAmount + transport;
+  const gross = basic.amount + accruedAmount + transport + extraIncome;
   const contributionBase = Math.max(gross - transport, Math.round(smmlv * fraction));
   const health = round100((contributionBase * HEALTH_PCT) / 100);
   const pension = round100((contributionBase * PENSION_PCT) / 100);
@@ -166,7 +180,7 @@ export function payEstimate(results: ShiftResult[], novelties: Novelty[], settin
       .filter((r) => { const d = datePart(r.shift.start); return d >= month.start && d <= month.end; })
       .reduce((s, r) => s + r.surchargeTotal + r.extraTotal, 0);
     const monthTransport = settings.transportAllowance.enabled ? (settings.transportAllowance.amount ?? legalTransport) : 0;
-    const monthGross = monthBasic.amount + monthAccrued + monthTransport;
+    const monthGross = monthBasic.amount + monthAccrued + monthTransport + (monthExtraIncome ?? extraIncome);
     const monthBase = Math.max(monthGross - monthTransport, smmlv);
     const monthHealth = round100((monthBase * HEALTH_PCT) / 100);
     const monthPension = round100((monthBase * PENSION_PCT) / 100);
@@ -179,7 +193,7 @@ export function payEstimate(results: ShiftResult[], novelties: Novelty[], settin
     });
   }
   const totalDeductions = health + pension + solidarityFund + withholding;
-  return { basic, accruedAmount, transportAllowance: transport, gross, contributionBase, health, pension, solidarityFund, withholding, totalDeductions, net: gross - totalDeductions };
+  return { basic, accruedAmount, transportAllowance: transport, gross, contributionBase, health, pension, solidarityFund, withholding, extraIncome, totalDeductions, net: gross - totalDeductions };
 }
 
 export function periodFor(date: LocalDate, type: PayPeriodType): PeriodRange {

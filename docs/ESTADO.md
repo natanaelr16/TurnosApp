@@ -30,6 +30,8 @@ ingresos extra tipo bonificación y cierre/reapertura).
   no remunerado 0; en Resumen y PDF.
 - Liquidación estimada (D-029): devengado, salud/pensión 4 % (a centenas), FSP/retención
   solo en 2ª quincena sobre el mes real, neto estimado; en Resumen y PDF.
+- Ingreso adicional por periodo (D-030): bonificación variable guardada en ajustes;
+  suma al devengado completo (IBC y FSP/retención); en Resumen y PDF.
 - PDF de acumulados (D-021): expo-print + expo-sharing, consentimiento y escape HTML.
   Incluye básico y liquidación estimada; sin JSON: NO es respaldo restaurable.
 
@@ -42,8 +44,7 @@ ingresos extra tipo bonificación y cierre/reapertura).
 ## En curso / siguiente sesión
 1. Confirmación visual del usuario: swipe de meses, scroll de años, selector de década,
    colores, popover, genie, basurita, chips 8 h y formato 12/24 h. No asumir aprobación.
-2. F6 restante: ingresos adicionales tipo "Bonificación" por periodo y
-   cierre/reapertura de periodo (D-015/D-016/D-029).
+2. F6 restante: cierre/reapertura de periodo (D-015/D-016/D-029).
 3. Completar respaldo PDF restaurable F7; permisos por horas; limpieza de caché de PDFs.
 4. Completar respaldo PDF restaurable F7; permisos por horas; limpieza de caché de PDFs.
 

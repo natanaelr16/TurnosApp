@@ -116,7 +116,6 @@ export default function CalendarScreen() {
   const resultById = useMemo(() => new Map(computeShifts(data.shifts, data.settings).map((r) => [r.shift.id, r])), [data.shifts, data.settings]);
   const dayShifts = (date: string) => data.shifts.filter((s) => datePart(s.start) === date);
   const dayNovelties = (date: string) => data.novelties.filter((n) => n.date === date);
-  const hasRecords = (date: string) => dayShifts(date).length > 0 || dayNovelties(date).length > 0;
   const [popover, setPopover] = useState<{ date: string; x: number; y: number; above: boolean } | null>(null);
   const [popAnim] = useState(() => new Animated.Value(0));
   const openPopover = (date: string) => {

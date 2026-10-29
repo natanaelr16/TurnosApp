@@ -1,9 +1,10 @@
 import { useMemo, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Alert, Keyboard, StyleSheet, View } from 'react-native';
 
 import { PeriodSelector } from '@/components/period-selector';
+import { NumberField } from '@/components/settings-fields';
 import { ThemedText } from '@/components/themed-text';
-import { Card, EmptyState, Screen, ValueRow } from '@/components/ui';
+import { Button, Card, EmptyState, Screen, ValueRow } from '@/components/ui';
 import { liquidationTable, payEstimate, periodFor } from '@/domain/payroll';
 import { recordCoverage } from '@/domain/records';
 import { computeShifts } from '@/domain/shift-calc';
@@ -19,8 +20,23 @@ export default function SummaryScreen() {
   const results = useMemo(() => computeShifts(data.shifts, data.settings), [data.shifts, data.settings]);
   const table = useMemo(() => liquidationTable(results, data.settings, period), [results, data.settings, period]);
   const incomplete = recordCoverage(data.shifts, data.novelties, period).missingDates.length > 0;
-  const estimate = useMemo(() => payEstimate(results, data.novelties, data.settings, period), [results, data.novelties, data.settings, period]);
+  const extraIncome = data.settings.extraIncome?.[period.start] ?? 0;
+  const monthExtraIncome = useMemo(() => {
+    const ym = period.start.slice(0, 7);
+    return (data.settings.extraIncome?.[`${ym}-01`] ?? 0) + (data.settings.extraIncome?.[`${ym}-16`] ?? 0);
+  }, [data.settings.extraIncome, period.start]);
+  const estimate = useMemo(() => payEstimate(results, data.novelties, data.settings, period, extraIncome, monthExtraIncome), [results, data.novelties, data.settings, period, extraIncome, monthExtraIncome]);
   const basic = estimate.basic;
+  const { updateSettings } = useAppData();
+  const [extraDraft, setExtraDraft] = useState<string | null>(null);
+  const saveExtra = async () => {
+    Keyboard.dismiss();
+    const value = Number((extraDraft ?? '').replace(/\D/g, '')) || 0;
+    const next = { ...(data.settings.extraIncome ?? {}) };
+    if (value > 0) next[period.start] = value; else delete next[period.start];
+    try { await updateSettings({ ...data.settings, extraIncome: next }); setExtraDraft(null); }
+    catch { Alert.alert('No se pudo guardar', 'Intenta de nuevo.'); }
+  };
   const activeRows = table.rows.filter((row) => row.hours > 0);
   return <Screen title="Resumen" subtitle="Acumulados del periodo">
     <PeriodSelector period={period} type={data.settings.payPeriod} onDateChange={setAnchor} />
@@ -31,8 +47,8 @@ export default function SummaryScreen() {
         <ThemedText type="caption" themeColor="textSecondary" style={styles.amount}>Valor</ThemedText>
       </View>
       {basic.fullDays || basic.sickDays || basic.unpaidDays ? <>
-        <View style={styles.row} accessible accessibilityLabel={`Salario básico: ${basic.fullDays} días pagos a ${formatCOP(basic.daily)}, ${formatCOP(basic.fullAmount)}`}>
-          <ThemedText type="smallBold" style={styles.concepto} numberOfLines={2}>Salario básico · {basic.fullDays} {basic.fullDays === 1 ? 'día' : 'días'} × {formatCOP(basic.daily)}</ThemedText>
+        <View style={styles.row} accessible accessibilityLabel={`Salario básico: ${basic.paidDays} días pagos a ${formatCOP(basic.daily)}, ${formatCOP(basic.fullAmount)}`}>
+          <ThemedText type="smallBold" style={styles.concepto} numberOfLines={2}>Salario básico · {basic.paidDays} {basic.paidDays === 1 ? 'día' : 'días'} × {formatCOP(basic.daily)}</ThemedText>
           <ThemedText type="small" style={styles.hours} />
           <ThemedText type="money" style={styles.amount}>{formatCOP(basic.fullAmount)}</ThemedText>
         </View>
@@ -59,6 +75,7 @@ export default function SummaryScreen() {
       </View>
     </Card>}
     {basic.amount || table.workedMinutes ? <Card title="Liquidación estimada">
+      {estimate.extraIncome ? <ValueRow label="Ingreso adicional" value={formatCOP(estimate.extraIncome)} /> : null}
       <ValueRow label="Devengado del periodo" value={formatCOP(estimate.gross)} />
       <ValueRow label="Salud (4 %)" value={formatCOP(estimate.health)} />
       <ValueRow label="Pensión (4 %)" value={formatCOP(estimate.pension)} />
@@ -71,6 +88,9 @@ export default function SummaryScreen() {
           : 'Fondo de solidaridad y retención calculados sobre el mes completo.'}
         {' '}Estimado — puede diferir de tu nómina oficial.
       </ThemedText>
+      <NumberField label="Bonificación u otro ingreso del periodo" value={extraDraft ?? (extraIncome ? String(extraIncome) : '')} onChange={setExtraDraft} placeholder="Solo pesos enteros; opcional" money />
+      {extraDraft !== null ? <Button label="Guardar ingreso adicional" variant="secondary" onPress={saveExtra} /> : null}
+      <ThemedText type="caption" themeColor="textSecondary">Suma al devengado completo: afecta salud, pensión, fondo de solidaridad y retención.</ThemedText>
     </Card> : null}
     {table.workedMinutes ? <ThemedText type="caption" themeColor="textSecondary">{formatMinutes(table.workedMinutes)} trabajados en el periodo.</ThemedText> : null}
     {incomplete ? <ThemedText type="caption" themeColor="textSecondary">Periodo incompleto: hay días sin registrar, los acumulados son parciales.</ThemedText> : null}
