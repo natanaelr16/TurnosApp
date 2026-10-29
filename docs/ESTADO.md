@@ -3,11 +3,11 @@
 > Memoria viva del proyecto. **Todo agente la lee al iniciar y la actualiza al terminar.**
 > Mantenerla corta (máx. ~60 líneas). El detalle histórico va en `BITACORA.md`.
 
-**Última actualización:** 2026-10-28 — app corriendo en iPhone real vía Expo Go;
-tabs con animación 'shift' direccional y PDFs con nombre descriptivo.
-**Fase actual:** Fase 3 — F0–F7 implementados; pulido visual en curso.
-**Git:** último commit `64683fc` (NativeTabs + TabSlide). Sin commit: suavizado
-de la animación de pestañas (28 px / 340 ms, D-035).
+**Última actualización:** 2026-10-28 — vista "Mes completo" en Resumen; FSP/retención
+siempre visibles con su umbral legal; PDF de liquidación corregido; tabs sin animación.
+**Fase actual:** Fase 3 — F0–F7 implementados; pulido tras prueba en iPhone real.
+**Git:** último commit `7d70a59`. Sin commit: vista de mes (D-036), umbrales FSP/
+retención en Resumen/PDF, PDF sin valores cortados, quitar TabSlide (D-035 revisada).
 
 ## Qué existe hoy
 - Motor puro de turnos/nómina validado con planilla real (D-013); auditoría previa en BITACORA.
@@ -40,23 +40,30 @@ de la animación de pestañas (28 px / 340 ms, D-035).
 - Respaldo restaurable (D-033): JSON embebido tras `%%EOF` (`lib/backup-file.ts`);
   restaura desde Ajustes → Datos **y desde el onboarding** ("Ya tengo un respaldo"),
   con confirmación y reemplazo total. Lógica compartida en `hooks/use-backup.ts`.
-- Navegación entre pestañas con animación direccional (D-035): `NativeTabs` (barra
-  "liquid" nativa) intacta + `components/tab-slide.tsx` desliza el contenido de cada
-  pestaña 28 px / 340 ms desde el lado del botón tocado (fundido mín. 55 %).
+- Pestañas (D-035): `NativeTabs` (barra "liquid") con cambio instantáneo como las apps
+  de Apple; se probaron y descartaron desliz y fundido (iOS cambia la vista antes que JS).
 - PDFs con nombre descriptivo (D-035): `TurnosApp-<Tipo>-<Mes>-<Año>-<Span>-<Completo|
   Parcial>.pdf` y `TurnosApp-Respaldo-<fecha>.pdf`.
+- Vista "Mes completo" en Resumen (D-036): segmento Quincena | Mes; el mes liquida 30
+  días de básico, auxilio completo, suma de bonificaciones y FSP/retención del mes.
+  FSP y retención siempre visibles, con IBC del mes vs 4 SMMLV y base gravable vs 95 UVT.
+- Liquidación (Resumen y PDF) con incapacidad en fila aparte del básico (D-036) y, en la
+  1ª quincena, proyección de FSP/retención de fin de mes con lo registrado.
 
 ## Verificación al cerrar
-- **123/123 pruebas (13 suites), tipos y lint en verde** tras tabs animadas y nombres de PDF.
+- **128/128 pruebas (13 suites), tipos y lint en verde**; incluye prueba que reproduce
+  la nómina real sep 16–30 (FSP $89.500, retención $215.000), PDF de mes completo,
+  incapacidad aparte y proyección de la 1ª quincena.
 - Metro LAN puerto 8083 activo (IP del Mac: 192.168.1.8); `npx expo login` hecho
   (cuenta expo.dev del usuario vía GitHub). App probada en iPhone real con Expo Go.
 
 ## En curso / siguiente sesión
-1. Confirmación visual del usuario en el iPhone real: animación de tabs, ciclo
-   exportar→restaurar completo, PDFs coloreados y nombres descriptivos.
-2. Permisos por horas (descartado por el usuario: no existen en su empresa);
-   limpieza de caché de PDFs.
-3. Fase 4: EAS build/TestFlight para app instalable (requiere Apple Developer).
+1. Confirmación del usuario en el iPhone: vista Mes con sus datos de octubre, umbrales
+   FSP/retención, PDF de mes completo sin cortes; ciclo exportar→restaurar.
+2. `/revision-legal` recomendada: cambió el tope de básico/fracción según duración del
+   periodo en `payroll.ts` (D-036).
+3. Limpieza de caché de PDFs. (Permisos por horas descartados: no existen en su empresa.)
+4. Fase 4: EAS build/TestFlight para app instalable (requiere Apple Developer).
 
 ## Decisiones pendientes con el usuario / bloqueos
 - Confirmación visual de F6/F7 completos y de los tres PDFs.

@@ -18,7 +18,8 @@ const KIND_NAME = { turnos: 'Turnos', liquidacion: 'Salario' };
 function fileName(data: AppData, period: PeriodRange, kind: ReportKind): string {
   const [y, m, d] = period.start.split('-').map(Number);
   const month = formatMonth(y, m).split(' ')[0];
-  const span = data.settings.payPeriod === 'quincenal' ? `Quincena-${d <= 15 ? '1' : '2'}` : 'Mes';
+  const spanDays = Number(period.end.slice(8, 10)) - d + 1;
+  const span = spanDays > 16 ? 'Mes' : `Quincena-${d <= 15 ? '1' : '2'}`;
   const partial = recordCoverage(data.shifts, data.novelties, period).missingDates.length ? 'Parcial' : 'Completo';
   return `TurnosApp-${KIND_NAME[kind]}-${month}-${y}-${span}-${partial}.pdf`;
 }

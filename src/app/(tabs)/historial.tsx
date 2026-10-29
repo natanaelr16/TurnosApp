@@ -11,7 +11,6 @@ import { computeShifts } from '@/domain/shift-calc';
 import type { PayPeriodType } from '@/domain/types';
 import { useAppData } from '@/hooks/use-app-data';
 import { usePeriodPdf } from '@/hooks/use-period-pdf';
-import { TabSlide } from '@/components/tab-slide';
 import { todayLocal } from '@/lib/format';
 
 export default function HistoryScreen() {
@@ -27,7 +26,7 @@ export default function HistoryScreen() {
     .sort((a, b) => recordDate(b).localeCompare(recordDate(a)) || b.value.id.localeCompare(a.value.id)), [all, period.start, period.end]);
   const items = useMemo(() => periodItems.filter((item) => recordDate(item).includes(search.trim())), [periodItems, search]);
   const resultById = useMemo(() => new Map(computeShifts(data.shifts, data.settings).map((result) => [result.shift.id, result])), [data.shifts, data.settings]);
-  return <TabSlide route="historial"><Screen title="Historial" subtitle="Tus turnos y novedades por periodo" scroll={false}>
+  return <Screen title="Historial" subtitle="Tus turnos y novedades por periodo" scroll={false}>
     <FlatList initialNumToRender={8} maxToRenderPerBatch={8} windowSize={7} data={items} keyExtractor={(item) => `${item.type}-${item.value.id}`} keyboardShouldPersistTaps="handled" style={{ flex: 1 }} contentContainerStyle={{ gap: 16, paddingBottom: 16 }}
       ListHeaderComponent={<View style={{ gap: 12 }}>
         <PeriodSelector period={period} type={type} onDateChange={(date) => { setAnchor(date); setSearch(''); }} onTypeChange={setType} />
@@ -39,5 +38,5 @@ export default function HistoryScreen() {
       </View>}
       renderItem={({ item }) => <RecordCard item={item} result={item.type === 'shift' ? resultById.get(item.value.id) : undefined} />}
       ListEmptyComponent={<EmptyState title="Sin registros en este periodo" message="Prueba otro periodo o ajusta la búsqueda." />} />
-  </Screen></TabSlide>;
+  </Screen>;
 }

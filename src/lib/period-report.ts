@@ -17,8 +17,11 @@ const BASE_CSS = `
   @page { margin: 22px; } body { font: 12px sans-serif; color: #111418; } h1 { font-size: 22px; } h2 { font-size: 16px; }
   table { width: 100%; border-collapse: collapse; } th, td { border: 1px solid #cbd5e1; padding: 7px; text-align: left; vertical-align: top; overflow-wrap: anywhere; }
   thead { display: table-header-group; } tr { break-inside: avoid; } .notice { padding: 12px; background: #f1f5f9; } p, li { white-space: pre-wrap; }
-  .badge { display: inline-block; border-radius: 6px; padding: 1px 7px; font-weight: 700; }
+  .badge { display: inline-block; border-radius: 6px; padding: 1px 7px; font-weight: 700; white-space: nowrap; }
+  .num { white-space: nowrap; overflow-wrap: normal; text-align: right; } b, td b { white-space: nowrap; }
 `;
+
+const isMonthSpan = (period: PeriodRange) => Number(period.end.slice(8, 10)) - Number(period.start.slice(8, 10)) + 1 > 16;
 
 const page = (title: string, body: string) => `<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'"><title>${escape(title)}</title><style>${BASE_CSS}</style></head><body>${body}</body></html>`;
 
@@ -39,7 +42,8 @@ const estimate = (data: AppData, period: PeriodRange) => {
   const results = periodResults(data, period);
   const ym = period.start.slice(0, 7);
   const monthExtra = (data.settings.extraIncome?.[`${ym}-01`] ?? 0) + (data.settings.extraIncome?.[`${ym}-16`] ?? 0);
-  return payEstimate(results, data.novelties, data.settings, period, data.settings.extraIncome?.[period.start] ?? 0, monthExtra);
+  const own = isMonthSpan(period) ? monthExtra : (data.settings.extraIncome?.[period.start] ?? 0);
+  return payEstimate(results, data.novelties, data.settings, period, own, monthExtra);
 };
 
 const yearWarning = (period: PeriodRange) =>
@@ -51,7 +55,7 @@ export function buildShiftsReport(data: AppData, period: PeriodRange): string {
   const accrued = accruedForPeriod(data.shifts, data.settings, period);
   const rows = periodResults(data, period).map((r) => {
     const kind = kindOf(Number(r.shift.start.slice(11, 13)));
-    return `<tr><td>${badge(kind)}<br>${escape(r.shift.start.slice(0, 10))}</td><td>${escape(r.shift.start.slice(11))} → ${escape(r.shift.end.slice(11))}</td><td>${escape(formatMinutes(r.totalMinutes))}</td><td>${escape(formatMinutes(r.extraMinutes))}</td><td style="color:${SURCHARGE_COLOR}">${escape(formatCOP(r.surchargeTotal))}</td><td style="color:${EXTRA_COLOR}">${escape(formatCOP(r.extraTotal))}</td><td>${(r.shift.fields ?? []).map((f) => `${escape(f.name)}: ${escape(f.value)}`).join('<br>')}${r.shift.note ? `<p>${escape(r.shift.note)}</p>` : ''}</td></tr>`;
+    return `<tr><td class="num">${badge(kind)}<br>${escape(r.shift.start.slice(0, 10))}</td><td class="num">${escape(r.shift.start.slice(11))} → ${escape(r.shift.end.slice(11))}</td><td class="num">${escape(formatMinutes(r.totalMinutes))}</td><td class="num">${escape(formatMinutes(r.extraMinutes))}</td><td class="num" style="color:${SURCHARGE_COLOR}">${escape(formatCOP(r.surchargeTotal))}</td><td class="num" style="color:${EXTRA_COLOR}">${escape(formatCOP(r.extraTotal))}</td><td>${(r.shift.fields ?? []).map((f) => `${escape(f.name)}: ${escape(f.value)}`).join('<br>')}${r.shift.note ? `<p>${escape(r.shift.note)}</p>` : ''}</td></tr>`;
   }).join('');
   const noveltyRows = data.novelties
     .filter((n) => n.date >= period.start && n.date <= period.end)
@@ -80,31 +84,40 @@ export function buildPayrollReport(data: AppData, period: PeriodRange): string {
   const isExtra = (category: string) => category.startsWith('extra');
   const factorRows = table.rows.filter((r) => r.hours > 0).map((r) => {
     const color = isExtra(r.category) ? EXTRA_COLOR : SURCHARGE_COLOR;
-    return `<tr><td>${escape(r.label)} <span style="color:${color}">(× ${escape(r.factor.toFixed(2))})</span></td><td>${escape(r.hours.toFixed(2))}</td><td style="color:${color}">${escape(formatCOP(r.amount))}</td></tr>`;
+    return `<tr><td>${escape(r.label)} <span style="color:${color};white-space:nowrap">(× ${escape(r.factor.toFixed(2))})</span></td><td class="num">${escape(r.hours.toFixed(2))}</td><td class="num" style="color:${color}">${escape(formatCOP(r.amount))}</td></tr>`;
   }).join('');
+  const lastFraction = isMonthSpan(period) || data.settings.payPeriod === 'mensual' || Number(period.start.slice(8, 10)) >= 16;
+  const money = (v: number) => `<td class="num">${escape(formatCOP(v))}</td>`;
+  const minus = (v: number) => `<td class="num">-${escape(formatCOP(v))}</td>`;
+  const tail = (v: number) => (lastFraction ? minus(v) : '<td class="num">2ª quincena</td>');
   return page('TurnosApp — liquidación estimada', `
     <h1>TurnosApp — liquidación estimada del periodo</h1><p>${escape(formatPeriod(period.start, period.end))}</p>
     <p class="notice">Valores informativos: la liquidación es una estimación y puede diferir de la nómina oficial.</p>
     <h2>Salario básico del periodo</h2>
     <p>Días pagos completos: ${escape(basic.paidDays)} × ${escape(formatCOP(basic.daily))} = <b>${escape(formatCOP(basic.fullAmount))}</b>${basic.sickDays ? `<br>Incapacidad: ${escape(basic.sickDays)} ${basic.sickDays === 1 ? 'día' : 'días'} al ${SICK_DAY_PCT} % del promedio (${escape(formatCOP(basic.sickDaily))}/día) = <b>${escape(formatCOP(basic.sickAmount))}</b>` : ''}${basic.unpaidDays ? `<br>Permiso no remunerado: ${escape(basic.unpaidDays)} ${basic.unpaidDays === 1 ? 'día' : 'días'} sin pago` : ''}</p>
-    <p>Básico del periodo: <b>${escape(formatCOP(basic.amount))}</b></p>
+    <p>Salario básico: <b>${escape(formatCOP(basic.fullAmount))}</b>${basic.sickDays ? ` · Incapacidad (aparte): <b>${escape(formatCOP(basic.sickAmount))}</b>` : ''}</p>
     <h2>Recargos y extras</h2>
     <table><thead><tr><th>Concepto (factor)</th><th>Horas</th><th>Valor</th></tr></thead>
     <tbody>${factorRows || '<tr><td colspan="3">Sin recargos ni extras en el periodo.</td></tr>'}
-      <tr><td><b>Total recargos + extras</b></td><td><b>${escape(formatMinutes(table.workedMinutes))} trabajadas</b></td><td><b>${escape(formatCOP(table.totalAmount))}</b></td></tr>
+      <tr><td><b>Total recargos + extras</b></td><td class="num"><b>${escape(formatMinutes(table.workedMinutes))}</b></td><td class="num"><b>${escape(formatCOP(table.totalAmount))}</b></td></tr>
     </tbody></table>
     <h2>Liquidación estimada</h2>
-    <table><thead><tr><th>Concepto</th><th>Valor</th></tr></thead><tbody>
-      <tr><td>Básico + recargos + extras</td><td>${escape(formatCOP(basic.amount + accrued.surcharges + accrued.extras))}</td></tr>
-      ${est.extraIncome ? `<tr><td>Ingreso adicional (bonificación)</td><td>${escape(formatCOP(est.extraIncome))}</td></tr>` : ''}
-      <tr><td>Devengado del periodo</td><td><b>${escape(formatCOP(est.gross))}</b></td></tr>
-      <tr><td>Salud (4 %)</td><td>-${escape(formatCOP(est.health))}</td></tr>
-      <tr><td>Pensión (4 %)</td><td>-${escape(formatCOP(est.pension))}</td></tr>
-      ${est.solidarityFund ? `<tr><td>Fondo de solidaridad</td><td>-${escape(formatCOP(est.solidarityFund))}</td></tr>` : ''}
-      ${est.withholding ? `<tr><td>Retención en la fuente</td><td>-${escape(formatCOP(est.withholding))}</td></tr>` : ''}
-      <tr><td><b>Neto estimado</b></td><td><b>${escape(formatCOP(est.net))}</b></td></tr>
+    <table><thead><tr><th>Concepto</th><th class="num">Valor</th></tr></thead><tbody>
+      <tr><td>Salario básico</td>${money(basic.fullAmount)}</tr>
+      ${basic.sickDays ? `<tr><td>Incapacidad (${escape(basic.sickDays)} ${basic.sickDays === 1 ? 'día' : 'días'} al ${SICK_DAY_PCT} % del promedio)</td>${money(basic.sickAmount)}</tr>` : ''}
+      <tr><td>Recargos + extras</td>${money(accrued.surcharges + accrued.extras)}</tr>
+      ${est.transportAllowance ? `<tr><td>Auxilio de transporte</td>${money(est.transportAllowance)}</tr>` : ''}
+      ${est.extraIncome ? `<tr><td>Ingreso adicional (bonificación)</td>${money(est.extraIncome)}</tr>` : ''}
+      <tr><td><b>Devengado del periodo</b></td><td class="num"><b>${escape(formatCOP(est.gross))}</b></td></tr>
+      <tr><td>Salud (4 %)</td>${minus(est.health)}</tr>
+      <tr><td>Pensión (4 %)</td>${minus(est.pension)}</tr>
+      <tr><td>Fondo de solidaridad</td>${tail(est.solidarityFund)}</tr>
+      <tr><td>Retención en la fuente</td>${tail(est.withholding)}</tr>
+      <tr><td><b>Neto estimado</b></td><td class="num"><b>${escape(formatCOP(est.net))}</b></td></tr>
     </tbody></table>
-    <p>Estimado, puede diferir de la nómina oficial. FSP y retención solo en la segunda quincena (o mes completo). Descansos y permisos remunerados pagan el día completo; incapacidad paga el ${SICK_DAY_PCT} % del promedio diario devengado; permiso no remunerado no paga.</p>
+    ${lastFraction ? '' : `<p>Proyección de fin de mes con lo registrado: fondo de solidaridad <b>${escape(formatCOP(est.monthSolidarityFund ?? 0))}</b> · retención en la fuente <b>${escape(formatCOP(est.monthWithholding ?? 0))}</b> (se descuentan en la segunda quincena).</p>`}
+    <p>IBC del mes: <b>${escape(formatCOP(est.monthBase ?? 0))}</b> — fondo de solidaridad desde ${escape(formatCOP(est.fspThreshold ?? 0))} (4 salarios mínimos). Base gravable: <b>${escape(Math.round(est.taxableUvt ?? 0))} UVT</b> — retención desde 95 UVT.</p>
+    <p>Estimado, puede diferir de la nómina oficial. Fondo de solidaridad y retención se liquidan en la segunda quincena (o en el mes completo) sobre el mes real, según la Ley 797 de 2003 y el Art. 383 del Estatuto Tributario. Descansos y permisos remunerados pagan el día completo; incapacidad paga el ${SICK_DAY_PCT} % del promedio diario devengado; permiso no remunerado no paga.</p>
     ${yearWarning(period)}
     <p>Conserva este documento con cuidado: contiene información laboral privada.</p>`);
 }

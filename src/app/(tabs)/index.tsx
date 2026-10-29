@@ -15,7 +15,6 @@ import { useAppData } from '@/hooks/use-app-data';
 import { useTheme } from '@/hooks/use-theme';
 import { CALENDAR_KINDS, calendarDays, calendarMarkers, type CalendarKind } from '@/lib/calendar';
 import { formatCOP, formatMinutes, formatMonth, formatMonthShort, formatShortDate, formatTime, todayLocal } from '@/lib/format';
-import { TabSlide } from '@/components/tab-slide';
 import { NOVELTY_LABELS } from '@/lib/record-form';
 
 export default function CalendarScreen() {
@@ -159,7 +158,7 @@ export default function CalendarScreen() {
     if (y === year && selectedMonth === m) { setAnchor(makeDate(y, m, 1)); setMode('month'); }
     else { setAnchor(makeDate(y, month, 1)); setSelectedMonth(m); }
   };
-  return <TabSlide route="index"><SafeAreaView edges={['top']} style={[styles.screen, { backgroundColor: theme.background }]}>
+  return <SafeAreaView edges={['top']} style={[styles.screen, { backgroundColor: theme.background }]}>
     <View style={styles.content}>
       <View style={styles.month}>
         <Pressable accessibilityRole="button" accessibilityLabel={mode === 'month' ? 'Mes anterior' : mode === 'year' ? 'Año anterior' : '12 años anteriores'} onPress={goPrev} style={styles.arrow}><ThemedText style={styles.chevron}>‹</ThemedText></Pressable>
@@ -207,7 +206,7 @@ export default function CalendarScreen() {
       </View>}
       </Animated.View>
     </View>
-  </SafeAreaView></TabSlide>;
+  </SafeAreaView>;
 }
 
 function MonthGrid({ year, month, markers, today, selected, onTapDay, onLongDay, width, height }: {

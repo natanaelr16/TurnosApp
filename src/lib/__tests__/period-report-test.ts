@@ -31,6 +31,28 @@ describe('PDF de liquidación estimada', () => {
   });
 });
 
+describe('PDF de liquidación de mes completo (D-036)', () => {
+  test('suma bonificaciones de ambas quincenas, muestra siempre FSP/retención y no parte los valores', () => {
+    const conBonos = { ...data, settings: { ...data.settings, extraIncome: { '2026-10-01': 100_000, '2026-10-16': 200_000 } } };
+    const html = buildPayrollReport(conBonos, { start: '2026-10-01', end: '2026-10-31' });
+    expect(html).toContain('300.000');
+    expect(html).toContain('Fondo de solidaridad');
+    expect(html).toContain('Retención en la fuente');
+    expect(html).toContain('class="num"');
+    expect(html).not.toContain('2ª quincena</td>');
+  });
+});
+
+describe('PDF de liquidación: incapacidad aparte y proyección', () => {
+  test('la incapacidad va en su propia fila, sin sumarse al básico, y la 1ª quincena proyecta FSP/retención', () => {
+    const conIncap = { ...data, novelties: [{ id: 'n1', date: '2026-10-05', kind: 'sick' as const }] };
+    const html = buildPayrollReport(conIncap, period);
+    expect(html).toContain('Incapacidad (1 día al 75 % del promedio)');
+    expect(html).toContain('Proyección de fin de mes');
+    expect(html).toContain('IBC del mes');
+  });
+});
+
 describe('PDF de respaldo', () => {
   test('portada distinta con instrucciones de restauración', () => {
     const html = buildBackupReport(data, '2026-10-28T12:00:00Z');

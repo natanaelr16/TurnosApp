@@ -5,6 +5,30 @@ Formato: fecha, objetivo, qué se hizo, verificación ejecutada, pendientes.
 
 ---
 
+## 2026-10-28 — Vista de mes completo, umbrales FSP/retención y PDF corregido (D-036)
+- **Objetivo:** el usuario cargó octubre completo y no veía retefuente ni fondo de
+  solidaridad en Resumen ni en el PDF; el PDF de mes mostraba valores cortados; pidió
+  liquidar el mes completo y una animación de pestañas con entrada y salida.
+- **Hecho:** `basicPayDetail`/`payEstimate` deducen tope (15/30 días) y fracción por
+  la duración del periodo: corrige que el cálculo mensual de FSP/retención topara el
+  básico en 15 días con pago quincenal. Resumen: segmento Quincena | Mes; FSP y
+  retención siempre visibles ("2ª quincena" o valor), con IBC del mes vs 4 SMMLV y
+  base gravable en UVT vs 95 (`taxableBaseUvt`, campos `monthBase`/`fspThreshold`/
+  `taxableUvt`). PDF de liquidación: celdas `.num` sin cortes, desglose completo,
+  bonificación de ambas quincenas en vista de mes, umbrales. Simulación de octubre
+  típico: ~$5,9M de IBC → FSP y retención $0 por ley. Pestañas: tras probar
+  Reanimated se explicó que `NativeTabs` no permite animar la salida; el usuario
+  eligió barra liquid sin animación → se eliminó `components/tab-slide.tsx`.
+- **Ajuste posterior:** el usuario pidió incapacidad aparte del básico y ver FSP/
+  retención calculados en la vista previa. Resumen y PDF muestran Salario básico,
+  Incapacidad, Recargos y extras, Auxilio, Ingreso adicional y Devengado en filas
+  separadas; `payEstimate` siempre calcula el mes (`monthSolidarityFund`/
+  `monthWithholding`): en la 1ª quincena es proyección con lo registrado (no se
+  descuenta), al final del mes es el descuento real.
+- **Verificación:** `npx tsc --noEmit` ✓ · `npx expo lint` ✓ · `npm test` 128/128 ✓
+  (nueva prueba con la nómina real sep 16–30: FSP 89.500 y retención 215.000).
+- **Pendientes:** confirmación del usuario con sus datos reales; `/revision-legal`.
+
 ## 2026-10-28 — iPhone real vía Expo Go, tabs animadas y nombres de PDF (D-035)
 - **Objetivo:** probar la app en el iPhone del usuario y ajustar diseño: transición
   animada entre pestañas y nombres de archivo claros en los PDF.
@@ -18,8 +42,8 @@ Formato: fecha, objetivo, qué se hizo, verificación ejecutada, pendientes.
 - **Verificación:** `npx tsc --noEmit` ✓ · `npx expo lint` ✓ · `npm test` 123/123 ✓.
 - **Ajuste posterior:** el usuario pidió conservar la barra nativa "liquid";
   se revirtió a `NativeTabs` y la animación direccional se movió al contenido con
-  `components/tab-slide.tsx` (desliza desde el lado del botón + fundido); tras la
-  prueba se suavizó a 28 px / 340 ms / fundido mínimo 55 % (parecía parpadeo).
+  `components/tab-slide.tsx`; tras dos iteraciones visuales quedó como desvanecido
+  puro (fade 260 ms + elevación 6 px) — el desliz lateral "cortaba" la pantalla.
   Verificación tras el ajuste: `tsc` ✓ · `lint` ✓ · 123/123 pruebas ✓.
 - **Pendientes:** confirmación visual de la animación y nombres en el iPhone;
   ciclo exportar→restaurar en dispositivo real; Fase 4 (EAS build).

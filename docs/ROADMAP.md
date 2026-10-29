@@ -61,7 +61,9 @@ Marcar `[x]` al completar. Cada fase termina con `/verificar` en verde y `ESTADO
 ## Fase 3.5 — Extras inspirados en la planilla real
 - [ ] Vacaciones y otras novedades (Descanso, Permiso e Incapacidad ya registrables en Fase 3; liquidación pendiente)
 - [ ] Permisos por horas (hoy novedades solo por jornada completa, D-019)
-- [ ] Vista "planilla" + cuadro "Detalle de liquidación" (concepto, factor, horas, valor) — cuadro en Resumen hecho (D-026); falta formato planilla/PDF
+- [x] Vista "planilla" + cuadro "Detalle de liquidación" (concepto, factor, horas, valor) — Resumen (D-026), PDF de turnos y de liquidación (D-034)
+- [x] Vista "Mes completo" en Resumen con FSP/retención del mes y umbrales legales visibles; PDF de mes completo (D-036)
+- [ ] `/revision-legal` del tope de básico/fracción por duración del periodo (D-036)
 
 ## Fase 3.6 — Respaldo en PDF (F7, D-014)
 - [x] Formato de respaldo versionado + validación (`src/domain/backup.ts`) — adelantado en Fase 2

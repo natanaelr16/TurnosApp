@@ -115,7 +115,9 @@ export function basicPayDetail(results: ShiftResult[], novelties: Novelty[], set
   }
   // El básico quincenal es fijo (salario/2 = 15 días); el día 31 de la segunda
   // quincena no añade día de básico, solo aporta sus recargos/extras (regla real).
-  const capDays = settings.payPeriod === 'quincenal' ? 15 : 30;
+  // El tope se deduce de la duración del periodo: una vista de mes completo topa en 30.
+  const spanDays = Number(period.end.slice(8, 10)) - Number(period.start.slice(8, 10)) + 1;
+  const capDays = spanDays > 16 || settings.payPeriod === 'mensual' ? 30 : 15;
   const paidDays = Math.min(fullDays, capDays);
   const fullAmount = Math.round(paidDays * dailyExact);
   const accrued = results
@@ -148,6 +150,14 @@ export interface PayEstimate {
   extraIncome: number;
   totalDeductions: number;
   net: number;
+  /** Solo al final del mes: IBC mensual y umbral del FSP (4 SMMLV) para explicar un FSP en $0. */
+  monthBase?: number;
+  fspThreshold?: number;
+  /** Base gravable mensual en UVT; la retención aplica por encima de 95 UVT. */
+  taxableUvt?: number;
+  /** FSP y retención del mes completo; en la 1ª quincena es proyección con lo registrado. */
+  monthSolidarityFund?: number;
+  monthWithholding?: number;
 }
 
 /** Liquidación estimada del periodo con las reglas de la nómina real del usuario (D-028/D-029):
@@ -161,7 +171,11 @@ export function payEstimate(results: ShiftResult[], novelties: Novelty[], settin
     .filter((r) => { const d = datePart(r.shift.start); return d >= period.start && d <= period.end; })
     .reduce((s, r) => s + r.surchargeTotal + r.extraTotal, 0);
   const { smmlv, uvt, transportAllowance: legalTransport } = yearlyParams(Number(period.start.slice(0, 4)));
-  const fraction = settings.payPeriod === 'quincenal' ? 0.5 : 1;
+  // La fracción se deduce del periodo mismo: así una vista de "mes completo" liquida
+  // el mes entero aunque el pago configurado sea quincenal (D-036).
+  const spanDays = Number(period.end.slice(8, 10)) - Number(period.start.slice(8, 10)) + 1;
+  const isMonthView = spanDays > 16 || settings.payPeriod === 'mensual';
+  const fraction = isMonthView ? 1 : 0.5;
   const transport = settings.transportAllowance.enabled
     ? Math.round((settings.transportAllowance.amount ?? legalTransport) * fraction)
     : 0;
@@ -171,10 +185,14 @@ export function payEstimate(results: ShiftResult[], novelties: Novelty[], settin
   const pension = round100((contributionBase * PENSION_PCT) / 100);
 
   // FSP y retención se descuentan al final del mes con el mes real completo (D-015).
-  const isLastFraction = settings.payPeriod === 'mensual' || Number(period.start.slice(8, 10)) >= 16;
+  const isLastFraction = isMonthView || Number(period.start.slice(8, 10)) >= 16;
   let solidarityFund = 0, withholding = 0;
-  if (isLastFraction) {
-    const month: PeriodRange = { start: `${period.start.slice(0, 7)}-01`, end: period.end };
+  let monthInfo: Pick<PayEstimate, 'monthBase' | 'fspThreshold' | 'taxableUvt' | 'monthSolidarityFund' | 'monthWithholding'> = {};
+  {
+    // Siempre se calcula el mes: al final del mes es el descuento real; en la primera
+    // quincena es una proyección con lo registrado del mes (informativa, no se descuenta).
+    const [py, pm] = period.start.split('-').map(Number);
+    const month: PeriodRange = { start: `${period.start.slice(0, 7)}-01`, end: isLastFraction ? period.end : makeDate(py, pm, daysInMonth(py, pm)) };
     const monthBasic = basicPayDetail(results, novelties, settings, month);
     const monthAccrued = results
       .filter((r) => { const d = datePart(r.shift.start); return d >= month.start && d <= month.end; })
@@ -184,16 +202,14 @@ export function payEstimate(results: ShiftResult[], novelties: Novelty[], settin
     const monthBase = Math.max(monthGross - monthTransport, smmlv);
     const monthHealth = round100((monthBase * HEALTH_PCT) / 100);
     const monthPension = round100((monthBase * PENSION_PCT) / 100);
-    solidarityFund = round100((monthBase * fspPercent(monthBase / smmlv, period.start)) / 100);
-    withholding = withholdingMonthly({
-      laborIncome: monthGross,
-      nonTaxable: monthHealth + monthPension + solidarityFund,
-      deductions: settings.monthlyDeductions ?? 0,
-      uvt,
-    });
+    const monthFsp = round100((monthBase * fspPercent(monthBase / smmlv, period.start)) / 100);
+    const wInput = { laborIncome: monthGross, nonTaxable: monthHealth + monthPension + monthFsp, deductions: settings.monthlyDeductions ?? 0, uvt };
+    const monthWithholding = withholdingMonthly(wInput);
+    if (isLastFraction) { solidarityFund = monthFsp; withholding = monthWithholding; }
+    monthInfo = { monthBase, fspThreshold: 4 * smmlv, taxableUvt: taxableBaseUvt(wInput), monthSolidarityFund: monthFsp, monthWithholding };
   }
   const totalDeductions = health + pension + solidarityFund + withholding;
-  return { basic, accruedAmount, transportAllowance: transport, gross, contributionBase, health, pension, solidarityFund, withholding, extraIncome, totalDeductions, net: gross - totalDeductions };
+  return { basic, accruedAmount, transportAllowance: transport, gross, contributionBase, health, pension, solidarityFund, withholding, extraIncome, totalDeductions, net: gross - totalDeductions, ...monthInfo };
 }
 
 export function periodFor(date: LocalDate, type: PayPeriodType): PeriodRange {
@@ -217,11 +233,16 @@ interface WithholdingInput {
 }
 
 /** Retención en la fuente mensual, procedimiento 1 — ESTIMADO (REGLAS_LEGALES §7, D-007). */
-export function withholdingMonthly({ laborIncome, nonTaxable, deductions, uvt }: WithholdingInput): number {
+export function taxableBaseUvt({ laborIncome, nonTaxable, deductions, uvt }: WithholdingInput): number {
   const subtotal = Math.max(0, laborIncome - nonTaxable);
   const exempt = Math.min(EXEMPT_INCOME_PCT * Math.max(0, subtotal - deductions), (EXEMPT_INCOME_CAP_UVT_YEAR / 12) * uvt);
   const benefits = Math.min(deductions + exempt, BENEFITS_CAP_PCT * subtotal, (BENEFITS_CAP_UVT_YEAR / 12) * uvt);
-  const baseUvt = (subtotal - benefits) / uvt;
+  return (subtotal - benefits) / uvt;
+}
+
+export function withholdingMonthly(input: WithholdingInput): number {
+  const { uvt } = input;
+  const baseUvt = taxableBaseUvt(input);
   const row = WITHHOLDING_TABLE.find(([from]) => baseUvt > from);
   if (!row) return 0;
   const [from, rate, fixed] = row;

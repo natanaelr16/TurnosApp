@@ -1,3 +1,4 @@
+import { fspPercent } from '@/domain/legal-params';
 import { basicPayDetail, computePeriod, liquidationTable, payEstimate, periodFor, withholdingMonthly } from '@/domain/payroll';
 import { computeShifts } from '@/domain/shift-calc';
 import type { Settings } from '@/domain/types';
@@ -250,6 +251,41 @@ describe('liquidación estimada del periodo (D-029, finiquito sep 1–15)', () =
     expect(con.health).toBeGreaterThan(sin.health);
     expect(con.pension).toBeGreaterThan(sin.pension);
     expect(con.net - sin.net).toBe(792_657 - (con.totalDeductions - sin.totalDeductions));
+  });
+
+  test('vista de mes completo con ajuste quincenal: básico 30 días, auxilio completo y FSP/retención (D-036)', () => {
+    const cfg: Settings = { ...quincena, baseSalary: 12_000_000, transportAllowance: { enabled: true, amount: 249_095 } };
+    const month = { start: '2026-09-01', end: '2026-09-30' };
+    const all = [...sept.map((r) => r.shift), ...Array.from({ length: 10 }, (_, i) => ({
+      id: `q${i}`, start: `2026-09-${16 + i}T06:00`, end: `2026-09-${16 + i}T18:00`,
+    }))];
+    const results = computeShifts(all, cfg);
+    const est = payEstimate(results, novelties, cfg, month);
+    expect(est.basic.paidDays).toBeGreaterThan(15); // tope 30, no 15
+    expect(est.transportAllowance).toBe(cfg.transportAllowance.amount); // mes completo, no mitad
+    expect(est.solidarityFund).toBeGreaterThan(0);
+    expect(est.withholding).toBeGreaterThan(0);
+  });
+
+  test('reproduce la nómina real sep 16–30: FSP 89.500 y retención 215.000 (Ley 797/2003, Art. 383 ET)', () => {
+    const ibc = 8_950_000; // IBC mensual implícito en el soporte real (FSP 1 % = 89.500)
+    expect(fspPercent(ibc / 1_750_905, '2026-09-30')).toBe(1);
+    const health = 358_000, pension = 358_000, fsp = 89_500;
+    expect(withholdingMonthly({ laborIncome: ibc, nonTaxable: health + pension + fsp, deductions: 0, uvt: 52_374 })).toBe(215_000);
+  });
+
+  test('1ª quincena: no descuenta FSP/retención pero los proyecta sobre el mes (D-036)', () => {
+    const cfg: Settings = { ...quincena, baseSalary: 12_000_000 };
+    const all = [...sept.map((r) => r.shift), ...Array.from({ length: 10 }, (_, i) => ({
+      id: `q${i}`, start: `2026-09-${16 + i}T06:00`, end: `2026-09-${16 + i}T18:00`,
+    }))];
+    const results = computeShifts(all, cfg);
+    const first = payEstimate(results, novelties, cfg, { start: '2026-09-01', end: '2026-09-15' });
+    const second = payEstimate(results, novelties, cfg, { start: '2026-09-16', end: '2026-09-30' });
+    expect(first.solidarityFund).toBe(0);
+    expect(first.withholding).toBe(0);
+    expect(first.monthSolidarityFund).toBe(second.solidarityFund);
+    expect(first.monthWithholding).toBe(second.withholding);
   });
 
   test('IBC mínimo de medio SMMLV en quincena con salario bajo', () => {

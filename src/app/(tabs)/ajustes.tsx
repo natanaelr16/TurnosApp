@@ -4,7 +4,6 @@ import { Alert, Keyboard } from 'react-native';
 
 import { SettingsFields } from '@/components/settings-fields';
 import { ThemedText } from '@/components/themed-text';
-import { TabSlide } from '@/components/tab-slide';
 import { Button, Card, Screen, ValueRow } from '@/components/ui';
 import { effectiveRates, factorTable } from '@/domain/shift-calc';
 import type { MinuteCategory } from '@/domain/types';
@@ -65,7 +64,7 @@ export default function SettingsScreen() {
     ]);
 
   return (
-    <TabSlide route="ajustes"><Screen title="Ajustes" subtitle="Tus condiciones salariales y laborales">
+    <Screen title="Ajustes" subtitle="Tus condiciones salariales y laborales">
       <ThemedText>Los cambios recalculan todo el historial con el salario actual. No modifican tu nómina oficial.</ThemedText>
       {(['salary', 'allowance', 'period', 'schedule', 'rates'] as const).map((section) => (
         <SettingsFields key={section} section={section} draft={draft} onChange={setDraft} errors={errors} date={today} disabled={saving} />
@@ -90,6 +89,6 @@ export default function SettingsScreen() {
         <Button label="Restaurar desde PDF" variant="secondary" disabled={saving || backupBusy} onPress={importBackup} />
         <Button label="Borrar todos mis datos" variant="danger" onPress={confirmReset} disabled={saving || backupBusy} />
       </Card>
-    </Screen></TabSlide>
+    </Screen>
   );
 }
