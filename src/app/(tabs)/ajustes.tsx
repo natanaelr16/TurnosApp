@@ -1,4 +1,6 @@
+import Constants from 'expo-constants';
 import { router } from 'expo-router';
+import * as WebBrowser from 'expo-web-browser';
 import { useRef, useState } from 'react';
 import { Alert, Keyboard } from 'react-native';
 
@@ -13,6 +15,8 @@ import { useAppData } from '@/hooks/use-app-data';
 import { useBackup } from '@/hooks/use-backup';
 import { formatCOP, formatFactor, todayLocal } from '@/lib/format';
 import { draftFromSettings, settingsFromDraft, validateSettingsDraft, type DraftErrors } from '@/lib/settings-form';
+
+const PRIVACY_URL = 'https://github.com/natanaelr16/TurnosApp/blob/main/docs/POLITICA_PRIVACIDAD.md';
 
 const FACTOR_LABELS: [MinuteCategory, string][] = [
   ['extraDay', 'Hora extra diurna'],
@@ -93,6 +97,11 @@ export default function SettingsScreen() {
         <Button label="Borrar todos mis datos" variant="danger" onPress={confirmReset} disabled={saving || backupBusy} />
       </Card>
       <BackupSecurityCard disabled={saving || backupBusy} />
+      <Card title="Información y legal">
+        <ThemedText type="caption" themeColor="textSecondary">Todos tus datos se quedan en este teléfono: la app no tiene cuentas, servidores ni analítica. Los valores son estimados informativos, no sustituyen tu nómina oficial.</ThemedText>
+        <Button label="Ver política de privacidad" variant="secondary" onPress={() => WebBrowser.openBrowserAsync(PRIVACY_URL)} />
+        <ValueRow label="Versión" value={Constants.expoConfig?.version ?? '—'} />
+      </Card>
       {prompt}
     </Screen>
   );
