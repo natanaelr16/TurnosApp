@@ -11,9 +11,7 @@ los cambios JS llegarán sin compilar (`eas update --channel production`).
 **Fase actual:** Fase 4 — esperando resultado de revisión; además: pegar URL de
 política en ASC, declaración de encriptación, build 3 (incluye fix PDFs + OTA +
 tarjeta legal), beta externo.
-**Git:** último commit `0235c2a` (local 2 commits adelante de origin — `git push`
-pendiente de permiso). Sin commit: `src/app/(tabs)/ajustes.tsx` (tarjeta legal) +
-docs de memoria.
+**Git:** último commit `21f5654`, `main` sincronizada con origin (push hecho).
 
 ## Qué existe hoy
 - Motor puro de turnos/nómina validado con planilla real (D-013); auditoría en BITACORA.
@@ -63,7 +61,7 @@ docs de memoria.
 ## Decisiones pendientes con el usuario / bloqueos
 - Respuesta a App Review enviada; esperando resultado.
 - EAS Update configurado (D-043); CI/CD con GitHub Actions: propuesto, decisión pendiente.
-- Repo GitHub **público** confirmado (D-044); `git push` de los commits locales pendiente de permiso.
+- Repo GitHub **público** confirmado (D-044) y sincronizado (`main` al día).
 - Restaurar reemplaza todos los datos (sin mezclar): confirmar que así lo quiere.
 
 ## Riesgos que retomar
