@@ -5,6 +5,30 @@ Formato: fecha, objetivo, qué se hizo, verificación ejecutada, pendientes.
 
 ---
 
+## 2026-10-30 — Apple pidió información (respuesta lista) + corrección de PDFs
+- **Objetivo:** responder la solicitud de información de App Review y corregir dos
+  errores de PDF reportados por el usuario en su iPhone.
+- **Hecho:** Apple respondió (no es rechazo técnico): la cuenta es nueva con
+  "historial de revisión limitado" y pide video del flujo en dispositivo físico,
+  propósito/público, instrucciones, servicios externos, diferencias regionales y
+  documentación regulada. Redactada la respuesta completa en inglés + español en
+  `docs/RESPUESTA_APPLE.md` (100 % local, sin servicios externos, sin login, sin
+  compras); falta el video del usuario y pegarla en ASC + campo Notes.
+  **Correcciones de PDF (D-042):** `buildPayrollReport` pasaba solo los turnos del
+  periodo a `payEstimate` → el IBC del mes quedaba subestimado y la retención salía
+  en $0 aunque el Resumen la descontara bien; ahora pasa todos los turnos (el motor
+  filtra internamente). Bonificación: en la 2ª quincena se agrega nota cuando la
+  bonificación fue registrada en la otra quincena (ya devengada, incluida en la base
+  mensual). `buildShiftsReport`: turnos y novedades en una sola lista ordenada por
+  fecha, tabla compacta (padding 3px, fuente 11px, badge junto a la fecha).
+- **Verificación:** `npm test` 138/138 (3 pruebas nuevas: orden cronológico,
+  retención de 2ª quincena con mes completo, nota de bonificación cruzada) ·
+  `npx tsc --noEmit` ✓ · `npx expo lint` ✓.
+- **Pendientes:** el usuario graba y sube el video → pegar link en RESPUESTA_APPLE
+  → responder en ASC y reenviar a revisión (mismo build 2). Verificación visual de
+  los PDFs corregidos en el iPhone. Siguen pendientes: URL pública de la política,
+  declaración de encriptación → build 3, beta externo.
+
 ## 2026-10-29 — App enviada a revisión de App Store + capturas mediana/calendario
 - **Objetivo:** completar la ficha de tienda y enviar la versión 1.0 a revisión.
 - **Hecho:** el submit del `.ipa` terminó OK tras reintento (submission 624d8d75);

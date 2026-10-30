@@ -41,3 +41,6 @@ example
 # generated native folders
 /ios
 /android
+
+# Borradores de trámites de tienda (no van al repo)
+docs/RESPUESTA_APPLE.md

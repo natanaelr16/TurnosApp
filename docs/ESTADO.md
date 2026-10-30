@@ -3,113 +3,76 @@
 > Memoria viva del proyecto. **Todo agente la lee al iniciar y la actualiza al terminar.**
 > Mantenerla corta (máx. ~60 líneas). El detalle histórico va en `BITACORA.md`.
 
-**Última actualización:** 2026-10-29 — **versión 1.0 enviada a revisión de Apple**
-(build 2 adjuntado vía API); el usuario ya prueba la app oficial por TestFlight
-interno en su iPhone.
-**Fase actual:** Fase 4 — en revisión de App Store; pendientes: política en URL
-pública, declaración de encriptación, build 3, beta externo para clientes.
-**Git:** último commit `20eea9e`. Sin commit: `assets/screenshots/04-calendario.png`
-y `assets/screenshots/mediana/` (4 capturas 1179×2556).
+**Última actualización:** 2026-10-30 — **Apple respondió a la revisión pidiendo
+información** (cuenta nueva, historial limitado; no es rechazo por bugs). Respuesta
+ya redactada en `docs/RESPUESTA_APPLE.md`; falta el video del usuario. PDFs de
+turnos y liquidación corregidos (D-042) tras prueba en iPhone.
+**Fase actual:** Fase 4 — en revisión de App Store con solicitud de información
+pendiente de responder; además: política en URL pública, declaración de
+encriptación, build 3, beta externo.
+**Git:** último commit `d792a8a`. Sin commit: `src/lib/period-report.ts`,
+`src/lib/__tests__/period-report-test.ts` (corrección PDFs), `docs/RESPUESTA_APPLE.md`.
 
 ## Qué existe hoy
-- Motor puro de turnos/nómina validado con planilla real (D-013); auditoría previa en BITACORA.
-- SQLite v2: settings, turnos/campos, plantillas, novedades; respaldo JSON formato 2 compatible con 1.
-- Onboarding de siete pasos y Ajustes editables (F0/F1); gestión de plantillas en Ajustes.
-- Calendario estilo iOS (D-020–D-024): swipe entre meses, scroll por años, selector de
-  bloques de 12, doble tap para abrir, zoom año↔mes y "genie" al abrir/cerrar un día,
-  colores de selección (azul) vs. actual (rojo); marcas D/N/L/V fijas en la esquina.
-  Pulsación larga abre popover animado con datos del turno/novedad, botón Abrir y
-  basurita animada con confirmación; eliminación también en `/detalle`.
-- Registro con chips de horarios programados (06–14, 14–21, 14–22, 21–06, 22–06),
-  plantillas Día/Noche y horario especial; "Dato adicional" nombre + valor;
-  háptico al guardar + etiqueta que vuela al calendario.
-- Ajuste global de formato de hora 12 h/24 h (`timeFormat`, D-025) en todos los relojes.
-- Consulta `/detalle` con editar/eliminar; Historial por periodo con búsqueda y PDF;
-  Resumen muestra el cuadro de liquidación del periodo (D-026) validado con la planilla real.
-- Básico prorrateado por día pago (D-027/D-028): salario/30; descansos y permisos
-  remunerados pagan día completo, incapacidad 75 % del promedio devengado, permiso
-  no remunerado 0; en Resumen y PDF.
-- Liquidación estimada (D-029): devengado, salud/pensión 4 % (a centenas), FSP/retención
-  solo en 2ª quincena sobre el mes real, neto estimado; en Resumen y PDF.
-- Ingreso adicional por periodo (D-030): bonificación variable guardada en ajustes;
-  suma al devengado completo (IBC y FSP/retención); en Resumen y PDF.
-- Tres PDFs distintos (`lib/period-report.ts`, D-033/D-034): respaldo (portada propia
-  con instrucciones + JSON incrustado, Ajustes → Datos), turnos (planilla con badges
-  de color del calendario D/N/L/V, Historial) y liquidación estimada (recargos índigo,
-  extras verde, Resumen).
-- Cierre/reapertura de periodo (D-032): `closedPeriods` en ajustes; bloquea crear/editar/
-  eliminar registros del periodo; botón en Resumen.
-- Respaldo cifrado opcional (D-038, **probado en iPhone real**): `domain/backup-crypto.ts` con clave maestra local +
-  wraps por contraseña y código de recuperación (AES-256-CBC + HMAC, crypto-es); opción
-  en onboarding y Ajustes (`components/backup-security.tsx`); importar pide secreto con
-  `components/secret-prompt.tsx`; la clave nunca sale en el PDF.
-- Respaldo restaurable (D-033): JSON embebido tras `%%EOF` (`lib/backup-file.ts`);
-  restaura desde Ajustes → Datos **y desde el onboarding** ("Ya tengo un respaldo"),
-  con confirmación y reemplazo total. Lógica compartida en `hooks/use-backup.ts`.
-- Pestañas (D-035): `NativeTabs` (barra "liquid") con cambio instantáneo como las apps
-  de Apple; se probaron y descartaron desliz y fundido (iOS cambia la vista antes que JS).
-- PDFs con nombre descriptivo (D-035): `TurnosApp-<Tipo>-<Mes>-<Año>-<Span>-<Completo|
-  Parcial>.pdf` y `TurnosApp-Respaldo-<fecha>.pdf`.
-- Vista "Mes completo" en Resumen (D-036): segmento Quincena | Mes; el mes liquida 30
-  días de básico, auxilio completo, suma de bonificaciones y FSP/retención del mes.
-  FSP y retención siempre visibles, con IBC del mes vs 4 SMMLV y base gravable vs 95 UVT.
-- Liquidación (Resumen y PDF) con incapacidad en fila aparte del básico (D-036) y, en la
-  1ª quincena, proyección de FSP/retención de fin de mes con lo registrado.
-- Fase 4 iniciada: ícono definitivo (calendario blanco + marcas D/N/L/V sobre azul,
-  también splash y adaptativos Android), `bundleIdentifier`/`package`
-  `com.natanaelr16.turnosapp`, buildNumber/versionCode 1, `privacyManifests`,
-  `ITSAppUsesNonExemptEncryption:true` (D-040; el build 2 salió con `false`),
-  `eas.json` (development/preview/production + `ascAppId` 6828459921),
-  `docs/POLITICA_PRIVACIDAD.md` lista para publicar.
-- Tienda: assets promocionales en las 5 dimensiones de Apple (`assets/images/promo-*`,
-  bandera de Colombia en esquina), **4 capturas** (historial, liquidación,
-  bienvenida, calendario) en 1320×2868 y 1179×2556 (`assets/screenshots/` +
-  `mediana/`); textos listos (subtítulo, descripción, promocional 168
-  car., keywords 99 car., copyright `© 2026 Natanaelr16`).
+- Motor puro de turnos/nómina validado con planilla real (D-013); auditoría en BITACORA.
+- SQLite v2 + respaldo JSON formato 2 (compatible con 1), restaurable desde PDF
+  (onboarding y Ajustes), con cifrado opcional AES-256 probado en iPhone real (D-038).
+- Onboarding de 7 pasos, Ajustes editables, gestión de plantillas.
+- Calendario estilo iOS completo (D-020–D-024): swipe, años, zoom genie, popover por
+  pulsación larga, eliminación animada; marcas D/N/L/V.
+- Registro con chips de horarios, plantillas Día/Noche, dato adicional nombre+valor,
+  háptico al guardar; formato de hora 12/24 global (D-025).
+- `/detalle` con editar/eliminar; Historial con búsqueda y PDF; Resumen con cuadro
+  de liquidación del periodo y vista "Mes completo" (D-026–D-036): básico por día
+  pago, incapacidad 75 %, deducciones, FSP/retención solo al final del mes sobre el
+  mes real, bonificación por periodo, cierre/reapertura de periodo.
+- Tres PDFs (`lib/period-report.ts`, D-033/D-034/**D-042**): respaldo (JSON
+  incrustado), turnos (**lista única cronológica, compacta, badges D/N/L/V**) y
+  liquidación (**FSP/retención con el mes completo; nota de bonificación de la otra
+  quincena**).
+- Pestañas `NativeTabs` con cambio instantáneo; PDFs con nombre descriptivo.
+- Ícono/splash definitivos, `com.natanaelr16.turnosapp`, `privacyManifests`,
+  `ITSAppUsesNonExemptEncryption:true` (el build 2 salió con `false`), `eas.json`
+  con `ascAppId` 6828459921; política lista en `docs/POLITICA_PRIVACIDAD.md`.
+- Tienda: ficha completa, assets promo, 4 capturas en 1320×2868 y 1179×2556;
+  versión 1.0 enviada a revisión (build 2).
 
 ## Verificación al cerrar
-- **135/135 pruebas (14 suites), tipos y lint en verde**; incluye prueba que reproduce
-  la nómina real sep 16–30 (FSP $89.500, retención $215.000), PDF de mes completo,
-  incapacidad aparte y proyección de la 1ª quincena.
-- Metro LAN puerto 8083 activo (IP del Mac: 192.168.1.8); `npx expo login` hecho
-  (cuenta expo.dev del usuario vía GitHub). App probada en iPhone real con Expo Go.
+- **138/138 pruebas (14 suites), tipos y lint en verde**; incluye orden cronológico
+  del PDF de turnos, retención de 2ª quincena con mes completo y nota de
+  bonificación cruzada.
+- Metro LAN puerto 8083; sesión expo.dev activa; app probada en iPhone real.
 
 ## En curso / siguiente sesión
-1. **Esperar revisión de Apple** (24-48 h típicas). Versión 1.0 enviada con build 2
-   adjuntado vía API (`relationships/build`); capturas mediana 1179×2556 subidas.
-   El usuario ya prueba la app oficial en su iPhone vía TestFlight interno.
-2. **Migrar datos Expo Go → app oficial** con PDF de respaldo (el usuario lo hace).
-3. **Declaración de encriptación (D-040):** responder en ASC "usa encriptación →
-   solo algoritmos estándar"; Apple da código → `ITSEncryptionExportComplianceCode`
-   en `app.json` y compilar **build 3** (el 2 tiene el flag en `false`; salió a
-   revisión así — si Apple pide algo, se corrige con build 3).
-4. Publicar `POLITICA_PRIVACIDAD.md` en URL pública — confirmar si el repo es
-   público (raw GitHub) o publicar en GitHub Pages; enlazarla en Ajustes.
-5. Beta externo para clientes: grupo externo en TestFlight + link público;
-   requiere revisión beta de Apple y respuestas de cumplimiento; los builds caducan
-   a 90 días, lo que obliga la migración a la App Store (D-041). Preparar
-   instrucciones cortas para clientes (instalar TestFlight, restaurar PDF).
-6. `/revision-legal` recomendada (D-036). Limpieza de caché de PDFs.
+1. **Responder a Apple:** el usuario graba video del flujo en su iPhone (ícono →
+   calendario → registrar → detalle → historial → resumen → PDF → ajustes, ~60-90 s),
+   lo sube (YouTube no listado/iCloud) → pegar link en `docs/RESPUESTA_APPLE.md` →
+   responder en ASC y copiar en el campo Notes → reenviar a revisión con el build 2.
+2. **Verificación visual de los PDFs corregidos** en el iPhone (retención,
+   bonificación, planilla compacta cronológica).
+3. Migrar datos Expo Go → app oficial con PDF de respaldo (el usuario lo hace).
+4. Declaración de encriptación (D-040): "solo algoritmos estándar" → código →
+   `ITSEncryptionExportComplianceCode` en `app.json` → **build 3**.
+5. Publicar `POLITICA_PRIVACIDAD.md` en URL pública (¿repo público o GitHub Pages?)
+   y enlazarla en Ajustes.
+6. Beta externo para clientes (D-041): grupo TestFlight + link público +
+   instrucciones; los builds caducan a 90 días.
+7. `/revision-legal` recomendada (D-036). Limpieza de caché de PDFs.
 
 ## Decisiones pendientes con el usuario / bloqueos
-- ~~App oficial~~ → **en revisión de App Store** (v1.0, build 2). EAS Update y
-  CI/CD con GitHub Actions propuestos (OTA para cambios JS sin revisión; builds
-  automáticos por push) — decisión del usuario pendiente, se activa post-lanzamiento.
-- Falta confirmar: ¿repo GitHub público o privado? (afecta URL soporte y política).
-- FSP/retención en $0 en octubre es por ley (IBC ~$5,9M < 4 SMMLV; base < 95 UVT);
-  el usuario lo sabe; la app muestra los umbrales.
-- Confirmación visual de F6/F7 completos y de los tres PDFs.
-- Restaurar **reemplaza** todos los datos (sin mezclar); verificar que así lo quiere.
+- Respuesta a App Review: solo falta el video (el usuario lo graba).
+- EAS Update + CI/CD con GitHub Actions: propuestos, decisión post-lanzamiento.
+- Confirmar: ¿repo GitHub público o privado? (URL soporte y política).
+- Restaurar reemplaza todos los datos (sin mezclar): confirmar que así lo quiere.
 
 ## Riesgos que retomar
-- npm audit al 2026-10-29: **3 high** restantes (deepmerge vía @expo/config/jest-config,
-  zod vía expo CLI) — son deps de desarrollo, no van en la app; `node-forge` ya se corrigió.
-  Solo se resuelven con `--force` que baja a Expo 51: no aplicar; auditoría dedicada pendiente.
-- Revisar limpieza de caché de PDFs privados al borrar datos; PDF actual no sustituye respaldo F7.
-- Provider recarga toda BD; faltan pruebas de interacción y fronteras legales sugeridas en BITACORA.
-- Capturas negras: revisión visual del usuario; verificar padding inferior en iPhone real.
+- npm audit: 3 high en deps de desarrollo (deepmerge, zod vía Expo CLI); no van en
+  la app; `--force` bajaría a Expo 51 → no aplicar; auditoría dedicada pendiente.
+- Limpieza de caché de PDFs privados al borrar datos; provider recarga toda la BD.
+- Revisión visual del usuario de los PDFs corregidos (D-042).
 
 ## Recordatorios
-- No reintroducir CTA de registro en Historial/Resumen ni listas de días faltantes (D-020).
-- Novedades por fecha de inicio (D-019): noche 25→26 y descanso 26 permitido; no inferir descansos.
-- Salud/pensión 4 % sobre devengado total; FSP/retención solo en segunda quincena (docs empresa).
+- No reintroducir CTA de registro en Historial/Resumen ni listas de días faltantes.
+- Novedades por fecha de inicio (D-019); no inferir descansos.
+- Salud/pensión 4 % sobre devengado; FSP/retención solo al final del mes sobre el
+  mes real (el PDF ya no los calcula con medio mes — D-042).

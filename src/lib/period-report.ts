@@ -17,6 +17,7 @@ const BASE_CSS = `
   @page { margin: 22px; } body { font: 12px sans-serif; color: #111418; } h1 { font-size: 22px; } h2 { font-size: 16px; }
   table { width: 100%; border-collapse: collapse; } th, td { border: 1px solid #cbd5e1; padding: 7px; text-align: left; vertical-align: top; overflow-wrap: anywhere; }
   thead { display: table-header-group; } tr { break-inside: avoid; } .notice { padding: 12px; background: #f1f5f9; } p, li { white-space: pre-wrap; }
+  table.compact th, table.compact td { padding: 3px 6px; font-size: 11px; }
   .badge { display: inline-block; border-radius: 6px; padding: 1px 7px; font-weight: 700; white-space: nowrap; }
   .num { white-space: nowrap; overflow-wrap: normal; text-align: right; } b, td b { white-space: nowrap; }
 `;
@@ -38,10 +39,17 @@ const periodResults = (data: AppData, period: PeriodRange) =>
     return d >= period.start && d <= period.end;
   });
 
-const estimate = (data: AppData, period: PeriodRange) => {
-  const results = periodResults(data, period);
+// La liquidación de FSP/retención se hace sobre el mes completo: `payEstimate`
+// necesita TODOS los turnos (filtra internamente por periodo y por mes). Pasarle
+// solo los del periodo subestima el IBC del mes y deja la retención en $0.
+const monthExtraIncome = (data: AppData, period: PeriodRange) => {
   const ym = period.start.slice(0, 7);
-  const monthExtra = (data.settings.extraIncome?.[`${ym}-01`] ?? 0) + (data.settings.extraIncome?.[`${ym}-16`] ?? 0);
+  return (data.settings.extraIncome?.[`${ym}-01`] ?? 0) + (data.settings.extraIncome?.[`${ym}-16`] ?? 0);
+};
+
+const estimate = (data: AppData, period: PeriodRange) => {
+  const results = computeShifts(data.shifts, data.settings);
+  const monthExtra = monthExtraIncome(data, period);
   const own = isMonthSpan(period) ? monthExtra : (data.settings.extraIncome?.[period.start] ?? 0);
   return payEstimate(results, data.novelties, data.settings, period, own, monthExtra);
 };
@@ -53,13 +61,18 @@ const yearWarning = (period: PeriodRange) =>
 export function buildShiftsReport(data: AppData, period: PeriodRange): string {
   const coverage = recordCoverage(data.shifts, data.novelties, period);
   const accrued = accruedForPeriod(data.shifts, data.settings, period);
-  const rows = periodResults(data, period).map((r) => {
-    const kind = kindOf(Number(r.shift.start.slice(11, 13)));
-    return `<tr><td class="num">${badge(kind)}<br>${escape(r.shift.start.slice(0, 10))}</td><td class="num">${escape(r.shift.start.slice(11))} → ${escape(r.shift.end.slice(11))}</td><td class="num">${escape(formatMinutes(r.totalMinutes))}</td><td class="num">${escape(formatMinutes(r.extraMinutes))}</td><td class="num" style="color:${SURCHARGE_COLOR}">${escape(formatCOP(r.surchargeTotal))}</td><td class="num" style="color:${EXTRA_COLOR}">${escape(formatCOP(r.extraTotal))}</td><td>${(r.shift.fields ?? []).map((f) => `${escape(f.name)}: ${escape(f.value)}`).join('<br>')}${r.shift.note ? `<p>${escape(r.shift.note)}</p>` : ''}</td></tr>`;
-  }).join('');
+  // Turnos y novedades van en una sola lista ordenada por fecha (compacta).
+  const shiftRows = periodResults(data, period).map((r) => ({
+    date: r.shift.start.slice(0, 10),
+    html: `<tr><td class="num">${badge(kindOf(Number(r.shift.start.slice(11, 13))))} ${escape(r.shift.start.slice(0, 10))}</td><td class="num">${escape(r.shift.start.slice(11))} → ${escape(r.shift.end.slice(11))}</td><td class="num">${escape(formatMinutes(r.totalMinutes))}</td><td class="num">${escape(formatMinutes(r.extraMinutes))}</td><td class="num" style="color:${SURCHARGE_COLOR}">${escape(formatCOP(r.surchargeTotal))}</td><td class="num" style="color:${EXTRA_COLOR}">${escape(formatCOP(r.extraTotal))}</td><td>${(r.shift.fields ?? []).map((f) => `${escape(f.name)}: ${escape(f.value)}`).join('<br>')}${r.shift.note ? `<p>${escape(r.shift.note)}</p>` : ''}</td></tr>`,
+  }));
   const noveltyRows = data.novelties
     .filter((n) => n.date >= period.start && n.date <= period.end)
-    .map((n) => `<tr><td>${badge(n.kind === 'rest' ? 'rest' : 'novelty')}<br>${escape(n.date)}</td><td colspan="2">${escape(NOVELTY_LABELS[n.kind])}</td><td colspan="4">${n.note ? escape(n.note) : ''}</td></tr>`).join('');
+    .map((n) => ({
+      date: n.date,
+      html: `<tr><td class="num">${badge(n.kind === 'rest' ? 'rest' : 'novelty')} ${escape(n.date)}</td><td colspan="6">${escape(NOVELTY_LABELS[n.kind])}${n.note ? ` — ${escape(n.note)}` : ''}</td></tr>`,
+    }));
+  const rows = [...shiftRows, ...noveltyRows].sort((a, b) => a.date.localeCompare(b.date)).map((r) => r.html).join('');
   const legend = Object.entries(CALENDAR_KINDS).map(([key, p]) => `<span class="badge" style="background:${p.background};color:${p.text}">${p.mark}</span> ${escape(p.label)}`).join(' · ');
   return page('TurnosApp — planilla de turnos', `
     <h1>TurnosApp — planilla de turnos</h1><p>${escape(formatPeriod(period.start, period.end))}</p>
@@ -68,15 +81,15 @@ export function buildShiftsReport(data: AppData, period: PeriodRange): string {
     <h2>Acumulado del periodo</h2>
     <p>Horas trabajadas: <b>${escape(formatMinutes(accrued.totalMinutes))}</b> · Horas extra: <b>${escape(formatMinutes(accrued.extraMinutes))}</b></p>
     <p>Recargos: <b style="color:${SURCHARGE_COLOR}">${escape(formatCOP(accrued.surcharges))}</b> · Extras: <b style="color:${EXTRA_COLOR}">${escape(formatCOP(accrued.extras))}</b></p>
-    <table><thead><tr><th>Día / tipo</th><th>Entrada → salida</th><th>Horas</th><th>H. extra</th><th>Recargos</th><th>Extras</th><th>Datos opcionales</th></tr></thead>
-    <tbody>${rows}${noveltyRows}${rows || noveltyRows ? '' : '<tr><td colspan="7">Sin registros en el periodo.</td></tr>'}</tbody></table>
+    <table class="compact"><thead><tr><th>Día / tipo</th><th>Entrada → salida</th><th>Horas</th><th>H. extra</th><th>Recargos</th><th>Extras</th><th>Datos opcionales</th></tr></thead>
+    <tbody>${rows || '<tr><td colspan="7">Sin registros en el periodo.</td></tr>'}</tbody></table>
     ${yearWarning(period)}
     <p>Los datos adicionales no afectan los cálculos. Conserva este documento con cuidado: contiene información laboral privada.</p>`);
 }
 
 /** PDF de liquidación salarial estimada: recargos en índigo y extras en verde, como en la app. */
 export function buildPayrollReport(data: AppData, period: PeriodRange): string {
-  const results = periodResults(data, period);
+  const results = computeShifts(data.shifts, data.settings);
   const basic = basicPayDetail(results, data.novelties, data.settings, period);
   const accrued = accruedForPeriod(data.shifts, data.settings, period);
   const table = liquidationTable(results, data.settings, period);
@@ -86,7 +99,12 @@ export function buildPayrollReport(data: AppData, period: PeriodRange): string {
     const color = isExtra(r.category) ? EXTRA_COLOR : SURCHARGE_COLOR;
     return `<tr><td>${escape(r.label)} <span style="color:${color};white-space:nowrap">(× ${escape(r.factor.toFixed(2))})</span></td><td class="num">${escape(r.hours.toFixed(2))}</td><td class="num" style="color:${color}">${escape(formatCOP(r.amount))}</td></tr>`;
   }).join('');
-  const lastFraction = isMonthSpan(period) || data.settings.payPeriod === 'mensual' || Number(period.start.slice(8, 10)) >= 16;
+  const monthSpan = isMonthSpan(period);
+  const lastFraction = monthSpan || data.settings.payPeriod === 'mensual' || Number(period.start.slice(8, 10)) >= 16;
+  // Bonificación registrada en la otra quincena: no se devenga aquí, pero sí está
+  // incluida en la base mensual de FSP y retención.
+  const ownExtra = data.settings.extraIncome?.[period.start] ?? 0;
+  const otherExtra = !monthSpan && lastFraction ? monthExtraIncome(data, period) - ownExtra : 0;
   const money = (v: number) => `<td class="num">${escape(formatCOP(v))}</td>`;
   const minus = (v: number) => `<td class="num">-${escape(formatCOP(v))}</td>`;
   const tail = (v: number) => (lastFraction ? minus(v) : '<td class="num">2ª quincena</td>');
@@ -115,6 +133,7 @@ export function buildPayrollReport(data: AppData, period: PeriodRange): string {
       <tr><td>Retención en la fuente</td>${tail(est.withholding)}</tr>
       <tr><td><b>Neto estimado</b></td><td class="num"><b>${escape(formatCOP(est.net))}</b></td></tr>
     </tbody></table>
+    ${otherExtra > 0 ? `<p>Bonificación de la otra quincena: <b>${escape(formatCOP(otherExtra))}</b> — ya se devengó en su quincena; aquí se incluye solo en la base mensual del fondo de solidaridad y la retención.</p>` : ''}
     ${lastFraction ? '' : `<p>Proyección de fin de mes con lo registrado: fondo de solidaridad <b>${escape(formatCOP(est.monthSolidarityFund ?? 0))}</b> · retención en la fuente <b>${escape(formatCOP(est.monthWithholding ?? 0))}</b> (se descuentan en la segunda quincena).</p>`}
     <p>IBC del mes: <b>${escape(formatCOP(est.monthBase ?? 0))}</b> — fondo de solidaridad desde ${escape(formatCOP(est.fspThreshold ?? 0))} (4 salarios mínimos). Base gravable: <b>${escape(Math.round(est.taxableUvt ?? 0))} UVT</b> — retención desde 95 UVT.</p>
     <p>Estimado, puede diferir de la nómina oficial. Fondo de solidaridad y retención se liquidan en la segunda quincena (o en el mes completo) sobre el mes real, según la Ley 797 de 2003 y el Art. 383 del Estatuto Tributario. Descansos y permisos remunerados pagan el día completo; incapacidad paga el ${SICK_DAY_PCT} % del promedio diario devengado; permiso no remunerado no paga.</p>
