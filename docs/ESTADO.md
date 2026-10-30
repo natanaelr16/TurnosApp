@@ -3,17 +3,17 @@
 > Memoria viva del proyecto. **Todo agente la lee al iniciar y la actualiza al terminar.**
 > Mantenerla corta (máx. ~60 líneas). El detalle histórico va en `BITACORA.md`.
 
-**Última actualización:** 2026-10-30 — **Apple respondió a la revisión pidiendo
-información** (cuenta nueva, historial limitado; no es rechazo por bugs). Respuesta
-ya redactada en `docs/RESPUESTA_APPLE.md` (**local, ignorada por git**); falta el
-video del usuario. PDFs corregidos (D-042, commit `0983a9b`). **EAS Update (OTA)
-configurado (D-043)**: el build 3 saldrá con canal OTA — los cambios JS llegarán
-sin compilar (`eas update --channel production`).
-**Fase actual:** Fase 4 — revisión de App Store con solicitud de información
-pendiente de responder; además: política en URL pública, declaración de
-encriptación, build 3 (incluye fix de PDFs + OTA), beta externo.
-**Git:** último commit `0983a9b`. Sin commit: `app.json`, `eas.json`,
-`package.json`, `package-lock.json` (config EAS Update) + docs de memoria.
+**Última actualización:** 2026-10-30 — **respuesta ya enviada a Apple** (la
+versión quedó "Rechazado" a la espera de que procesen la respuesta — flujo normal).
+Política publicada en GitHub público y enlazada en Ajustes (D-044). PDFs corregidos
+(D-042) y **EAS Update configurado (D-043)**: el build 3 saldrá con canal OTA —
+los cambios JS llegarán sin compilar (`eas update --channel production`).
+**Fase actual:** Fase 4 — esperando resultado de revisión; además: pegar URL de
+política en ASC, declaración de encriptación, build 3 (incluye fix PDFs + OTA +
+tarjeta legal), beta externo.
+**Git:** último commit `0235c2a` (local 2 commits adelante de origin — `git push`
+pendiente de permiso). Sin commit: `src/app/(tabs)/ajustes.tsx` (tarjeta legal) +
+docs de memoria.
 
 ## Qué existe hoy
 - Motor puro de turnos/nómina validado con planilla real (D-013); auditoría en BITACORA.
@@ -46,26 +46,24 @@ encriptación, build 3 (incluye fix de PDFs + OTA), beta externo.
 - Metro LAN puerto 8083; sesión expo.dev activa; app probada en iPhone real.
 
 ## En curso / siguiente sesión
-1. **Responder a Apple:** el usuario graba video del flujo en su iPhone (ícono →
-   calendario → registrar → detalle → historial → resumen → PDF → ajustes, ~60-90 s),
-   lo sube (YouTube no listado/iCloud) → pegar link en `docs/RESPUESTA_APPLE.md` →
-   responder en ASC y copiar en el campo Notes → reenviar a revisión con el build 2.
-2. **Verificación visual de los PDFs corregidos** en el iPhone (retención,
-   bonificación, planilla compacta cronológica).
-3. Migrar datos Expo Go → app oficial con PDF de respaldo (el usuario lo hace).
-4. Declaración de encriptación (D-040): "solo algoritmos estándar" → código →
-   `ITSEncryptionExportComplianceCode` en `app.json` → **build 3** (ya incluye fix
-   de PDFs D-042 y canal OTA D-043).
-5. Publicar `POLITICA_PRIVACIDAD.md` en URL pública (¿repo público o GitHub Pages?)
-   y enlazarla en Ajustes.
+1. **Esperar resultado de la revisión** (respuesta enviada 2026-10-30; si Apple
+   pide algo más o aprueba, llega por correo).
+2. **Pegar la URL de política** `github.com/natanaelr16/TurnosApp/blob/main/docs/
+   POLITICA_PRIVACIDAD.md` en la ficha de ASC (y como URL de soporte).
+3. **Verificación visual de los PDFs corregidos** en el iPhone (retención,
+   bonificación, planilla compacta cronológica) y de la tarjeta "Información y legal".
+4. Migrar datos Expo Go → app oficial con PDF de respaldo (el usuario lo hace).
+5. Declaración de encriptación (D-040): "solo algoritmos estándar" → código →
+   `ITSEncryptionExportComplianceCode` en `app.json` → **build 3** (incluye fix
+   PDFs D-042, OTA D-043 y tarjeta legal D-044).
 6. Beta externo para clientes (D-041): grupo TestFlight + link público +
    instrucciones; los builds caducan a 90 días.
 7. `/revision-legal` recomendada (D-036). Limpieza de caché de PDFs.
 
 ## Decisiones pendientes con el usuario / bloqueos
-- Respuesta a App Review: solo falta el video (el usuario lo graba).
+- Respuesta a App Review enviada; esperando resultado.
 - EAS Update configurado (D-043); CI/CD con GitHub Actions: propuesto, decisión pendiente.
-- Confirmar: ¿repo GitHub público o privado? (URL soporte y política).
+- Repo GitHub **público** confirmado (D-044); `git push` de los commits locales pendiente de permiso.
 - Restaurar reemplaza todos los datos (sin mezclar): confirmar que así lo quiere.
 
 ## Riesgos que retomar

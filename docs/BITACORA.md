@@ -5,6 +5,21 @@ Formato: fecha, objetivo, qué se hizo, verificación ejecutada, pendientes.
 
 ---
 
+## 2026-10-30 — Respuesta enviada a Apple + política en URL pública y enlazada en la app
+- **Objetivo:** responder la solicitud de App Review y resolver la URL pública de la
+  política de privacidad.
+- **Hecho:** el usuario envió la respuesta a Apple en ASC (la versión quedó
+  "Rechazado" a la espera de que Apple procese la respuesta — flujo normal, hay que
+  esperar el correo). Repo confirmado **público** (D-044): la política ya se sirve
+  en `github.com/natanaelr16/TurnosApp/blob/main/docs/POLITICA_PRIVACIDAD.md`
+  (verificada HTTP 200); esa misma URL va en la ficha de ASC y como soporte. En la
+  app: tarjeta "Información y legal" en Ajustes con aviso de datos locales, botón
+  "Ver política de privacidad" (`expo-web-browser`) y versión (`expo-constants`).
+- **Verificación:** `npx tsc --noEmit` ✓ · `npx expo lint` ✓ · URL pública 200.
+- **Pendientes:** resultado de la revisión; pegar la URL de política en ASC; build 3
+  (flag encriptación + PDFs corregidos + OTA); `git push` (local va 2+ commits
+  adelante); beta externo.
+
 ## 2026-10-30 — EAS Update (OTA) configurado + prueba en simulador
 - **Objetivo:** probar la app en simulador y resolver cómo llevar cambios a la app
   compilada sin compilar de nuevo.
