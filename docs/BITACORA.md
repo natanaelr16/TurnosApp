@@ -5,6 +5,25 @@ Formato: fecha, objetivo, qué se hizo, verificación ejecutada, pendientes.
 
 ---
 
+## 2026-10-29 — App enviada a revisión de App Store + capturas mediana/calendario
+- **Objetivo:** completar la ficha de tienda y enviar la versión 1.0 a revisión.
+- **Hecho:** el submit del `.ipa` terminó OK tras reintento (submission 624d8d75);
+  build 2 quedó VALID en TestFlight. Se **adjuntó el build a la versión 1.0 vía
+  ASC API** (`PATCH .../relationships/build`, 204) porque en la web no aparecía el
+  selector. Generadas las 4 capturas en **1179×2556** (Dynamic Island mediana — el
+  1290×2796 fue rechazado por dimensiones) y la captura del calendario (simulador
+  con bypass temporal de una línea en `RootNavigator`, ya revertido). El usuario
+  llenó los obligatorios (contacto, derechos, privacidad, precio, categoría,
+  edades) y **envió la 1.0 a revisión**. Ya prueba la app oficial en su iPhone
+  por TestFlight interno. Consulta del usuario: testers externos caducan a los
+  90 días → obliga migración a la App Store (D-041); propuesto EAS Update + CI/CD
+  GitHub (pendiente de decisión).
+- **Verificación:** estado de versión y build adjunto confirmados por API; error
+  de "selecciona una versión" resuelto; "Añadir a revisión" aceptado por Apple.
+- **Pendientes:** correo de resultado de revisión; URL pública de la política;
+  declaración de encriptación + `ITSEncryptionExportComplianceCode` → build 3;
+  grupo externo de TestFlight + instrucciones para clientes.
+
 ## 2026-10-29 — Submit a App Store Connect programado + metadatos de tienda y cumplimiento de cifrado
 - **Objetivo:** subir el build 2 a App Store Connect y preparar la ficha de tienda.
 - **Hecho:** app creada en App Store Connect por el usuario (id `6828459921`, nombre

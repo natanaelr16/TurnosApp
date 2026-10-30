@@ -89,5 +89,7 @@ Marcar `[x]` al completar. Cada fase termina con `/verificar` en verde y `ESTADO
 - [x] App registrada en App Store Connect (id `6828459921`, nombre "TurnosApp" libre) + `ascAppId` en `eas.json`
 - [x] `eas submit` a App Store Connect: build 2 subido 2026-10-29 (submission 624d8d75; primer intento falló por error de servidor de Apple, reintento OK) → Apple lo procesa
 - [ ] Declaración de encriptación en ASC: "solo algoritmos estándar" (D-040) → código de cumplimiento → `app.json` → **build 3** (el 2 declaró flag `false`)
-- [ ] Metadatos obligatorios de ficha: versión, contacto, derechos, URL de política (publicar POLITICA_PRIVACIDAD.md), cuestionario privacidad, precio (Tier 1 paga), categoría, edades; assets promo y capturas ya generados (falta captura de Calendario)
-- [ ] Adjuntar build a la versión → TestFlight → revisión
+- [x] Metadatos obligatorios de ficha completados: versión 1.0, contacto, derechos, privacidad, precio, categoría, edades; assets promo + 4 capturas en 1320×2868 y 1179×2556 (incluida calendario). Pendiente solo URL pública de la política
+- [x] Build adjuntado a la versión vía ASC API → **versión 1.0 enviada a revisión (2026-10-29)** → resultado por correo
+- [ ] Beta externo para clientes: grupo externo + link público en TestFlight (requiere revisión beta) + instrucciones de migración con PDF de respaldo (D-041)
+- [ ] Post-lanzamiento: EAS Update (OTA para cambios JS) y CI/CD con GitHub Actions (pruebas + build por push) — propuestos, decisión pendiente

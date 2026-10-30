@@ -118,6 +118,11 @@ npx eas-cli build --platform ios --profile production   # build de tienda (requi
 ```
 
 Distribución: `eas.json` define perfiles `development`/`preview`/`production` (autoIncrement).
+`eas.json → submit.production.ios`: `ascAppId` 6828459921 + llave ASC API local
+(`~/Downloads/AuthKey_QX47VJDJBL.p8`, issuer 116e6061-…, team J2W4AY4LP6) →
+`npx eas-cli submit --platform ios --profile production --id <buildId> --non-interactive`.
+App Store Connect también operable vía API con JWT ES256 firmado con la misma llave
+(ej.: adjuntar build a la versión: `PATCH /v1/appStoreVersions/{id}/relationships/build`).
 Identidad: `com.natanaelr16.turnosapp` (iOS y Android, app.json); íconos en `assets/images/`
 (icon.png 1024, splash-icon.png, adaptativos Android). Política de privacidad: `docs/POLITICA_PRIVACIDAD.md`.
 

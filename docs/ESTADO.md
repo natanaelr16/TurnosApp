@@ -3,13 +3,13 @@
 > Memoria viva del proyecto. **Todo agente la lee al iniciar y la actualiza al terminar.**
 > Mantenerla corta (máx. ~60 líneas). El detalle histórico va en `BITACORA.md`.
 
-**Última actualización:** 2026-10-29 — **build 2 subido a App Store Connect** (Apple
-lo está procesando); app registrada (`6828459921`, versión 1.0 creada, es-MX);
-flag de encriptación corregido a `true` (D-040).
-**Fase actual:** Fase 4 — publicación en marcha (submit en vuelo → metadatos →
-declaración de encriptación → build 3 → TestFlight).
-**Git:** último commit `87c5fc1`. Sin commit: `app.json` (flag encriptación),
-`eas.json` (ascAppId), `assets/images/promo-*` y `assets/screenshots/`.
+**Última actualización:** 2026-10-29 — **versión 1.0 enviada a revisión de Apple**
+(build 2 adjuntado vía API); el usuario ya prueba la app oficial por TestFlight
+interno en su iPhone.
+**Fase actual:** Fase 4 — en revisión de App Store; pendientes: política en URL
+pública, declaración de encriptación, build 3, beta externo para clientes.
+**Git:** último commit `20eea9e`. Sin commit: `assets/screenshots/04-calendario.png`
+y `assets/screenshots/mediana/` (4 capturas 1179×2556).
 
 ## Qué existe hoy
 - Motor puro de turnos/nómina validado con planilla real (D-013); auditoría previa en BITACORA.
@@ -62,8 +62,9 @@ declaración de encriptación → build 3 → TestFlight).
   `eas.json` (development/preview/production + `ascAppId` 6828459921),
   `docs/POLITICA_PRIVACIDAD.md` lista para publicar.
 - Tienda: assets promocionales en las 5 dimensiones de Apple (`assets/images/promo-*`,
-  bandera de Colombia en esquina), 3 capturas de simulador 1320×2868
-  (`assets/screenshots/`); textos listos (subtítulo, descripción, promocional 168
+  bandera de Colombia en esquina), **4 capturas** (historial, liquidación,
+  bienvenida, calendario) en 1320×2868 y 1179×2556 (`assets/screenshots/` +
+  `mediana/`); textos listos (subtítulo, descripción, promocional 168
   car., keywords 99 car., copyright `© 2026 Natanaelr16`).
 
 ## Verificación al cerrar
@@ -74,31 +75,27 @@ declaración de encriptación → build 3 → TestFlight).
   (cuenta expo.dev del usuario vía GitHub). App probada en iPhone real con Expo Go.
 
 ## En curso / siguiente sesión
-1. **Build 2 subido a App Store Connect** (submission 624d8d75, v1.0.0 #2): Apple
-   lo procesa (~5-10 min, correo al usuario). Cuando aparezca en TestFlight →
-   adjuntarlo a la versión 1.0 (sección Build → "Selecciona un build").
-2. En App Store Connect (app `6828459921`), faltan obligatorios: seleccionar versión,
-   información de contacto, derechos de contenido, URL de política de privacidad,
-   cuestionario de privacidad ("no se recopilan datos"), franja de precio (paga,
-   el usuario quiere bajo costo — Tier 1 sugerido), categoría principal
-   (Productividad), clasificación por edades, y adjuntar el build a la versión.
+1. **Esperar revisión de Apple** (24-48 h típicas). Versión 1.0 enviada con build 2
+   adjuntado vía API (`relationships/build`); capturas mediana 1179×2556 subidas.
+   El usuario ya prueba la app oficial en su iPhone vía TestFlight interno.
+2. **Migrar datos Expo Go → app oficial** con PDF de respaldo (el usuario lo hace).
 3. **Declaración de encriptación (D-040):** responder en ASC "usa encriptación →
-   solo algoritmos estándar" (AES-256 de crypto-es, no del OS); Apple da código de
-   cumplimiento → añadir `ITSEncryptionExportComplianceCode` a `app.json` y compilar
-   **build 3** (el 2 tiene el flag en `false`; sirve para TestFlight interno, no
-   para revisión). Documento francés solo si se distribuye en Francia.
-4. Falta la captura del **Calendario** para la ficha (tomarla en el iPhone real,
-   1320×2868 o superior) y confirmar vista Mes con datos de octubre.
-5. `/revision-legal` recomendada: cambió el tope de básico/fracción según duración del
-   periodo en `payroll.ts` (D-036).
-6. Publicar `POLITICA_PRIVACIDAD.md` en URL pública (raw GitHub si el repo es
-   público, o gist) — **requisito obligatorio de la ficha**; enlazarla en Ajustes.
-7. Limpieza de caché de PDFs. (Permisos por horas descartados: no existen en su empresa.)
+   solo algoritmos estándar"; Apple da código → `ITSEncryptionExportComplianceCode`
+   en `app.json` y compilar **build 3** (el 2 tiene el flag en `false`; salió a
+   revisión así — si Apple pide algo, se corrige con build 3).
+4. Publicar `POLITICA_PRIVACIDAD.md` en URL pública — confirmar si el repo es
+   público (raw GitHub) o publicar en GitHub Pages; enlazarla en Ajustes.
+5. Beta externo para clientes: grupo externo en TestFlight + link público;
+   requiere revisión beta de Apple y respuestas de cumplimiento; los builds caducan
+   a 90 días, lo que obliga la migración a la App Store (D-041). Preparar
+   instrucciones cortas para clientes (instalar TestFlight, restaurar PDF).
+6. `/revision-legal` recomendada (D-036). Limpieza de caché de PDFs.
 
 ## Decisiones pendientes con el usuario / bloqueos
-- ~~App oficial: camino EAS~~ → **cuenta Apple Developer YA activada** (team
-  J2W4AY4LP6, Individual); credenciales creadas vía ASC API key; build en curso.
-  Pendiente: decidir precio (el usuario la quiere paga a bajo costo) y metadatos de tienda.
+- ~~App oficial~~ → **en revisión de App Store** (v1.0, build 2). EAS Update y
+  CI/CD con GitHub Actions propuestos (OTA para cambios JS sin revisión; builds
+  automáticos por push) — decisión del usuario pendiente, se activa post-lanzamiento.
+- Falta confirmar: ¿repo GitHub público o privado? (afecta URL soporte y política).
 - FSP/retención en $0 en octubre es por ley (IBC ~$5,9M < 4 SMMLV; base < 95 UVT);
   el usuario lo sabe; la app muestra los umbrales.
 - Confirmación visual de F6/F7 completos y de los tres PDFs.
