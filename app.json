@@ -74,6 +74,12 @@
         "projectId": "19461a6f-1c31-4db7-acf7-6bbfd98292aa"
       }
     },
-    "owner": "natanaelr16"
+    "owner": "natanaelr16",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/19461a6f-1c31-4db7-acf7-6bbfd98292aa"
+    }
   }
 }

@@ -93,4 +93,5 @@ Marcar `[x]` al completar. Cada fase termina con `/verificar` en verde y `ESTADO
 - [x] Build adjuntado a la versión vía ASC API → **versión 1.0 enviada a revisión (2026-10-29)** → Apple pidió información (cuenta nueva): respuesta redactada en `docs/RESPUESTA_APPLE.md`, falta video del usuario + pegarla en ASC/Notes y reenviar
 - [x] Corrección de PDFs (D-042): liquidación usa el mes completo para FSP/retención (bug de $0), nota de bonificación de la otra quincena, planilla de turnos cronológica y compacta
 - [ ] Beta externo para clientes: grupo externo + link público en TestFlight (requiere revisión beta) + instrucciones de migración con PDF de respaldo (D-041)
-- [ ] Post-lanzamiento: EAS Update (OTA para cambios JS) y CI/CD con GitHub Actions (pruebas + build por push) — propuestos, decisión pendiente
+- [x] EAS Update (OTA) configurado (D-043): canales por perfil, `runtimeVersion` appVersion; el build 3 sale ya con canal OTA
+- [ ] Post-lanzamiento: CI/CD con GitHub Actions (pruebas + `eas update`/build por push) — propuesto, decisión pendiente

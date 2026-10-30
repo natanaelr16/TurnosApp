@@ -5,13 +5,15 @@
 
 **Última actualización:** 2026-10-30 — **Apple respondió a la revisión pidiendo
 información** (cuenta nueva, historial limitado; no es rechazo por bugs). Respuesta
-ya redactada en `docs/RESPUESTA_APPLE.md`; falta el video del usuario. PDFs de
-turnos y liquidación corregidos (D-042) tras prueba en iPhone.
-**Fase actual:** Fase 4 — en revisión de App Store con solicitud de información
+ya redactada en `docs/RESPUESTA_APPLE.md` (**local, ignorada por git**); falta el
+video del usuario. PDFs corregidos (D-042, commit `0983a9b`). **EAS Update (OTA)
+configurado (D-043)**: el build 3 saldrá con canal OTA — los cambios JS llegarán
+sin compilar (`eas update --channel production`).
+**Fase actual:** Fase 4 — revisión de App Store con solicitud de información
 pendiente de responder; además: política en URL pública, declaración de
-encriptación, build 3, beta externo.
-**Git:** último commit `d792a8a`. Sin commit: `src/lib/period-report.ts`,
-`src/lib/__tests__/period-report-test.ts` (corrección PDFs), `docs/RESPUESTA_APPLE.md`.
+encriptación, build 3 (incluye fix de PDFs + OTA), beta externo.
+**Git:** último commit `0983a9b`. Sin commit: `app.json`, `eas.json`,
+`package.json`, `package-lock.json` (config EAS Update) + docs de memoria.
 
 ## Qué existe hoy
 - Motor puro de turnos/nómina validado con planilla real (D-013); auditoría en BITACORA.
@@ -52,7 +54,8 @@ encriptación, build 3, beta externo.
    bonificación, planilla compacta cronológica).
 3. Migrar datos Expo Go → app oficial con PDF de respaldo (el usuario lo hace).
 4. Declaración de encriptación (D-040): "solo algoritmos estándar" → código →
-   `ITSEncryptionExportComplianceCode` en `app.json` → **build 3**.
+   `ITSEncryptionExportComplianceCode` en `app.json` → **build 3** (ya incluye fix
+   de PDFs D-042 y canal OTA D-043).
 5. Publicar `POLITICA_PRIVACIDAD.md` en URL pública (¿repo público o GitHub Pages?)
    y enlazarla en Ajustes.
 6. Beta externo para clientes (D-041): grupo TestFlight + link público +
@@ -61,7 +64,7 @@ encriptación, build 3, beta externo.
 
 ## Decisiones pendientes con el usuario / bloqueos
 - Respuesta a App Review: solo falta el video (el usuario lo graba).
-- EAS Update + CI/CD con GitHub Actions: propuestos, decisión post-lanzamiento.
+- EAS Update configurado (D-043); CI/CD con GitHub Actions: propuesto, decisión pendiente.
 - Confirmar: ¿repo GitHub público o privado? (URL soporte y política).
 - Restaurar reemplaza todos los datos (sin mezclar): confirmar que así lo quiere.
 

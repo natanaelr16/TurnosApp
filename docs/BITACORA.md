@@ -5,6 +5,25 @@ Formato: fecha, objetivo, qué se hizo, verificación ejecutada, pendientes.
 
 ---
 
+## 2026-10-30 — EAS Update (OTA) configurado + prueba en simulador
+- **Objetivo:** probar la app en simulador y resolver cómo llevar cambios a la app
+  compilada sin compilar de nuevo.
+- **Hecho:** simulador "TurnosApp iPhone 18 Pro Max" arrancado con Metro :8083 y
+  Expo Go (Xcode 27 ya no trae Simulator.app como app aparte: el simulador arranca
+  con `simctl boot` y la UI se ve por DeviceHub; capturas con `simctl io
+  screenshot`). **EAS Update configurado (D-043):** `eas update:configure` instaló
+  `expo-updates ~58.0.19`, puso `updates.url` y `runtimeVersion: appVersion` en
+  `app.json` y canales por perfil en `eas.json`; se limpió una duplicación que el
+  comando metió en `privacyManifests`. El build 2 (en revisión) no tiene canal OTA:
+  las correcciones de PDF (D-042) llegarán con el build 3, que ya sale con OTA.
+  Regla: cambios solo-JS → `eas update --channel production`; cambios nativos →
+  build.
+- **Verificación:** `npx tsc --noEmit` ✓ · `npx expo config --type public` muestra
+  `updates.url` y `runtimeVersion` resueltos; app cargando en simulador con datos.
+- **Pendientes:** igual que la entrada anterior (video → responder a Apple, build 3
+  con flag de encriptación + OTA, URL política, beta externo). GitHub Actions CI/CD
+  sigue como decisión pendiente.
+
 ## 2026-10-30 — Apple pidió información (respuesta lista) + corrección de PDFs
 - **Objetivo:** responder la solicitud de información de App Review y corregir dos
   errores de PDF reportados por el usuario en su iPhone.
